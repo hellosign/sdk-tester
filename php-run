@@ -65,7 +65,7 @@ docker container run -it --rm \
   -e SERVER="${SERVER}" \
   -v "${FILE}":"/data.json" \
   -v "${DIR}/test_assets":"/file_uploads" \
-  -v "${DIR}/data-php/request.php":"/request.php" \
-  -v "${DIR}/data-php/ApiRequester":"/ApiRequester" \
+  -v "${DIR}/data_php/request.php":"/request.php" \
+  -v "${DIR}/data_php/ApiRequester":"/ApiRequester" \
   docker.io/jtreminio/hellosign-php-sdk \
   php /request.php

@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+set -e
+DIR=$(cd `dirname $0` && pwd)
+
+function show_help() {
+    cat << EOF
+Uses the HelloSign PHP SDK to make a request to the HelloSign API
+-a          Auth type, one of "apikey" or "oauth"
+-k          Auth key.
+            If -a=apikey, pass API Key.
+            If -a=oauth, pass OAuth Bearer Token.
+-s          The server to use, must be like "api.hellosign.com"
+-f          A valid JSON file containing all request data
+-h          display this help and exit
+
+Example: ./php-run -a apikey \\
+               -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
+               -s "api.hellosign.com" \\
+               -f ./request.json
+EOF
+}
+
+while getopts ":a:k:s:e::f:h" opt; do
+    case $opt in
+        a) AUTH_TYPE="$OPTARG"
+        ;;
+        k) AUTH_KEY="$OPTARG"
+        ;;
+        s) SERVER="$OPTARG"
+        ;;
+        f) FILE="$OPTARG"
+        ;;
+        h) show_help && exit 0
+        ;;
+        \?) echo "Invalid option -$OPTARG" >&2
+        ;;
+    esac
+done
+
+if [[ "${AUTH_TYPE}" != "apikey" &&
+      "${AUTH_TYPE}" != "oauth"
+   ]]; then
+    printf "Invalid build (-a) value: ${AUTH_TYPE}\n\n"
+    show_help
+    exit 1
+fi
+
+if [[ ! -f "$FILE" ]]; then
+    printf "Invalid build (-f) value: ${FILE}\n"
+    printf "Make sure file exists and is accessible\n\n"
+    show_help
+    exit 1
+fi
+
+if [[ -z "${AUTH_KEY}" ]] || [[ -z "${SERVER}" ]]; then
+    printf "Missing argument(s).\n\n"
+    show_help
+    exit 1
+fi
+
+docker container run -it --rm \
+  -e AUTH_TYPE="${AUTH_TYPE}" \
+  -e AUTH_KEY="${AUTH_KEY}" \
+  -e SERVER="${SERVER}" \
+  -v "${FILE}":"/data.json" \
+  -v "${DIR}/test_assets":"/file_uploads" \
+  -v "${DIR}/data-php/request.php":"/request.php" \
+  -v "${DIR}/data-php/ApiRequester":"/ApiRequester" \
+  docker.io/jtreminio/hellosign-php-sdk \
+  php /request.php

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -e
+DIR=$(cd `dirname $0` && pwd)
+SDK_NAME="Python"
+SDK_RUN="python-run"
+
+. "${DIR}/bin/base-run"
+
+if [[ ! -z "${JSON_FILE}" ]]; then
+    docker container run -it --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e SERVER="${SERVER}" \
+        -v "${JSON_FILE}":"/data.json" \
+        -v "${DIR}/test_assets":"/file_uploads" \
+        -v "${DIR}/data_python/requester.py":"/requester.py" \
+        docker.io/jtreminio/hellosign-python-sdk \
+        python /requester.py
+fi
+
+if [[ ! -z "${JSON_STRING}" ]]; then
+    docker container run -it --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e SERVER="${SERVER}" \
+        -e JSON_STRING="${JSON_STRING}" \
+        -v "${DIR}/test_assets":"/file_uploads" \
+        -v "${DIR}/data_python/requester.py":"/requester.py" \
+        docker.io/jtreminio/hellosign-python-sdk \
+        python /requester.py
+fi

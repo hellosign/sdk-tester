@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+docker image build \
+  --no-cache \
+  -t jtreminio/hellosign-python-sdk:latest \
+  -f data_python/Dockerfile \
+  ./data_python
+
+docker container run -it --rm \
+  docker.io/jtreminio/hellosign-python-sdk \
+    python -m unittest discover tests

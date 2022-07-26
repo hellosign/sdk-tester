@@ -15,7 +15,6 @@ if [[ ! -z "${JSON_FILE}" ]]; then
         -v "${JSON_FILE}":"/data.json" \
         -v "${DIR}/test_assets":"/file_uploads" \
         -v "${DIR}/data_php/requester.php":"/requester.php" \
-        -v "${DIR}/data_php/ApiRequester":"/ApiRequester" \
         docker.io/jtreminio/hellosign-php-sdk \
         php /requester.php
 fi
@@ -28,7 +27,6 @@ if [[ ! -z "${JSON_STRING}" ]]; then
         -e JSON_STRING="${JSON_STRING}" \
         -v "${DIR}/test_assets":"/file_uploads" \
         -v "${DIR}/data_php/requester.php":"/requester.php" \
-        -v "${DIR}/data_php/ApiRequester":"/ApiRequester" \
         docker.io/jtreminio/hellosign-php-sdk \
         php /requester.php
 fi

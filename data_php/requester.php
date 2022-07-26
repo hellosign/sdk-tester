@@ -6,14 +6,6 @@ error_reporting(E_ALL);
 
 require_once '/app/vendor/autoload.php';
 
-spl_autoload_register(function (string $class) {
-    if (!file_exists("/ApiRequester/{$class}.php")) {
-        return;
-    }
-
-    require_once "/ApiRequester/{$class}.php";
-});
-
 class Requester
 {
     private const LOCAL_FILE = '/data.json';
@@ -47,25 +39,23 @@ class Requester
 
     public function run()
     {
-        $apiRequester = $this->classFromOperationId();
-
         try {
-            $response = $apiRequester->run(
-                $this->parameters,
-                $this->data,
-                $this->files,
-            );
+            $response = $this->callFromOperationId();
 
             echo json_encode([
                 'body'        => $response[0],
                 'status_code' => $response[1],
-                'headers'     => $response[2],
+                'headers'     => $this->getResponseHeaders(
+                    $response[2]
+                ),
             ], JSON_PRETTY_PRINT);
         } catch (HelloSignSDK\ApiException $e) {
             echo json_encode([
                 'body'        => json_decode($e->getResponseBody()),
                 'status_code' => json_decode($e->getCode()),
-                'headers'     => $e->getResponseHeaders(),
+                'headers'     => $this->getResponseHeaders(
+                    $e->getResponseHeaders()
+                ),
             ], JSON_PRETTY_PRINT);
         }
     }
@@ -110,110 +100,624 @@ class Requester
         $this->parameters = $json['parameters'] ?? [];
     }
 
-    private function classFromOperationId(): ApiRequesterI
+    private function callFromOperationId(): array
     {
-        $config = $this->getConfig();
-
-        switch ($this->operationId) {
-            case 'accountCreate':
-                return new AccountCreate($config);
-            case 'accountGet':
-                return new AccountGet($config);
-            case 'accountUpdate':
-                return new AccountUpdate($config);
-            case 'accountVerify':
-                return new AccountVerify($config);
-            case 'apiAppCreate':
-                return new ApiAppCreate($config);
-            case 'apiAppGet':
-                return new ApiAppGet($config);
-            case 'apiAppUpdate':
-                return new ApiAppUpdate($config);
-            case 'apiAppDelete':
-                return new ApiAppDelete($config);
-            case 'apiAppList':
-                return new ApiAppList($config);
-            case 'bulkSendJobGet':
-                return new BulkSendJobGet($config);
-            case 'bulkSendJobList':
-                return new BulkSendJobList($config);
-            case 'embeddedEditUrl':
-                return new EmbeddedEditUrl($config);
-            case 'embeddedSignUrl':
-                return new EmbeddedSignUrl($config);
-            case 'oauthTokenGenerate':
-                return new OauthTokenGenerate($config);
-            case 'oauthTokenRefresh':
-                return new OauthTokenRefresh($config);
-            case 'reportCreate':
-                return new ReportCreate($config);
-            case 'signatureRequestBulkCreateEmbeddedWithTemplate':
-                return new SignatureRequestBulkCreateEmbeddedWithTemplate($config);
-            case 'signatureRequestBulkSendWithTemplate':
-                return new SignatureRequestBulkSendWithTemplate($config);
-            case 'signatureRequestCancel':
-                return new SignatureRequestCancel($config);
-            case 'signatureRequestCreateEmbedded':
-                return new SignatureRequestCreateEmbedded($config);
-            case 'signatureRequestCreateEmbeddedWithTemplate':
-                return new SignatureRequestCreateEmbeddedWithTemplate($config);
-            case 'signatureRequestFiles':
-                return new SignatureRequestFiles($config);
-            case 'signatureRequestGet':
-                return new SignatureRequestGet($config);
-            case 'signatureRequestList':
-                return new SignatureRequestList($config);
-            case 'signatureRequestReleaseHold':
-                return new SignatureRequestReleaseHold($config);
-            case 'signatureRequestRemind':
-                return new SignatureRequestRemind($config);
-            case 'signatureRequestRemove':
-                return new SignatureRequestRemove($config);
-            case 'signatureRequestSend':
-                return new SignatureRequestSend($config);
-            case 'signatureRequestSendWithTemplate':
-                return new SignatureRequestSendWithTemplate($config);
-            case 'signatureRequestUpdate':
-                return new SignatureRequestUpdate($config);
-            case 'teamAddMember':
-                return new TeamAddMember($config);
-            case 'teamCreate':
-                return new TeamCreate($config);
-            case 'teamDelete':
-                return new TeamDelete($config);
-            case 'teamGet':
-                return new TeamGet($config);
-            case 'teamUpdate':
-                return new TeamUpdate($config);
-            case 'teamRemoveMember':
-                return new TeamRemoveMember($config);
-            case 'templateAddUser':
-                return new TemplateAddUser($config);
-            case 'templateCreateEmbeddedDraft':
-                return new TemplateCreateEmbeddedDraft($config);
-            case 'templateDelete':
-                return new TemplateDelete($config);
-            case 'templateFiles':
-                return new TemplateFiles($config);
-            case 'templateGet':
-                return new TemplateGet($config);
-            case 'templateList':
-                return new TemplateList($config);
-            case 'templateRemoveUser':
-                return new TemplateRemoveUser($config);
-            case 'templateUpdateFiles':
-                return new TemplateUpdateFiles($config);
-            case 'unclaimedDraftCreate':
-                return new UnclaimedDraftCreate($config);
-            case 'unclaimedDraftCreateEmbedded':
-                return new UnclaimedDraftCreateEmbedded($config);
-            case 'unclaimedDraftCreateEmbeddedWithTemplate':
-                return new UnclaimedDraftCreateEmbeddedWithTemplate($config);
-            case 'unclaimedDraftEditAndResend':
-                return new UnclaimedDraftEditAndResend($config);
-            default:
-                throw new Exception("Invalid operationId: {$this->operationId}");
+        if ($response = $this->accountApi()) {
+            return $response;
         }
+        if ($response = $this->apiAppApi()) {
+            return $response;
+        }
+        if ($response = $this->bulkSendJobApi()) {
+            return $response;
+        }
+        if ($response = $this->embeddedApi()) {
+            return $response;
+        }
+        if ($response = $this->oauthApi()) {
+            return $response;
+        }
+        if ($response = $this->reportApi()) {
+            return $response;
+        }
+        if ($response = $this->signatureRequestApi()) {
+            return $response;
+        }
+        if ($response = $this->teamApi()) {
+            return $response;
+        }
+        if ($response = $this->templateApi()) {
+            return $response;
+        }
+        if ($response = $this->unclaimedDraftApi()) {
+            return $response;
+        }
+
+        throw new Exception("Invalid operationId: {$this->operationId}");
+    }
+
+    private function getResponseHeaders(array $headers): array
+    {
+        $formatted = [];
+
+        foreach ($headers as $k => $v) {
+            $formatted[$k] = array_pop($v);
+        }
+
+        return $formatted;
+    }
+
+    private function getFile(string $name): ?SplFileObject
+    {
+        if (!empty($this->files[$name])) {
+            return new SplFileObject(
+                "/file_uploads/{$this->files[$name]}",
+            );
+        }
+
+        return null;
+    }
+
+    private function getFiles(string $name): array
+    {
+        $files = [];
+
+        foreach ($this->files[$name] ?? [] as $file) {
+            $files[] = new SplFileObject(
+                "/file_uploads/{$file}",
+            );
+        }
+
+        return $files;
+    }
+
+    private function accountApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\AccountApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'accountCreate') {
+            $obj = HelloSignSDK\Model\AccountCreateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->accountCreateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'accountGet') {
+            return $api->accountGetWithHttpInfo(
+                $this->parameters['account_id'] ?? null,
+            );
+        }
+
+        if ($this->operationId === 'accountUpdate') {
+            $obj = HelloSignSDK\Model\AccountUpdateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->accountUpdateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'accountVerify') {
+            $obj = HelloSignSDK\Model\AccountVerifyRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->accountVerifyWithHttpInfo(
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function apiAppApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\ApiAppApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'apiAppCreate') {
+            $obj = HelloSignSDK\Model\ApiAppCreateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setCustomLogoFile($this->getFile('custom_logo_file'));
+
+            return $api->apiAppCreateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'apiAppDelete') {
+            return $api->apiAppDeleteWithHttpInfo(
+                $this->parameters['client_id'],
+            );
+        }
+
+        if ($this->operationId === 'apiAppGet') {
+            return $api->apiAppGetWithHttpInfo(
+                $this->parameters['client_id'],
+            );
+        }
+
+        if ($this->operationId === 'apiAppList') {
+            return $api->apiAppListWithHttpInfo(
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+            );
+        }
+
+        if ($this->operationId === 'apiAppUpdate') {
+            $obj = HelloSignSDK\Model\ApiAppUpdateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setCustomLogoFile($this->getFile('custom_logo_file'));
+
+            return $api->apiAppUpdateWithHttpInfo(
+                $this->parameters['client_id'],
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function bulkSendJobApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\BulkSendJobApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'bulkSendJobGet') {
+            return $api->bulkSendJobGetWithHttpInfo(
+                $this->parameters['bulk_send_job_id'],
+            );
+        }
+
+        if ($this->operationId === 'bulkSendJobList') {
+            return $api->bulkSendJobListWithHttpInfo(
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+            );
+        }
+
+        return null;
+    }
+
+    private function embeddedApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\EmbeddedApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'embeddedEditUrl') {
+            $obj = HelloSignSDK\Model\EmbeddedEditUrlRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->embeddedEditUrlWithHttpInfo(
+                $this->parameters['template_id'],
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'embeddedSignUrl') {
+            return $api->embeddedSignUrlWithHttpInfo(
+                $this->parameters['signature_id'],
+            );
+        }
+
+        return null;
+    }
+
+    private function oauthApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\OAuthApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'oauthTokenGenerate') {
+            $obj = HelloSignSDK\Model\OAuthTokenGenerateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->oauthTokenGenerateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'oauthTokenRefresh') {
+            $obj = HelloSignSDK\Model\OAuthTokenRefreshRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->oauthTokenRefreshWithHttpInfo(
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function reportApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\ReportApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'reportCreate') {
+            $obj = HelloSignSDK\Model\ReportCreateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->reportCreateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function signatureRequestApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\SignatureRequestApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'signatureRequestBulkCreateEmbeddedWithTemplate') {
+            $obj = HelloSignSDK\Model\SignatureRequestBulkCreateEmbeddedWithTemplateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setSignerFile($this->getFile('signer_file'));
+
+            return $api->signatureRequestBulkCreateEmbeddedWithTemplateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestBulkSendWithTemplate') {
+            $obj = HelloSignSDK\Model\SignatureRequestBulkSendWithTemplateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setSignerFile($this->getFile('signer_file'));
+
+            return $api->signatureRequestBulkSendWithTemplateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestCancel') {
+            return $api->signatureRequestCancelWithHttpInfo(
+                $this->parameters['signature_request_id'],
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestCreateEmbedded') {
+            $obj = HelloSignSDK\Model\SignatureRequestCreateEmbeddedRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->signatureRequestCreateEmbeddedWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestCreateEmbeddedWithTemplate') {
+            $obj = HelloSignSDK\Model\SignatureRequestCreateEmbeddedWithTemplateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->signatureRequestCreateEmbeddedWithTemplateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestFiles') {
+            return $api->signatureRequestBulkSendWithTemplateWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $this->parameters['file_type'] ?? 'pdf',
+                $this->parameters['get_url'] ?? false,
+                $this->parameters['get_data_uri'] ?? false,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestGetWithHttpInfo') {
+            return $api->signatureRequestBulkSendWithTemplateWithHttpInfo(
+                $this->parameters['signature_request_id'],
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestList') {
+            return $api->signatureRequestListWithHttpInfo(
+                $this->parameters['account_id'] ?? null,
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+                $this->parameters['query'] ?? null,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestReleaseHold') {
+            return $api->signatureRequestReleaseHoldWithHttpInfo(
+                $this->parameters['signature_request_id'],
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestRemind') {
+            $obj = HelloSignSDK\Model\SignatureRequestRemindRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->signatureRequestRemindWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestRemove') {
+            return $api->signatureRequestRemoveWithHttpInfo(
+                $this->parameters['signature_request_id'],
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestSend') {
+            $obj = HelloSignSDK\Model\SignatureRequestSendRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->signatureRequestSendWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestSendWithTemplate') {
+            $obj = HelloSignSDK\Model\SignatureRequestSendWithTemplateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->signatureRequestSendWithTemplateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestUpdate') {
+            $obj = HelloSignSDK\Model\SignatureRequestUpdateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->signatureRequestUpdateWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function teamApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\TeamApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'teamAddMember') {
+            $obj = HelloSignSDK\Model\TeamAddMemberRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->teamAddMemberWithHttpInfo(
+                $obj,
+                $this->parameters['team_id'] ?? null,
+            );
+        }
+
+        if ($this->operationId === 'teamCreate') {
+            $obj = HelloSignSDK\Model\TeamCreateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->teamCreateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'teamDelete') {
+            return $api->teamDeleteWithHttpInfo();
+        }
+
+        if ($this->operationId === 'teamGet') {
+            return $api->teamGetWithHttpInfo();
+        }
+
+        if ($this->operationId === 'teamRemoveMember') {
+            $obj = HelloSignSDK\Model\TeamRemoveMemberRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->teamRemoveMemberWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'teamUpdate') {
+            $obj = HelloSignSDK\Model\TeamUpdateRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->teamUpdateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function templateApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\TemplateApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'templateAddUser') {
+            $obj = HelloSignSDK\Model\TemplateAddUserRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->templateAddUserWithHttpInfo(
+                $this->parameters['template_id'],
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'templateCreateEmbeddedDraft') {
+            $obj = HelloSignSDK\Model\TemplateCreateEmbeddedDraftRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->templateCreateEmbeddedDraftWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'templateDelete') {
+            return $api->templateDeleteWithHttpInfo(
+                $this->parameters['template_id'],
+            );
+        }
+
+        if ($this->operationId === 'templateFiles') {
+            return $api->templateFilesWithHttpInfo(
+                $this->parameters['template_id'],
+                $this->parameters['file_type'] ?? null,
+                $this->parameters['get_url'] ?? false,
+                $this->parameters['get_data_uri'] ?? false,
+            );
+        }
+
+        if ($this->operationId === 'templateGet') {
+            return $api->templateGetWithHttpInfo(
+                $this->parameters['template_id'],
+            );
+        }
+
+        if ($this->operationId === 'templateList') {
+            return $api->templateListWithHttpInfo(
+                $this->parameters['account_id'] ?? null,
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+                $this->parameters['query'] ?? null,
+            );
+        }
+
+        if ($this->operationId === 'templateRemoveUser') {
+            $obj = HelloSignSDK\Model\TemplateRemoveUserRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->templateRemoveUserWithHttpInfo(
+                $this->parameters['template_id'],
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'templateUpdateFiles') {
+            $obj = HelloSignSDK\Model\TemplateUpdateFilesRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->templateUpdateFilesWithHttpInfo(
+                $this->parameters['template_id'],
+                $obj,
+            );
+        }
+
+        return null;
+    }
+
+    private function unclaimedDraftApi(): ?array
+    {
+        $api = new HelloSignSDK\Api\UnclaimedDraftApi(
+            $this->getConfig(),
+            new GuzzleHttp\Client(),
+        );
+
+        if ($this->operationId === 'unclaimedDraftCreate') {
+            $obj = HelloSignSDK\Model\UnclaimedDraftCreateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->unclaimedDraftCreateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'unclaimedDraftCreateEmbedded') {
+            $obj = HelloSignSDK\Model\UnclaimedDraftCreateEmbeddedRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->unclaimedDraftCreateEmbeddedWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'unclaimedDraftCreateEmbeddedWithTemplate') {
+            $obj = HelloSignSDK\Model\UnclaimedDraftCreateEmbeddedWithTemplateRequest::fromArray(
+                $this->data,
+            );
+
+            $obj->setFile($this->getFiles('file'));
+
+            return $api->unclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(
+                $obj,
+            );
+        }
+
+        if ($this->operationId === 'unclaimedDraftEditAndResend') {
+            $obj = HelloSignSDK\Model\UnclaimedDraftEditAndResendRequest::fromArray(
+                $this->data,
+            );
+
+            return $api->unclaimedDraftEditAndResendWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
+            );
+        }
+
+        return null;
     }
 }
 

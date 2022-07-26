@@ -2,10 +2,12 @@
 
 set -e
 DIR=$(cd `dirname $0` && pwd)
+SDK_NAME="PHP"
+SDK_RUN="php-run"
 
 function show_help() {
     cat << EOF
-Uses the HelloSign PHP SDK to make a request to the HelloSign API
+Uses the HelloSign OpenAPI ${SDK_NAME} SDK to make a request to the HelloSign API
 -a          Auth type, one of "apikey" or "oauth"
 -k          Auth key.
             If -a=apikey, pass API Key.
@@ -15,10 +17,19 @@ Uses the HelloSign PHP SDK to make a request to the HelloSign API
 -j          A base64-encoded JSON string. Replaces -f
 -h          display this help and exit
 
-Example: ./php-run -a apikey \\
-               -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
-               -s "api.hellosign.com" \\
-               -f $PWD/request-data.json
+Example if using a JSON file:
+    ./${SDK_RUN} \\
+        -a apikey \\
+        -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
+        -s "api.qa-hellosign.com" \\
+        -f "\$PWD/test_fixtures/accountCreate-example_01.json"
+
+Example if using a base64-encoded JSON string:
+    ./${SDK_RUN} \\
+        -a apikey \\
+        -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
+        -s "api.qa-hellosign.com" \\
+        -j "ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
 EOF
 }
 
@@ -40,6 +51,11 @@ while getopts ":a:k:s:e::f:j:h" opt; do
         ;;
     esac
 done
+
+if [[ -z "$1" ]]; then
+    show_help
+    exit 1
+fi
 
 if [[ "${AUTH_TYPE}" != "apikey" &&
       "${AUTH_TYPE}" != "oauth"

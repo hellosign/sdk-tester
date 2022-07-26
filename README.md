@@ -390,19 +390,19 @@ The following are some examples with all required flags.
 ## Example Using Local JSON File
 
 ```bash
-./php-run \\
-    -a apikey \\
-    -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
-    -s "api.qa-hellosign.com" \\
+./php-run \
+    -a apikey \
+    -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
+    -s "api.qa-hellosign.com" \
     -f "\$PWD/test_fixtures/accountCreate-example_01.json"
 ```
 
 ## Example Using Base64-Encoded JSON String
 
 ```bash
-./php-run \\
-    -a apikey \\
-    -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
-    -s "api.qa-hellosign.com" \\
+./php-run \
+    -a apikey \
+    -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
+    -s "api.qa-hellosign.com" \
     -j "ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
 ```

@@ -16,6 +16,12 @@ For PHP SDK:
 ./php-build
 ```
 
+For Python SDK:
+
+```bash
+./python-build
+```
+
 ## Run Tool
 
 Each SDK will have its own run script. These are appended with `-run`.

@@ -14,5 +14,3 @@ RUN mkdir /file_uploads && \
 WORKDIR /app
 VOLUME /file_uploads
 VOLUME /app
-
-COPY ./request.php /request.php

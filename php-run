@@ -12,16 +12,17 @@ Uses the HelloSign PHP SDK to make a request to the HelloSign API
             If -a=oauth, pass OAuth Bearer Token.
 -s          The server to use, must be like "api.hellosign.com"
 -f          A valid JSON file containing all request data
+-j          A base64-encoded JSON string. Replaces -f
 -h          display this help and exit
 
 Example: ./php-run -a apikey \\
                -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
                -s "api.hellosign.com" \\
-               -f ./request.json
+               -f $PWD/request-data.json
 EOF
 }
 
-while getopts ":a:k:s:e::f:h" opt; do
+while getopts ":a:k:s:e::f:j:h" opt; do
     case $opt in
         a) AUTH_TYPE="$OPTARG"
         ;;
@@ -29,7 +30,9 @@ while getopts ":a:k:s:e::f:h" opt; do
         ;;
         s) SERVER="$OPTARG"
         ;;
-        f) FILE="$OPTARG"
+        f) JSON_FILE="$OPTARG"
+        ;;
+        j) JSON_STRING="$OPTARG"
         ;;
         h) show_help && exit 0
         ;;
@@ -41,14 +44,20 @@ done
 if [[ "${AUTH_TYPE}" != "apikey" &&
       "${AUTH_TYPE}" != "oauth"
    ]]; then
-    printf "Invalid build (-a) value: ${AUTH_TYPE}\n\n"
+    printf "Invalid auth type (-a) value: ${AUTH_TYPE}\n\n"
     show_help
     exit 1
 fi
 
-if [[ ! -f "$FILE" ]]; then
-    printf "Invalid build (-f) value: ${FILE}\n"
+if [[ ! -z "${JSON_FILE}" ]] && [[ ! -f "${JSON_FILE}" ]]; then
+    printf "Invalid file (-f) value: ${JSON_FILE}\n"
     printf "Make sure file exists and is accessible\n\n"
+    show_help
+    exit 1
+fi
+
+if [[ -z "${JSON_FILE}" ]] && [[ -z "${JSON_STRING}" ]]; then
+    printf "You must specify either a JSON file (-f) or a base64-encoded JSON string (-j)\n\n"
     show_help
     exit 1
 fi
@@ -59,13 +68,28 @@ if [[ -z "${AUTH_KEY}" ]] || [[ -z "${SERVER}" ]]; then
     exit 1
 fi
 
-docker container run -it --rm \
-  -e AUTH_TYPE="${AUTH_TYPE}" \
-  -e AUTH_KEY="${AUTH_KEY}" \
-  -e SERVER="${SERVER}" \
-  -v "${FILE}":"/data.json" \
-  -v "${DIR}/test_assets":"/file_uploads" \
-  -v "${DIR}/data_php/request.php":"/request.php" \
-  -v "${DIR}/data_php/ApiRequester":"/ApiRequester" \
-  docker.io/jtreminio/hellosign-php-sdk \
-  php /request.php
+if [[ ! -z "${JSON_FILE}" ]]; then
+    docker container run -it --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e SERVER="${SERVER}" \
+        -v "${JSON_FILE}":"/data.json" \
+        -v "${DIR}/test_assets":"/file_uploads" \
+        -v "${DIR}/data_php/requester.php":"/requester.php" \
+        -v "${DIR}/data_php/ApiRequester":"/ApiRequester" \
+        docker.io/jtreminio/hellosign-php-sdk \
+        php /requester.php
+fi
+
+if [[ ! -z "${JSON_STRING}" ]]; then
+    docker container run -it --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e SERVER="${SERVER}" \
+        -e JSON_STRING="${JSON_STRING}" \
+        -v "${DIR}/test_assets":"/file_uploads" \
+        -v "${DIR}/data_php/requester.php":"/requester.php" \
+        -v "${DIR}/data_php/ApiRequester":"/ApiRequester" \
+        docker.io/jtreminio/hellosign-php-sdk \
+        php /requester.php
+fi

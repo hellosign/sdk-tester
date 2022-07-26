@@ -267,57 +267,23 @@ This is an example of a _successful_ API response:
     },
     "status_code": 200,
     "headers": {
-        "Date": [
-            "Tue, 26 Jul 2022 15:16:17 GMT"
-        ],
-        "Server": [
-            "Apache"
-        ],
-        "X-Powered-By": [
-            "PHP\/7.4.28"
-        ],
-        "X-Robots-Tag": [
-            "noindex"
-        ],
-        "X-Ratelimit-Limit": [
-            "10000"
-        ],
-        "X-Ratelimit-Limit-Remaining": [
-            "9999"
-        ],
-        "X-Ratelimit-Reset": [
-            "1658848577"
-        ],
-        "Access-Control-Allow-Origin": [
-            "*"
-        ],
-        "Access-Control-Allow-Headers": [
-            "Authorization, Origin, X-Requested-With, Content-Type, Accept"
-        ],
-        "Access-Control-Allow-Methods": [
-            "GET, POST, OPTIONS"
-        ],
-        "User-Agent": [
-            "HelloSign API"
-        ],
-        "Vary": [
-            "Accept-Encoding"
-        ],
-        "Strict-Transport-Security": [
-            "max-age=15768000"
-        ],
-        "P3P": [
-            "CP=\"NOP3PPOLICY\""
-        ],
-        "Content-Length": [
-            "360"
-        ],
-        "Connection": [
-            "close"
-        ],
-        "Content-Type": [
-            "application\/json"
-        ]
+        "Date": "Tue, 26 Jul 2022 15:16:17 GMT",
+        "Server": "Apache",
+        "X-Powered-By": "PHP\/7.4.28",
+        "X-Robots-Tag": "noindex",
+        "X-Ratelimit-Limit": "10000",
+        "X-Ratelimit-Limit-Remaining": "9999",
+        "X-Ratelimit-Reset": "1658848577",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "User-Agent": "HelloSign API",
+        "Vary": "Accept-Encoding",
+        "Strict-Transport-Security": "max-age=15768000",
+        "P3P": "CP=\"NOP3PPOLICY\"",
+        "Content-Length": "360",
+        "Connection": "close",
+        "Content-Type": "application\/json"
     }
 }
 ```
@@ -336,49 +302,19 @@ This is an example of a _unsuccessful_ API response:
     },
     "status_code": 401,
     "headers": {
-        "Date": [
-            "Tue, 26 Jul 2022 15:23:38 GMT"
-        ],
-        "Content-Type": [
-            "application\/json"
-        ],
-        "Content-Length": [
-            "74"
-        ],
-        "Connection": [
-            "keep-alive"
-        ],
-        "Set-Cookie": [
-            "AWSALB=7CowdCt7Y5lVp25TrqMT+0BeKQMsDdbC3ktQ59Y98GwqZbEPEGrTXvJxgjS+f7GBEZptYRPG+QilEOYFi6INEpu+WZl+LmW09Uv7BxClwmQNEwsxk688vIl2NSrV; Expires=Tue, 02 Aug 2022 15:23:38 GMT; Path=\/",
-            "AWSALBCORS=7CowdCt7Y5lVp25TrqMT+0BeKQMsDdbC3ktQ59Y98GwqZbEPEGrTXvJxgjS+f7GBEZptYRPG+QilEOYFi6INEpu+WZl+LmW09Uv7BxClwmQNEwsxk688vIl2NSrV; Expires=Tue, 02 Aug 2022 15:23:38 GMT; Path=\/; SameSite=None; Secure"
-        ],
-        "Server": [
-            "Apache"
-        ],
-        "Strict-Transport-Security": [
-            "max-age=31536000"
-        ],
-        "Vary": [
-            "Origin"
-        ],
-        "X-Robots-Tag": [
-            "noindex"
-        ],
-        "Access-Control-Allow-Origin": [
-            "*"
-        ],
-        "Access-Control-Allow-Headers": [
-            "Authorization, Origin, X-Requested-With, Content-Type, Accept, Request-URL, Referrer-Policy, Referer, Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-Fetch-Site, User-Agent, X-User-Agent"
-        ],
-        "Access-Control-Allow-Methods": [
-            "GET, POST, OPTIONS, PUT, DELETE"
-        ],
-        "User-Agent": [
-            "HelloSign API"
-        ],
-        "P3P": [
-            "CP=\"NOP3PPOLICY\""
-        ]
+        "Date": "Tue, 26 Jul 2022 15:23:38 GMT",
+        "Content-Type": "application\/json",
+        "Content-Length": "74",
+        "Connection": "keep-alive",
+        "Server": "Apache",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Vary": "Origin",
+        "X-Robots-Tag": "noindex",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept, Request-URL, Referrer-Policy, Referer, Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-Fetch-Site, User-Agent, X-User-Agent",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+        "User-Agent": "HelloSign API",
+        "P3P": "CP=\"NOP3PPOLICY\""
     }
 }
 ```

@@ -141,7 +141,13 @@ class Requester
         $formatted = [];
 
         foreach ($headers as $k => $v) {
-            $formatted[$k] = array_pop($v);
+            if (count($v) > 1) {
+                $formatted[strtolower($k)] = $v;
+
+                continue;
+            }
+
+            $formatted[strtolower($k)] = array_pop($v);
         }
 
         return $formatted;

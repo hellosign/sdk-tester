@@ -11,7 +11,7 @@ from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 class Requester(object):
     LOCAL_FILE = '/data.json'
 
-    def __init__(self, auth_type: str, auth_key: str, server: str, json_source: str):  # noqa: E501
+    def __init__(self, auth_type: str, auth_key: str, server: str, json_source: str = None):  # noqa: E501
         self._json_source = json_source
         self._server = server
         self._auth_key = auth_key
@@ -32,13 +32,13 @@ class Requester(object):
             data = {
                 'body': response[0].to_dict(),
                 'status_code': response[1],
-                'headers': dict(response[2].items()),
+                'headers': self._get_response_headers(response[2]),
             }
         except ApiException as e:
             data = {
                 'body': e.body.to_dict(),
                 'status_code': e.status,
-                'headers': dict(e.headers.items()),
+                'headers': self._get_response_headers(e.headers),
             }
 
         print(json.dumps(data, indent=4))
@@ -126,6 +126,14 @@ class Requester(object):
             return response
 
         raise RuntimeError(f'Invalid operationId: {self._operation_id}')
+
+    def _get_response_headers(self, headers: dict):
+        formatted = {}
+
+        for key, value in headers.items():
+            formatted[key.lower()] = value
+
+        return formatted
 
     def _serialize(self, response_type):
         return self._api_client.deserialize(

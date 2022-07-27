@@ -39,6 +39,7 @@ Uses the HelloSign PHP SDK to make a request to the HelloSign API
 -s          The server to use, must be like "api.hellosign.com"
 -f          A valid JSON file containing all request data
 -j          A base64-encoded JSON string. Replaces -f
+-r          An expected result
 -h          display this help and exit
 ```
 
@@ -81,6 +82,10 @@ A base64-encoded string containing the JSON data sent in the request to the API.
 Cannot be used with `-f` above.
 
 See the [JSON Data](#json-data) section for more information.
+
+## `-r` Expected Response 
+
+Pass an expected response to having an assert on the response body.
 
 # JSON Data
 
@@ -336,7 +341,8 @@ The following are some examples with all required flags.
     -a apikey \
     -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
     -s "api.qa-hellosign.com" \
-    -f "$PWD/test_fixtures/accountCreate-example_01.json"
+    -f "$PWD/test_fixtures/accountCreate-example_01.json" \
+    -r 200
 ```
 
 ## Example Using Base64-Encoded JSON String
@@ -346,5 +352,6 @@ The following are some examples with all required flags.
     -a apikey \
     -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
     -s "api.qa-hellosign.com" \
-    -j "ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
+    -j "ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo=" \
+    -r 200
 ```

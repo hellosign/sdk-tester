@@ -11,11 +11,12 @@ from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 class Requester(object):
     LOCAL_FILE = '/data.json'
 
-    def __init__(self, auth_type: str, auth_key: str, server: str, json_source: str):  # noqa: E501
+    def __init__(self, auth_type: str, auth_key: str, server: str, json_source: str, expected: str):  # noqa: E501
         self._json_source = json_source
         self._server = server
         self._auth_key = auth_key
         self._auth_type = auth_type
+        self._expected = expected
 
         self._operation_id = ''
         self._data = {}
@@ -34,14 +35,20 @@ class Requester(object):
                 'status_code': response[1],
                 'headers': dict(response[2].items()),
             }
+            # print(f"status_code {type(response[1])}")
+            # print(f"expected {type(int(self._expected))}")
         except ApiException as e:
             data = {
                 'body': e.body.to_dict(),
                 'status_code': e.status,
                 'headers': dict(e.headers.items()),
             }
-
+            # import pdb
+            # pdb.set_trace()
         print(json.dumps(data, indent=4))
+        print(f"Status_code :{response[1]}")
+        assert response[1] == int(self._expected), f"Actual {response[1]} doesn't match with expected {self._expected}!"
+
 
     def _get_config(self):
         if self._auth_type == 'apikey':
@@ -576,6 +583,7 @@ if __name__ == '__main__':
         os.getenv('AUTH_TYPE'),
         os.getenv('AUTH_KEY'),
         os.getenv('SERVER'),
-        os.getenv('JSON_STRING')
+        os.getenv('JSON_STRING'),
+        os.getenv('EXPECTED')
     )
     requester.run()

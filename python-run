@@ -12,6 +12,7 @@ if [[ ! -z "${JSON_FILE}" ]]; then
         -e AUTH_TYPE="${AUTH_TYPE}" \
         -e AUTH_KEY="${AUTH_KEY}" \
         -e SERVER="${SERVER}" \
+        -e EXPECTED="${EXPECTED}" \
         -v "${JSON_FILE}":"/data.json" \
         -v "${DIR}/test_assets":"/file_uploads" \
         -v "${DIR}/data_python/requester.py":"/requester.py" \

@@ -31,7 +31,7 @@ Example if using a base64-encoded JSON string:
 EOF
 }
 
-while getopts ":a:k:s:e::f:j:h" opt; do
+while getopts ":a:k:s:e::f:j:r:h" opt; do
     case $opt in
         a) AUTH_TYPE="$OPTARG"
         ;;
@@ -42,6 +42,8 @@ while getopts ":a:k:s:e::f:j:h" opt; do
         f) JSON_FILE="$OPTARG"
         ;;
         j) JSON_STRING="$OPTARG"
+        ;;
+        r) EXPECTED="$OPTARG"
         ;;
         h) show_help && exit 0
         ;;

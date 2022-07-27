@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -e
+DIR=$(cd `dirname $0` && pwd)
+SDK_NAME="Node"
+SDK_RUN="node-run"
+
+. "${DIR}/bin/base-run"
+
+CMD="npm run start"
+
+if [[ $DEV_MODE -eq 1 ]]; then
+    CMD="npm run dev"
+fi
+
+if [[ ! -z "${JSON_FILE}" ]]; then
+    docker container run -it --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e SERVER="${SERVER}" \
+        -v "${JSON_FILE}":"/data.json" \
+        -v "${DIR}/test_assets":"/file_uploads" \
+        -v "${DIR}/data_node/requester.ts":"/app/requester.ts" \
+        docker.io/jtreminio/hellosign-node-sdk \
+        ${CMD}
+fi
+
+if [[ ! -z "${JSON_STRING}" ]]; then
+    docker container run -it --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e SERVER="${SERVER}" \
+        -e JSON_STRING="${JSON_STRING}" \
+        -v "${DIR}/test_assets":"/file_uploads" \
+        -v "${DIR}/data_node/requester.ts":"/app/requester.ts" \
+        docker.io/jtreminio/hellosign-node-sdk \
+        ${CMD}
+fi

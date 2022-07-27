@@ -22,6 +22,12 @@ For Python SDK:
 ./python-build
 ```
 
+For Node SDK:
+
+```bash
+./node-build
+```
+
 ## Run Tool
 
 Each SDK will have its own run script. These are appended with `-run`.
@@ -39,6 +45,7 @@ Uses the HelloSign PHP SDK to make a request to the HelloSign API
 -s          The server to use, must be like "api.hellosign.com"
 -f          A valid JSON file containing all request data
 -j          A base64-encoded JSON string. Replaces -f
+-d          Run container in dev mode
 -h          display this help and exit
 ```
 
@@ -81,6 +88,17 @@ A base64-encoded string containing the JSON data sent in the request to the API.
 Cannot be used with `-f` above.
 
 See the [JSON Data](#json-data) section for more information.
+
+## `-d` Dev Mode
+
+Runs the container in dev mode. This may be different depending on the container.
+
+Simply calling `-d` enabled dev mode, there is no need to pass a value to it.
+It is disabled by default.
+
+In the Node container:
+* Dev Mode Off - Runs the compiled JS file, `node ./dist/requester.js`
+* Dev Mode On - Runs the uncompiled Typescript file: `ts-node requester.ts`
 
 # JSON Data
 

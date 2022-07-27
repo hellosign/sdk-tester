@@ -1,0 +1,4 @@
+data_node/*.tgz
+data_node/node_modules
+
+data_php/vendor

@@ -13,6 +13,7 @@ Uses the HelloSign OpenAPI ${SDK_NAME} SDK to make a request to the HelloSign AP
 -s          The server to use, must be like "api.hellosign.com"
 -f          A valid JSON file containing all request data
 -j          A base64-encoded JSON string. Replaces -f
+-d          Run container in dev mode
 -h          display this help and exit
 
 Example if using a JSON file:
@@ -31,7 +32,7 @@ Example if using a base64-encoded JSON string:
 EOF
 }
 
-while getopts ":a:k:s:e::f:j:h" opt; do
+while getopts ":a:k:s:e::f:j:dh" opt; do
     case $opt in
         a) AUTH_TYPE="$OPTARG"
         ;;
@@ -42,6 +43,8 @@ while getopts ":a:k:s:e::f:j:h" opt; do
         f) JSON_FILE="$OPTARG"
         ;;
         j) JSON_STRING="$OPTARG"
+        ;;
+        d) DEV_MODE=1
         ;;
         h) show_help && exit 0
         ;;

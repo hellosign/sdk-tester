@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+docker image build \
+  --no-cache \
+  -t jtreminio/hellosign-node-sdk:latest \
+  -f data_node/Dockerfile \
+  ./data_node
+

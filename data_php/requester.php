@@ -433,7 +433,7 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestFiles') {
-            return $api->signatureRequestBulkSendWithTemplateWithHttpInfo(
+            return $api->signatureRequestFilesWithHttpInfo(
                 $this->parameters['signature_request_id'],
                 $this->parameters['file_type'] ?? 'pdf',
                 $this->parameters['get_url'] ?? false,
@@ -441,8 +441,8 @@ class Requester
             );
         }
 
-        if ($this->operationId === 'signatureRequestGetWithHttpInfo') {
-            return $api->signatureRequestBulkSendWithTemplateWithHttpInfo(
+        if ($this->operationId === 'signatureRequestGet') {
+            return $api->signatureRequestGetWithHttpInfo(
                 $this->parameters['signature_request_id'],
             );
         }

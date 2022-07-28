@@ -105,9 +105,8 @@ backend, or want to make changes to the `requester.*` file locally and test them
 out without needing to rebuild the container image.
 
 Using Dev mode you can also change request data (sent to the API) by editing the
-`data.json` file within each `data_*` directory, like
-[data_php/data.json](./data_php/data.json). Changes to these files are ignored
-by git.
+[data.json](./data.json) file that is generated after running a build script.
+Changes to this file are ignored by git.
 
 # JSON Data
 

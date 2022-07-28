@@ -84,5 +84,3 @@ if [[ -z "${AUTH_KEY}" ]] || [[ -z "${SERVER}" ]]; then
     show_help
     exit 1
 fi
-
-touch "${DIR}/../data.json"

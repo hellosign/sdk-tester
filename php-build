@@ -2,6 +2,10 @@
 
 set -e
 
+DIR=$(cd `dirname $0` && pwd)
+
+touch "${DIR}/data.json"
+
 docker image build \
   --no-cache \
   -t jtreminio/hellosign-php-sdk:latest \

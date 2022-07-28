@@ -91,14 +91,23 @@ See the [JSON Data](#json-data) section for more information.
 
 ## `-d` Dev Mode
 
-Runs the container in dev mode. This may be different depending on the container.
+Runs the container in dev mode. Simply calling `-d` enabled Dev mode, there is
+no need to pass a value to it. It is disabled by default.
 
-Simply calling `-d` enabled dev mode, there is no need to pass a value to it.
-It is disabled by default.
+Dev mode adds a cookie `XDEBUG_SESSION=xdebug` to the request that allows
+debugging the API backend.
 
-In the Node container:
-* Dev Mode Off - Runs the compiled JS file, `node ./dist/requester.js`
-* Dev Mode On - Runs the uncompiled Typescript file: `ts-node requester.ts`
+It also loads the local `requester.*` file into the container, overwriting the
+file that was baked into the image during the build step.
+
+Dev mode is extremely useful when you want to debug the request via the API
+backend, or want to make changes to the `requester.*` file locally and test them
+out without needing to rebuild the container image.
+
+Using Dev mode you can also change request data (sent to the API) by editing the
+`data.json` file within each `data_*` directory, like
+[data_php/data.json](./data_php/data.json). Changes to these files are ignored
+by git.
 
 # JSON Data
 

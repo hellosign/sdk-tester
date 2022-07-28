@@ -4,17 +4,21 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once '/app/vendor/autoload.php';
+require_once __DIR__ . '/src/vendor/autoload.php';
 
 class Requester
 {
-    private const LOCAL_FILE = '/data.json';
+    private const LOCAL_FILE = './data.json';
+
+    private const FILE_UPLOADS_DIR = __DIR__ . '/../file_uploads';
 
     private string $authType;
 
     private string $authKey;
 
     private array $data;
+
+    private $devMode;
 
     private array $files;
 
@@ -28,11 +32,13 @@ class Requester
         string $authType,
         string $authKey,
         string $server,
-        $jsonSource
+        $jsonSource,
+        $devMode = null
     ) {
         $this->authType = strtolower($authType);
         $this->authKey = $authKey;
         $this->server = $server;
+        $this->devMode = $devMode;
 
         $this->readJsonData($jsonSource);
     }
@@ -73,6 +79,13 @@ class Requester
             throw new Exception(
                 'Invalid auth type. Must be "apikey" or "oauth".'
             );
+        }
+
+        if (!empty($this->devMode)) {
+            $cookie = GuzzleHttp\Cookie\CookieJar::fromArray([
+                'XDEBUG_SESSION' => 'xdebug',
+            ], $this->server);
+            $config->setOptions(['cookies' => $cookie]);
         }
 
         return $config;
@@ -157,7 +170,7 @@ class Requester
     {
         if (!empty($this->files[$name])) {
             return new SplFileObject(
-                "/file_uploads/{$this->files[$name]}",
+                self::FILE_UPLOADS_DIR . "/{$this->files[$name]}",
             );
         }
 
@@ -170,7 +183,7 @@ class Requester
 
         foreach ($this->files[$name] ?? [] as $file) {
             $files[] = new SplFileObject(
-                "/file_uploads/{$file}",
+                self::FILE_UPLOADS_DIR . "/{$file}",
             );
         }
 
@@ -732,6 +745,7 @@ $requester = new Requester(
     getenv('AUTH_KEY'),
     getenv('SERVER'),
     getenv('JSON_STRING'),
+    getenv('DEV_MODE'),
 );
 
 $requester->run();

@@ -4,18 +4,28 @@ import json
 import sys
 from metadict import MetaDict
 
-sys.path.append('/app')
+sys.path.append('./app/src')
 from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 
 
 class Requester(object):
-    LOCAL_FILE = '/data.json'
+    LOCAL_FILE = './data.json'
 
-    def __init__(self, auth_type: str, auth_key: str, server: str, json_source: str = None):  # noqa: E501
+    FILE_UPLOADS_DIR = './../file_uploads'
+
+    def __init__(
+            self,
+            auth_type: str,
+            auth_key: str,
+            server: str,
+            json_source: str = None,
+            dev_mode: str = None
+    ):  # noqa: E501
         self._json_source = json_source
         self._server = server
         self._auth_key = auth_key
         self._auth_type = auth_type
+        self._dev_mode = dev_mode
 
         self._operation_id = ''
         self._data = {}
@@ -24,6 +34,9 @@ class Requester(object):
 
         self._read_json_data(json_source)
         self._api_client = ApiClient(self._get_config())
+
+        if self._dev_mode:
+            self._api_client.set_default_header('Cookie', 'XDEBUG_SESSION=xdebug')
 
     def run(self):
         try:
@@ -144,7 +157,7 @@ class Requester(object):
 
     def _get_file(self, name: str):
         if name in self._files and len(self._files[name]):
-            f = open(f'/file_uploads/{self._files[name]}', 'rb')
+            f = open(f'{self.FILE_UPLOADS_DIR}/{self._files[name]}', 'rb')
             return f
 
     def _get_files(self, name: str):
@@ -152,7 +165,7 @@ class Requester(object):
 
         if name in self._files and len(self._files[name]):
             for file in self._files[name]:
-                f = open(f'/file_uploads/{file}', 'rb')
+                f = open(f'{self.FILE_UPLOADS_DIR}/{file}', 'rb')
                 files.append(f)
 
         return files
@@ -584,6 +597,7 @@ if __name__ == '__main__':
         os.getenv('AUTH_TYPE'),
         os.getenv('AUTH_KEY'),
         os.getenv('SERVER'),
-        os.getenv('JSON_STRING')
+        os.getenv('JSON_STRING'),
+        os.getenv('DEV_MODE'),
     )
     requester.run()

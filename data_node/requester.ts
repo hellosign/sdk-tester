@@ -12,6 +12,7 @@ interface ApiI {
     basePath: string | (() => string),
     username: string | (() => string),
     accessToken: string | (() => string),
+    defaultHeaders: { [key: string]: string } | (() => { [key: string]: string }),
 }
 
 type ApiResponseT = Promise<HelloSignSDK.returnTypeT<any>>
@@ -19,13 +20,17 @@ type ApiResponseT = Promise<HelloSignSDK.returnTypeT<any>>
 
 class Requester
 {
-    private LOCAL_FILE = '/data.json';
+    private LOCAL_FILE = './data.json';
+
+    private FILE_UPLOADS_DIR = './../file_uploads';
 
     private readonly authType: string;
 
     private readonly authKey: string;
 
     private data: { [key: string]: any } = {};
+
+    private readonly devMode;
 
     private files: { [key: string]: any } = {};
 
@@ -39,11 +44,13 @@ class Requester
         authType: string,
         authKey: string,
         server: string,
-        jsonSource: string | null = null
+        jsonSource: string | null = null,
+        devMode: string | null = null,
     ) {
         this.authType = authType;
         this.authKey = authKey;
         this.server = server;
+        this.devMode = devMode;
 
         this.readJsonData(jsonSource);
     }
@@ -94,6 +101,12 @@ class Requester
             throw new Error(
                 'Invalid auth type. Must be "apikey" or "oauth".'
             );
+        }
+
+        if (this.devMode) {
+            api.defaultHeaders = {
+                Cookie: 'XDEBUG_SESSION=xdebug',
+            }
         }
 
         return api;
@@ -189,7 +202,9 @@ class Requester
     private getFile(name: string): HelloSignSDK.RequestFile | undefined
     {
         if (this.parameters.hasOwnProperty(name)) {
-            return fs.createReadStream(this.parameters[name]);
+            return fs.createReadStream(
+                `${this.FILE_UPLOADS_DIR}/${this.parameters[name]}`
+            );
         }
 
         return undefined;
@@ -201,7 +216,9 @@ class Requester
             let files: HelloSignSDK.RequestFile[] = [];
 
             for (let file of this.parameters[name]) {
-                files.push(fs.createReadStream(file));
+                files.push(fs.createReadStream(
+                    `${this.FILE_UPLOADS_DIR}/${file}`
+                ));
             }
 
             return files;
@@ -793,6 +810,7 @@ const requester = new Requester(
     process.env.AUTH_KEY as string,
     process.env.SERVER as string,
     process.env.JSON_STRING,
+    process.env.DEV_MODE,
 );
 
 requester.run();

@@ -4,8 +4,12 @@ LABEL maintainer="HelloSign API Team <apisupport@hellosign.com>"
 USER root
 
 RUN mkdir /file_uploads && \
-    git clone https://github.com/hellosign/hellosign-python-sdk.git /app && \
-    cd /app && \
+    mkdir /app
+
+COPY ./requester.py /app/requester.py
+
+RUN git clone https://github.com/hellosign/hellosign-python-sdk.git /app/src && \
+    cd /app/src && \
     git checkout openapi && \
     git submodule init && \
     git submodule update && \

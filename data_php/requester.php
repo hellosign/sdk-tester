@@ -32,7 +32,7 @@ class Requester
         string $authType,
         string $authKey,
         string $server,
-        $jsonSource,
+        $jsonSource = null,
         $devMode = null
     ) {
         $this->authType = strtolower($authType);

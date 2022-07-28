@@ -82,7 +82,7 @@ pipeline {
 //                         if ( "${SEND_RESULT}" == "1" ) {
 //                             echo "HSApi ${NOTIFY_TOUSE}"
 //                             notifyResult(summaryapi, "${NOTIFY_TOUSE}")
-//                         }
+                        }
                     }
                 }
             }

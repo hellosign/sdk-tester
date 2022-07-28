@@ -9,7 +9,7 @@ from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 
 
 class Requester(object):
-    LOCAL_FILE = './data.json'
+    LOCAL_FILE = './../data.json'
 
     FILE_UPLOADS_DIR = './../file_uploads'
 

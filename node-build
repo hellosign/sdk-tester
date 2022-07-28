@@ -7,4 +7,3 @@ docker image build \
   -t jtreminio/hellosign-node-sdk:latest \
   -f data_node/Dockerfile \
   ./data_node
-

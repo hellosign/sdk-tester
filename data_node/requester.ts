@@ -20,7 +20,7 @@ type ApiResponseT = Promise<HelloSignSDK.returnTypeT<any>>
 
 class Requester
 {
-    private LOCAL_FILE = './data.json';
+    private LOCAL_FILE = './../data.json';
 
     private FILE_UPLOADS_DIR = './../file_uploads';
 

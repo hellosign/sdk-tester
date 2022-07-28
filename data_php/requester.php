@@ -8,7 +8,7 @@ require_once __DIR__ . '/src/vendor/autoload.php';
 
 class Requester
 {
-    private const LOCAL_FILE = './data.json';
+    private const LOCAL_FILE = __DIR__ . '/../data.json';
 
     private const FILE_UPLOADS_DIR = __DIR__ . '/../file_uploads';
 

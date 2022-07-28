@@ -291,26 +291,28 @@ This is an example of a _successful_ API response:
     },
     "status_code": 200,
     "headers": {
-        "Date": "Tue, 26 Jul 2022 15:16:17 GMT",
-        "Server": "Apache",
-        "X-Powered-By": "PHP\/7.4.28",
-        "X-Robots-Tag": "noindex",
-        "X-Ratelimit-Limit": "10000",
-        "X-Ratelimit-Limit-Remaining": "9999",
-        "X-Ratelimit-Reset": "1658848577",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "User-Agent": "HelloSign API",
-        "Vary": "Accept-Encoding",
-        "Strict-Transport-Security": "max-age=15768000",
-        "P3P": "CP=\"NOP3PPOLICY\"",
-        "Content-Length": "360",
-        "Connection": "close",
-        "Content-Type": "application\/json"
+        "date": "Tue, 26 Jul 2022 15:16:17 GMT",
+        "server": "Apache",
+        "x-powered-by": "PHP\/7.4.28",
+        "x-robots-tag": "noindex",
+        "x-ratelimit-limit": "10000",
+        "x-ratelimit-limit-remaining": "9999",
+        "x-ratelimit-reset": "1658848577",
+        "access-control-allow-origin": "*",
+        "access-control-allow-headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "user-agent": "HelloSign API",
+        "vary": "Accept-Encoding",
+        "strict-transport-security": "max-age=15768000",
+        "p3p": "CP=\"NOP3PPOLICY\"",
+        "content-length": "360",
+        "connection": "close",
+        "content-type": "application\/json"
     }
 }
 ```
+
+Note that header names are all lowercased!
 
 ## Response Error Example
 
@@ -326,22 +328,24 @@ This is an example of a _unsuccessful_ API response:
     },
     "status_code": 401,
     "headers": {
-        "Date": "Tue, 26 Jul 2022 15:23:38 GMT",
-        "Content-Type": "application\/json",
-        "Content-Length": "74",
-        "Connection": "keep-alive",
-        "Server": "Apache",
-        "Strict-Transport-Security": "max-age=31536000",
-        "Vary": "Origin",
-        "X-Robots-Tag": "noindex",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept, Request-URL, Referrer-Policy, Referer, Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-Fetch-Site, User-Agent, X-User-Agent",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
-        "User-Agent": "HelloSign API",
-        "P3P": "CP=\"NOP3PPOLICY\""
+        "date": "Tue, 26 Jul 2022 15:23:38 GMT",
+        "content-type": "application\/json",
+        "content-length": "74",
+        "connection": "keep-alive",
+        "server": "Apache",
+        "strict-transport-security": "max-age=31536000",
+        "vary": "Origin",
+        "x-robots-tag": "noindex",
+        "access-control-allow-origin": "*",
+        "access-control-allow-headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept, Request-URL, Referrer-Policy, Referer, Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-Fetch-Site, User-Agent, X-User-Agent",
+        "access-control-allow-methods": "GET, POST, OPTIONS, PUT, DELETE",
+        "user_agent": "HelloSign API",
+        "p3p": "CP=\"NOP3PPOLICY\""
     }
 }
 ```
+
+Note that header names are all lowercased!
 
 # Run Examples
 

@@ -4,7 +4,7 @@ import json
 import sys
 from metadict import MetaDict
 
-sys.path.append('./app/src')
+sys.path.append('./src')
 from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 
 

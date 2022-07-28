@@ -19,7 +19,7 @@ if [[ ! -z "${JSON_FILE}" ]]; then
     JSON_STRING=$(cat "${JSON_FILE}" | base64)
 fi
 
-docker container run -it --rm \
+docker container run --rm \
     -e AUTH_TYPE="${AUTH_TYPE}" \
     -e AUTH_KEY="${AUTH_KEY}" \
     -e SERVER="${SERVER}" \

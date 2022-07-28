@@ -21,34 +21,34 @@ pipeline {
         timeout(time: 10, unit: 'HOURS')
     }
     stages{
-        stage('Check branch name') {
-            when {
-                not {
-                    anyOf {
-                        branch 'dependabot/**'
-                        branch '**/dev/*'
-                        branch '**/feature/*'
-                        branch 'hs-regression-*'
-                        branch 'DEV-*'
-                        branch 'main'
-                        branch 'sdk-jenkins'
-                        branch 'release/*'
-                    }
-                }
-            }
-            steps {
-                script {
-                    currentBuild.result = 'ABORTED'
-                    error('Not a valid branch')
-                }
-            }
-        }
+//         stage('Check branch name') {
+//             when {
+//                 not {
+//                     anyOf {
+//                         branch 'dependabot/**'
+//                         branch '**/dev/*'
+//                         branch '**/feature/*'
+//                         branch 'hs-regression-*'
+//                         branch 'DEV-*'
+//                         branch 'main'
+//                         branch 'sdk-jenkins'
+//                         branch 'release/*'
+//                     }
+//                 }
+//             }
+//             steps {
+//                 script {
+//                     currentBuild.result = 'ABORTED'
+//                     error('Not a valid branch')
+//                 }
+//             }
+//         }
         stage('SDK Tests') {
-           when {
-                anyOf {
-                    branch 'openapi-integration-tests'
-                }
-            }
+//            when {
+//                 anyOf {
+//                     branch 'openapi-integration-tests'
+//                 }
+//             }
             steps {
                 //cancelPreviousBuilds()
                 withCredentials([string(credentialsId: 'SFDC-HS-for-SFDC-SFDX-Priv-Key', variable: 'JWT_KEY')]) {

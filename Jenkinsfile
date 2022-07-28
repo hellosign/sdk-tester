@@ -31,6 +31,7 @@ pipeline {
                         branch 'hs-regression-*'
                         branch 'DEV-*'
                         branch 'main'
+                        branch 'sdk-jenkins'
                         branch 'release/*'
                     }
                 }

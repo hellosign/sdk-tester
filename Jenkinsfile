@@ -1,7 +1,7 @@
 @Library('jenkins-lib') _
 
 pipeline {
-    agent { label 'sdk' }
+    agent { label 'sfdc && bionic' }
     //TODO change the parameter
     parameters {
         string(name: 'container', defaultValue: '', description: 'Build parameter to define the container to run the tests')
@@ -54,7 +54,7 @@ pipeline {
                     script {
                     // TODO fix this
                         if ( "${params.container}" == "" ) {
-                            MODULES_TOUSE = "python data_python/tests/test_create_account.py"
+                            MODULES_TOUSE = "python3 data_python/tests/test_create_account.py"
                         } else {
                             MODULES_TOUSE = ""
                         }
@@ -65,9 +65,12 @@ pipeline {
 //                         sh "ls -la python-e2e-framework/settings/"
                         sh script: "${FRAMEWORK_ROOT_DIR}/setup_python_jenkins.sh"
 //                         RUN_STR = "${FRAMEWORK_ROOT_DIR}/run_qa_tests.sh ${BUILD_USER_EMAIL} ${params.BUILD_ENV} 0 hsapi '"
+                        BUILD_STR = "./python-build"
                         RUN_STR = "${BUILD_USER_EMAIL} ${params.BUILD_ENV} '"
                         RUN_STR += "${MODULES_TOUSE}"
                         echo "${RUN_STR}"
+                        echo "${BUILD_STR}"
+                        sh script: "${BUILD_STR}", returnStatus: true
                         sh script: "${RUN_STR}", returnStatus: true
                     }
                 }

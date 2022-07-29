@@ -64,7 +64,7 @@ pipeline {
 //                         decryptSecretFiles("python-e2e-framework/settings/")
 //                         sh "sudo chmod -R 0777 python-e2e-framework/settings/"
 //                         sh "ls -la python-e2e-framework/settings/"
-                        sh script: "${FRAMEWORK_ROOT_DIR}/setup_python_jenkins.sh"
+                        sh script: "./setup_python_jenkins.sh"
 //                         RUN_STR = "${FRAMEWORK_ROOT_DIR}/run_qa_tests.sh ${BUILD_USER_EMAIL} ${params.BUILD_ENV} 0 hsapi '"
                         BUILD_STR = "./python-build"
                         RUN_STR = "${BUILD_USER_EMAIL} ${params.BUILD_ENV} '"

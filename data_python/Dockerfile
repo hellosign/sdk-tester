@@ -7,12 +7,10 @@ RUN mkdir /file_uploads && \
     mkdir /app
 
 COPY ./requester.py /app/requester.py
+COPY ./requirements.txt /app/requirements.txt
+COPY ./setup.py /app/setup.py
 
-RUN git clone https://github.com/hellosign/hellosign-python-sdk.git /app/src && \
-    cd /app/src && \
-    git checkout openapi && \
-    git submodule init && \
-    git submodule update && \
+RUN cd /app && \
     pip install -r requirements.txt
 
 WORKDIR /app

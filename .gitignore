@@ -5,3 +5,5 @@ data_node/node_modules
 data_node/package-lock.json
 
 data_php/vendor
+
+data_python/venv

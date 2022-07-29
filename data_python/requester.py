@@ -1,10 +1,8 @@
 import base64
-import os
 import json
-import sys
+import os
 from metadict import MetaDict
 
-sys.path.append('./src')
 from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 
 
@@ -20,7 +18,7 @@ class Requester(object):
             server: str,
             json_source: str = None,
             dev_mode: str = None
-    ):  # noqa: E501
+    ):
         self._json_source = json_source
         self._server = server
         self._auth_key = auth_key
@@ -140,7 +138,8 @@ class Requester(object):
 
         raise RuntimeError(f'Invalid operationId: {self._operation_id}')
 
-    def _get_response_headers(self, headers: dict):
+    @staticmethod
+    def _get_response_headers(headers: dict):
         formatted = {}
 
         for key, value in headers.items():

@@ -1,10 +1,17 @@
 <?php
 
+namespace HelloSignSdkTester;
+
+use Exception;
+use GuzzleHttp;
+use HelloSignSDK;
+use SplFileObject;
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/src/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 class Requester
 {
@@ -177,6 +184,10 @@ class Requester
         return null;
     }
 
+    /**
+     * @param string $name
+     * @return SplFileObject[]
+     */
     private function getFiles(string $name): array
     {
         $files = [];

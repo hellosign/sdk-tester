@@ -6,13 +6,10 @@ USER root
 RUN mkdir /file_uploads && \
     mkdir /app
 
+COPY ./composer.json /app/composer.json
 COPY ./requester.php /app/requester.php
 
-RUN git clone https://github.com/hellosign/hellosign-php-sdk.git /app/src && \
-    cd /app/src && \
-    git checkout openapi && \
-    git submodule init && \
-    git submodule update && \
+RUN cd /app && \
     composer install
 
 WORKDIR /app

@@ -1,0 +1,6 @@
+{
+    "require": {
+        "hellosign/hellosign-php-sdk": "dev-openapi"
+    },
+    "minimum-stability": "dev"
+}

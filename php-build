@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR=$(cd `dirname $0` && pwd)
+
+touch "${DIR}/data.json"
+
+docker image build \
+  --no-cache \
+  -t jtreminio/hellosign-php-sdk:latest \
+  -f data_php/Dockerfile \
+  ./data_php

@@ -1,0 +1,8 @@
+{
+  "operationId": "accountGet",
+  "parameters": {
+    "account_id": "5d38f3a287c072a2ac741191c5c055936a56b933"
+  },
+  "data": {},
+  "files": {}
+}

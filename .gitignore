@@ -7,3 +7,5 @@ data_node/package-lock.json
 data_php/vendor
 
 data_python/venv
+
+data_ruby/Gemfile.lock

@@ -26,17 +26,7 @@
     "resolveJsonModule": true
   },
   "exclude": [
-    "*.tgz",
-    ".openapi-generator-ignore",
-    ".openapi-generator",
-    "bin",
-    "dist",
-    "examples",
     "node_modules",
-    "nonversioned",
-    "oas",
-    "src",
-    "templates",
     "tests",
     "test.*"
   ]

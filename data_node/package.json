@@ -1,14 +1,11 @@
 {
-  "name": "hellosign-sdk-container",
-  "version": "1.0.0",
-  "main": "requester.ts",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node requester.ts",
     "start": "node ./dist/requester.js"
   },
   "dependencies": {
-    "hellosign-sdk": "file:hellosign-sdk.tgz"
+    "hellosign-sdk": "github:HelloFax/hellosign-nodejs-sdk#openapi"
   },
   "devDependencies": {
     "@types/node": "^17.0.10",

@@ -15,9 +15,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Requester
 {
-    private const LOCAL_FILE = __DIR__ . '/../data.json';
-
     private const FILE_UPLOADS_DIR = __DIR__ . '/../file_uploads';
+
+    private string $apiServer;
 
     private string $authType;
 
@@ -25,7 +25,7 @@ class Requester
 
     private array $data;
 
-    private $devMode;
+    private bool $devMode;
 
     private array $files;
 
@@ -33,21 +33,19 @@ class Requester
 
     private array $parameters;
 
-    private string $server;
-
     public function __construct(
         string $authType,
         string $authKey,
-        string $server,
-        $jsonSource = null,
+        string $apiServer,
+        string $jsonData,
         $devMode = null
     ) {
         $this->authType = strtolower($authType);
         $this->authKey = $authKey;
-        $this->server = $server;
-        $this->devMode = $devMode;
+        $this->apiServer = $apiServer;
+        $this->devMode = filter_var($devMode, FILTER_VALIDATE_BOOLEAN);
 
-        $this->readJsonData($jsonSource);
+        $this->readJsonData($jsonData);
     }
 
     public function run()
@@ -76,7 +74,7 @@ class Requester
     private function getConfig(): HelloSignSDK\Configuration
     {
         $config = HelloSignSDK\Configuration::getDefaultConfiguration();
-        $config->setHost("https://{$this->server}/v3");
+        $config->setHost("https://{$this->apiServer}/v3");
 
         if ($this->authType === 'apikey') {
             $config->setUsername($this->authKey);
@@ -91,26 +89,20 @@ class Requester
         if (!empty($this->devMode)) {
             $cookie = GuzzleHttp\Cookie\CookieJar::fromArray([
                 'XDEBUG_SESSION' => 'xdebug',
-            ], $this->server);
+            ], $this->apiServer);
             $config->setOptions(['cookies' => $cookie]);
         }
 
         return $config;
     }
 
-    private function readJsonData($base64Json): void
+    private function readJsonData(string $base64Json): void
     {
-        if (!empty($base64Json) && is_string($base64Json)) {
+        if (!empty($base64Json)) {
             $json = json_decode(base64_decode($base64Json, true), true);
 
             if (json_last_error() !== JSON_ERROR_NONE || empty($json)) {
                 throw new Exception('Invalid base64 JSON data provided.');
-            }
-        } elseif (file_exists(self::LOCAL_FILE)) {
-            $json = json_decode(file_get_contents(self::LOCAL_FILE), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE || empty($json)) {
-                throw new Exception('Invalid JSON file provided.');
             }
         }
 
@@ -754,8 +746,8 @@ class Requester
 $requester = new Requester(
     getenv('AUTH_TYPE'),
     getenv('AUTH_KEY'),
-    getenv('SERVER'),
-    getenv('JSON_STRING'),
+    getenv('API_SERVER'),
+    getenv('JSON_DATA'),
     getenv('DEV_MODE'),
 );
 

@@ -10,50 +10,58 @@ on how this project may be used in our testing suite.
 
 # How to Use
 
-## Generate Container Image
+## Generate Container Images
 
-Each SDK will have its own container image. These are appended with `-build`.
-You can run the SDK's  corresponding build script to generate an image locally.
-
-For PHP SDK:
+Each SDK will have its own container image. You can build all containers in one
+go by running:
 
 ```bash
-./php-build
+./build all
 ```
 
-For Python SDK:
+or build each individually by passing the SDK as parameter:
 
 ```bash
-./python-build
-```
-
-For Node SDK:
-
-```bash
-./node-build
+# csharp
+./build csharp
+# java
+./build java
+# Node
+./build node
+# PHP
+./build php
+# Python
+./build python
+# Ruby
+./build ruby
 ```
 
 ## Run Tool
 
-Each SDK will have its own run script. These are appended with `-run`.
-
-Example:
+You run any container using the `./run` script and passing the SDK as parameter:
 
 ```bash
-$ ./php-run
+$ ./run php
 
-Uses the HelloSign PHP SDK to make a request to the HelloSign API
--a          Auth type, one of "apikey" or "oauth"
--k          Auth key.
-            If -a=apikey, pass API Key.
-            If -a=oauth, pass OAuth Bearer Token.
--s          The server to use, must be like "api.hellosign.com"
--f          A valid JSON file containing all request data
--j          A base64-encoded JSON string. Replaces -f
--u          Directory where files that can be uploaded to the API live.
-            Defaults to this repo's "file_uploads" directory
--d          Run container in dev mode
--h          display this help and exit
+Uses the selected HelloSign OpenAPI SDK to make a request to the HelloSign API
+--sdk             one of "csharp", "java", "node", "php", "python", "ruby"
+                    (required)
+--auth_type       one of "apikey", "oauth"
+                    (required)
+--auth_key        auth key
+                    If --auth_key=apikey, pass API Key
+                    If --auth_key=oauth, pass OAuth Bearer Token
+                    (required)
+--json            valid JSON file containing all request data
+                    OR base64-encoded JSON string
+                    (required)
+--server          API server to use, must be like "api.hellosign.com".
+                    (defaults to api.hellosign.com)
+--uploads_dir     directory where files that can be uploaded to the API live.
+                    (defaults to /Users/jtreminio/www/hellosign/openapi/sdk-tester/file_uploads)
+--dev_mode        run container in dev mode
+                    (optional, default false)
+--help            display this help and exit
 ```
 
 The command to run each script is identical to each other, and they all require
@@ -61,46 +69,41 @@ the same flags to function correctly.
 
 # Flags
 
-## `-a` Auth Type
+## `--sdk` SDK (required)
+
+One of `csharp`, `java`, `node`, `php`, `python`, `ruby`.
+
+## `--auth_type` Auth Type (required)
 
 Currently we support API key `apikey` or OAuth bearer token `oauth`
 
-## `-k` Auth Key
+## `--auth_key` Auth Key (required)
 
-If auth type (`-a`) is `apikey` this will be the API Key.
+If auth type (`--auth_type`) is `apikey` this will be the API Key.
 
-If auth type (`-a`) is `oauth` this will be the OAuth bearer token.
+If auth type (`--auth_type`) is `oauth` this will be the OAuth bearer token.
 
-## `-s` Server
+## `--json` JSON Payload (required)
+
+A local file containing the JSON data sent in the request to the API, OR
+a base64-encoded string containing the JSON data sent in the request to the API.
+
+See the [JSON Data](#json-data) section for more information.
+
+## `--server` Server (optional)
 
 What server to make the API request to. For example, `api.hellosign.com`.
 
-## `-f` JSON Payload - File
-
-A local file containing the JSON data sent in the request to the API.
-
-Cannot be used with `-j` below.
-
-See the [JSON Data](#json-data) section for more information.
-
-## `-j` JSON Payload - Base64-encoded String
-
-A base64-encoded string containing the JSON data sent in the request to the API.
-
-Cannot be used with `-f` above.
-
-See the [JSON Data](#json-data) section for more information.
-
-## `-u` Uploads Directory
+## `--uploads_dir` Uploads Directory (optional)
 
 Local directory containing any files you would want to upload in the API request.
 
 Defaults to [./file_uploads](./file_uploads).
 
-## `-d` Dev Mode
+## `--dev_mode` Dev Mode
 
-Runs the container in dev mode. Simply calling `-d` enabled Dev mode, there is
-no need to pass a value to it. It is disabled by default.
+Runs the container in dev mode. Simply calling `--dev_mode` enabled Dev mode,
+there is  no need to pass a value to it. It is disabled by default.
 
 Dev mode adds a cookie `XDEBUG_SESSION=xdebug` to the request that allows
 debugging the API backend.
@@ -173,7 +176,7 @@ For example, `GET /account` has a `account_id` query parameter.
 
 If the API endpoint you want to use allows uploading files, you must define them here.
 
-The file you want to use _must_ be found in the `test_assets` directory!
+The file you want to use _must_ be found in the [`file_uploads`](./file_uploads) directory!
 
 If the endpoint supports multiple files you must pass a nested object.
 
@@ -370,19 +373,19 @@ The following are some examples with all required flags.
 ## Example Using Local JSON File
 
 ```bash
-./php-run \
-    -a apikey \
-    -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
-    -s "api.hellosign.com" \
-    -f "$PWD/test_fixtures/accountCreate-example_01.json"
+./run \
+    --sdk=php \
+    --auth_type=apikey \
+    --auth_key=4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
+    --json="${PWD}/test_fixtures/accountCreate-example_01.json"
 ```
 
 ## Example Using Base64-Encoded JSON String
 
 ```bash
-./node-run \
-    -a apikey \
-    -k 4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
-    -s "api.hellosign.com" \
-    -j "ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
+./run \
+    --sdk=node \
+    --auth_type=apikey \
+    --auth_key=4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
+    --json="ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
 ```

@@ -20,9 +20,9 @@ type ApiResponseT = Promise<HelloSignSDK.returnTypeT<any>>
 
 class Requester
 {
-    private LOCAL_FILE = './../data.json';
-
     private FILE_UPLOADS_DIR = './../file_uploads';
+
+    private readonly apiServer: string;
 
     private readonly authType: string;
 
@@ -30,7 +30,7 @@ class Requester
 
     private data: { [key: string]: any } = {};
 
-    private readonly devMode;
+    private readonly devMode: boolean;
 
     private files: { [key: string]: any } = {};
 
@@ -38,21 +38,19 @@ class Requester
 
     private parameters: { [key: string]: any } = {};
 
-    private readonly server: string;
-
     public constructor(
         authType: string,
         authKey: string,
-        server: string,
-        jsonSource: string | null = null,
+        apiServer: string,
+        jsonData: string,
         devMode: string | null = null,
     ) {
         this.authType = authType;
         this.authKey = authKey;
-        this.server = server;
-        this.devMode = devMode;
+        this.apiServer = apiServer;
+        this.devMode = Boolean(devMode).valueOf();
 
-        this.readJsonData(jsonSource);
+        this.readJsonData(jsonData);
     }
 
     public run()
@@ -91,7 +89,7 @@ class Requester
 
     private getApi<T extends ApiI>(api: T): T
     {
-        api.basePath = `https://${this.server}/v3`
+        api.basePath = `https://${this.apiServer}/v3`
 
         if (this.authType === 'apikey') {
             api.username = this.authKey;
@@ -112,25 +110,17 @@ class Requester
         return api;
     }
 
-    private readJsonData(base64Json): void
+    private readJsonData(base64Json: string): void
     {
         let json: JsonDataI;
 
-        if (typeof base64Json === 'string' && base64Json) {
+        if (base64Json) {
             try {
                 json = JSON.parse(
                     Buffer.from(base64Json, 'base64').toString()
                 );
             } catch (e) {
                 throw new Error('Invalid base64 JSON data provided.');
-            }
-        } else if (fs.existsSync(this.LOCAL_FILE)) {
-            try {
-                json = JSON.parse(
-                    fs.readFileSync(this.LOCAL_FILE,'utf8')
-                );
-            } catch (e) {
-                throw new Error('Invalid JSON file provided.');
             }
         } else {
             throw Error('A JSON file or base64 JSON string must be provided.');
@@ -808,8 +798,8 @@ class Requester
 const requester = new Requester(
     process.env.AUTH_TYPE as string,
     process.env.AUTH_KEY as string,
-    process.env.SERVER as string,
-    process.env.JSON_STRING,
+    process.env.API_SERVER as string,
+    process.env.JSON_DATA as string,
     process.env.DEV_MODE,
 );
 

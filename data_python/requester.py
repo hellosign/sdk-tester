@@ -7,30 +7,27 @@ from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
 
 
 class Requester(object):
-    LOCAL_FILE = './../data.json'
-
     FILE_UPLOADS_DIR = './../file_uploads'
 
     def __init__(
             self,
             auth_type: str,
             auth_key: str,
-            server: str,
-            json_source: str = None,
+            api_server: str,
+            json_data: str = None,
             dev_mode: str = None
     ):
-        self._json_source = json_source
-        self._server = server
-        self._auth_key = auth_key
         self._auth_type = auth_type
-        self._dev_mode = dev_mode
+        self._auth_key = auth_key
+        self._api_server = api_server
+        self._dev_mode = bool(dev_mode)
 
         self._operation_id = ''
         self._data = {}
         self._files = {}
         self._parameters = {}
 
-        self._read_json_data(json_source)
+        self._read_json_data(json_data)
         self._api_client = ApiClient(self._get_config())
 
         if self._dev_mode:
@@ -57,12 +54,12 @@ class Requester(object):
     def _get_config(self):
         if self._auth_type == 'apikey':
             config = Configuration(
-                host=f'https://{self._server}/v3',
+                host=f'https://{self._api_server}/v3',
                 username=self._auth_key,
             )
         elif self._auth_type == 'oauth':
             config = Configuration(
-                host=f'https://{self._server}/v3',
+                host=f'https://{self._api_server}/v3',
                 access_token=self._auth_key,
             )
         else:
@@ -76,13 +73,6 @@ class Requester(object):
 
             if not json_data:
                 raise RuntimeError('Invalid base64 JSON data provided.')
-        elif os.path.exists(self.LOCAL_FILE):
-            file = open(self.LOCAL_FILE, 'r')
-            json_data = json.load(file)
-            file.close()
-
-            if not json_data:
-                raise RuntimeError('Invalid JSON file provided.')
         else:
             raise RuntimeError
 
@@ -595,8 +585,8 @@ if __name__ == '__main__':
     requester = Requester(
         os.getenv('AUTH_TYPE'),
         os.getenv('AUTH_KEY'),
-        os.getenv('SERVER'),
-        os.getenv('JSON_STRING'),
+        os.getenv('API_SERVER'),
+        os.getenv('JSON_DATA'),
         os.getenv('DEV_MODE'),
     )
     requester.run()

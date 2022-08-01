@@ -16,12 +16,14 @@ class ApiTester(object):
     def __init__(
             self,
             container_bin: str,
+            sdk_language: str,
             uploads_dir: str,
             auth_type: str,
             auth_key: str,
             server: str,
     ):
         self._container_bin = container_bin
+        self._sdk_language = sdk_language
         self._uploads_dir = uploads_dir
         self._auth_type = auth_type
         self._auth_key = auth_key
@@ -34,11 +36,12 @@ class ApiTester(object):
 
         cmd = [
             self._container_bin,
-            f'-u{self._uploads_dir}',
-            f'-a{self._auth_type}',
-            f'-k{self._auth_key}',
-            f'-s{self._server}',
-            f'-j{base64_json_string}',
+            f'--sdk={self._sdk_language}',
+            f'--auth_type={self._auth_type}',
+            f'--auth_key={self._auth_key}',
+            f'--uploads_dir={self._uploads_dir}',
+            f'--server={self._server}',
+            f'--json={base64_json_string}',
         ]
         response = subprocess.run(
             cmd,
@@ -113,18 +116,19 @@ if __name__ == '__main__':
     # One of "node", "php", "python". Coming soon: "ruby", "csharp", "java"
     sdk_language = 'php'
     # Uploads directory, containing PDFs you may want to upload to the API
-    uploads_dir = f'{dir_path}/uploads_dir'
+    uploads_dir = f'{dir_path}/../file_uploads'
     # One of "apikey" or "oauth"
     api_auth = 'apikey'
     # The API key or OAuth bearer token to use for the request
     api_key = 'fef31706c2825a4d08c27987031f0aaaff7b9f298d2e926233b834183dc6a872'
     # Change server, ie dev/qa/staging/prod
-    server = 'api.dev-hellosign.com'
+    server = 'api.hellosign.com'
 
-    container_bin = f'{dir_path}/openapi-integration-tests/{sdk_language}-run'
+    container_bin = f'{dir_path}/../run'
 
     tester = ApiTester(
         container_bin,
+        sdk_language,
         uploads_dir,
         api_auth,
         api_key,

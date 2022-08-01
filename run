@@ -1,0 +1,224 @@
+#!/usr/bin/env bash
+
+set -e
+DIR=$(cd `dirname $0` && pwd)
+AVAILABLE_SDKS=("csharp java node php python ruby")
+SELECTED_SDK=""
+UPLOADS_DIR="${DIR}/file_uploads"
+SERVER="api.hellosign.com"
+DEV_MODE=0
+
+main() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --sdk=*) SELECTED_SDK="${1#*=}"
+            ;;
+            --sdk) SELECTED_SDK="${2#*}"
+            ;;
+            --auth_type=*) AUTH_TYPE="${1#*=}"
+            ;;
+            --auth_type) AUTH_TYPE="${2#*}"
+            ;;
+            --auth_key=*) AUTH_KEY="${1#*=}"
+            ;;
+            --auth_key) AUTH_KEY="${2#*}"
+            ;;
+            --json=*) JSON="${1#*=}"
+            ;;
+            --json) JSON="${2#*}"
+            ;;
+            --server=*) SERVER="${1#*=}"
+            ;;
+            --server) SERVER="${2#*}"
+            ;;
+            --uploads_dir=*) UPLOADS_DIR="${1#*=}"
+            ;;
+            --uploads_dir) UPLOADS_DIR="${2#*}"
+            ;;
+            --dev_mode=*) DEV_MODE=1
+            ;;
+            --dev_mode) DEV_MODE=1
+            ;;
+            --help) show_help && exit 0
+            ;;
+        esac
+        shift
+    done
+
+    # lowercase
+    SELECTED_SDK="${SELECTED_SDK,,}"
+
+    validate_auth
+    validate_json_data
+    validate_uploads_dir
+    validate_selected_sdk
+
+    run_${SELECTED_SDK}
+}
+
+function show_help() {
+    cat << EOF
+Uses the selected HelloSign OpenAPI SDK to make a request to the HelloSign API
+--sdk             one of "csharp", "java", "node", "php", "python", "ruby"
+                    (required)
+--auth_type       one of "apikey", "oauth"
+                    (required)
+--auth_key        auth key
+                    If --auth_key=apikey, pass API Key
+                    If --auth_key=oauth, pass OAuth Bearer Token
+                    (required)
+--json            valid JSON file containing all request data
+                    OR base64-encoded JSON string
+                    (required)
+--server          API server to use, must be like "api.hellosign.com".
+                    (defaults to api.hellosign.com)
+--uploads_dir     directory where files that can be uploaded to the API live.
+                    (defaults to ${DIR}/file_uploads)
+--dev_mode        run container in dev mode
+                    (optional, default false)
+--help            display this help and exit
+
+Example if using a JSON file:
+    ./run \\
+        --sdk=php \\
+        --auth_type=apikey \\
+        --auth_key=4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
+        --json="\$PWD/test_fixtures/accountCreate-example_01.json"
+
+Example if using a base64-encoded JSON string:
+    ./run \\
+        --sdk=php \\
+        --auth_type=apikey \\
+        --auth_key=4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \\
+        --json="ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
+EOF
+}
+
+function validate_auth()
+{
+    if [[ "${AUTH_TYPE}" != "apikey" &&
+          "${AUTH_TYPE}" != "oauth"
+       ]]; then
+        printf "Invalid auth type (--auth_type) value: ${AUTH_TYPE}\n\n"
+        show_help
+        exit 1
+    fi
+
+    if [[ -z "${AUTH_KEY}" ]]; then
+        printf "Missing argument: --auth_key.\n\n"
+        show_help
+        exit 1
+    fi
+}
+
+function validate_json_data()
+{
+    if [[ -z "${JSON}" ]]; then
+        printf "You must specify either a JSON file or a base64-encoded JSON string (--json)\n\n"
+        show_help
+        exit 1
+    fi
+
+    if [[ -f "${JSON}" ]]; then
+        JSON=$(cat "${JSON}" | base64)
+    fi
+}
+
+function validate_uploads_dir()
+{
+    if [[ ! -d "${UPLOADS_DIR}" ]]; then
+        printf "Uploads directory does not exist: ${UPLOADS_DIR}\n\n"
+        show_help
+        exit 1
+    fi
+}
+
+function validate_selected_sdk()
+{
+    if [[ ! " ${AVAILABLE_SDKS[*]} " =~ " ${SELECTED_SDK} " ]]; then
+        printf "Invalid SDK selected: ${SELECTED_SDK}\n"
+        show_help
+        exit 1
+    fi
+}
+
+function run_csharp()
+{
+    printf "C# not yet implemented\n"
+    exit 1
+}
+
+function run_java()
+{
+    printf "Java not yet implemented\n"
+    exit 1
+}
+
+function run_node()
+{
+    CONTAINER="docker.io/hellosign/hellosign-node-sdk"
+    REQUESTER_FILE=""
+    CMD="npm run start --silent"
+
+    if [[ $DEV_MODE -eq 1 ]]; then
+        REQUESTER_FILE="-v ${DIR}/data_node/requester.ts:/app/requester.ts"
+        CMD="npm run dev --silent"
+    fi
+
+    run_container
+}
+
+function run_php()
+{
+    CONTAINER="docker.io/hellosign/hellosign-php-sdk"
+    REQUESTER_FILE=""
+    CMD="php /app/requester.php"
+
+    if [[ $DEV_MODE -eq 1 ]]; then
+        REQUESTER_FILE="-v ${DIR}/data_php/requester.php:/app/requester.php"
+    fi
+
+    run_container
+}
+
+function run_python()
+{
+    CONTAINER="docker.io/hellosign/hellosign-python-sdk"
+    REQUESTER_FILE=""
+    CMD="python /app/requester.py"
+
+    if [[ $DEV_MODE -eq 1 ]]; then
+        REQUESTER_FILE="-v ${DIR}/data_python/requester.py:/app/requester.py"
+    fi
+
+    run_container
+}
+
+function run_ruby()
+{
+    CONTAINER="docker.io/hellosign/hellosign-ruby-sdk"
+    REQUESTER_FILE=""
+    CMD="bundle exec ruby /app/requester.rb"
+
+    if [[ $DEV_MODE -eq 1 ]]; then
+        REQUESTER_FILE="-v ${DIR}/data_ruby/requester.rb:/app/requester.rb"
+    fi
+
+    run_container
+}
+
+function run_container()
+{
+    docker container run --rm \
+        -e AUTH_TYPE="${AUTH_TYPE}" \
+        -e AUTH_KEY="${AUTH_KEY}" \
+        -e API_SERVER="${SERVER}" \
+        -e JSON_DATA="${JSON}" \
+        -e DEV_MODE="${DEV_MODE}" \
+        -v ${UPLOADS_DIR}:"/file_uploads" \
+        ${REQUESTER_FILE} \
+        ${CONTAINER} ${CMD}
+}
+
+main "$@";
+exit

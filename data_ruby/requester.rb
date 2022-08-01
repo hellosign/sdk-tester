@@ -23,21 +23,21 @@ class Requester
 
   attr_accessor :parameters
 
-  attr_accessor :server
+  attr_accessor :api_server
 
   def initialize(
     auth_type = '',
     auth_key = '',
-    server = '',
-    json_source = nil,
+    api_server = '',
+    json_data = '',
     dev_mode = nil
   )
     self.auth_type = auth_type.downcase
     self.auth_key = auth_key
-    self.server = server
-    self.dev_mode = dev_mode
+    self.api_server = api_server
+    self.dev_mode = self.to_boolean(dev_mode)
 
-    self.read_json_data(json_source)
+    self.read_json_data(json_data)
   end
 
   def run
@@ -66,7 +66,7 @@ class Requester
 
   def get_client
     config = HelloSign::Configuration.new
-    config.host = self.server
+    config.host = self.api_server
 
     if self.auth_type === 'apikey'
       config.username = self.auth_key
@@ -91,12 +91,6 @@ class Requester
         json = JSON.parse(Base64.decode64(base64_json), :symbolize_names => true)
       rescue StandardError
         raise 'Invalid base64 JSON data provided.'
-      end
-    elsif File.exist? LOCAL_FILE
-      begin
-        json = JSON.parse(File.read(LOCAL_FILE), :symbolize_names => true)
-      rescue StandardError
-        raise 'Invalid JSON file provided.'
       end
     else
       raise 'No valid JSON data provided.'
@@ -865,14 +859,18 @@ class Requester
       )
     end
   end
+
+  def to_boolean(s)
+    !!(s =~ /^(true|t|yes|y|1)$/i)
+  end
 end
 
 requester = Requester.new(
   ENV['AUTH_TYPE'] || '',
   ENV['AUTH_KEY'] || '',
-  ENV['SERVER'] || '',
-  ENV['JSON_STRING'],
-  ENV['DEV_MODE'],
+  ENV['API_SERVER'] || '',
+  ENV['JSON_DATA'] || '',
+  ENV['DEV_MODE'] || false,
 )
 
 requester.run

@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -e
+DIR=$(cd `dirname $0` && pwd)
+AVAILABLE_SDKS=("csharp java node php python ruby")
+SELECTED_SDK=$1
+
+main() {
+  touch "${DIR}/data.json"
+
+  if [[ -z "${SELECTED_SDK}" ]]; then
+      show_help
+      exit 0
+  fi
+
+  # lowercase
+  SELECTED_SDK="${SELECTED_SDK,,}"
+
+  if [[ ${SELECTED_SDK} == "all" ]]; then
+      build_container node
+      build_container php
+      build_container python
+      build_container ruby
+      exit 0
+  fi
+
+  if [[ ! " ${AVAILABLE_SDKS[*]} " =~ " ${SELECTED_SDK} " ]]; then
+      printf "Invalid SDK selected: ${SELECTED_SDK}\n"
+      show_help
+      exit 1
+  fi
+
+  build_container ${SELECTED_SDK}
+  exit 0
+}
+
+function show_help() {
+    cat << EOF
+Builds one or all SDK containers.
+
+To create containers for all the SDKs:
+    ./build all
+
+To create a container for a single SDK:
+    ./build [SDK]
+
+SDK can be one of "csharp", "java", "node", "php", "python", "ruby"
+
+EOF
+}
+
+function build_container()
+{
+    SELECTED_SDK=$1
+
+    if [[ "${SELECTED_SDK}" == "csharp" ]] || [[ "${SELECTED_SDK}" == "java" ]]; then
+        printf "${SELECTED_SDK} not yet implemented\n"
+        exit 1
+    fi
+
+    IMG_NAME="hellosign/hellosign-${SELECTED_SDK}-sdk"
+    printf "Building the ${SELECTED_SDK} container\n\n"
+    docker image build \
+        --no-cache \
+        -t ${IMG_NAME}:latest \
+        -f data_${SELECTED_SDK}/Dockerfile \
+        ./data_${SELECTED_SDK}
+    printf "\nSuccessfully created image ${IMG_NAME}\n"
+}
+
+main "$@";
+exit

@@ -3,8 +3,6 @@ require 'json'
 require 'hello_sign'
 
 class Requester
-  LOCAL_FILE = __dir__ + '/../data.json'
-
   FILE_UPLOADS_DIR = __dir__ + '/../file_uploads'
 
   attr_accessor :auth_type

@@ -5,7 +5,7 @@ supported OpenAPI SDKs.
 
 # Demo
 
-See [hellosign/sdk-tester](https://github.com/hellosign/sdk-tester) for a demo
+See [./demo](./demo) for a demo
 on how this project may be used in our testing suite.
 
 # How to Use

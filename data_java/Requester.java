@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.hellosign.openapi.*;
 import com.hellosign.openapi.api.AccountApi;
+import com.hellosign.openapi.api.ApiAppApi;
 import com.hellosign.openapi.auth.HttpBasicAuth;
 import com.hellosign.openapi.auth.HttpBearerAuth;
-import com.hellosign.openapi.model.AccountGetResponse;
+import com.hellosign.openapi.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,9 @@ public class Requester {
     private JsonNode files;
     private String operationId;
     private JsonNode parameters;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final static String FILE_UPLOADS_DIR = "./../file_uploads";
 
     public Requester(String authType, String authKey, String apiServer, String jsonData, boolean devMode) throws Exception {
         this.authType = authType.toLowerCase();
@@ -33,19 +37,26 @@ public class Requester {
     }
 
     public void run() throws Exception {
-        ApiResponse apiResponse = callFromOperationId();
-
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        Map<String, Object> output = Map.of(
-        "body", apiResponse.getData(),
-        "statusCode", apiResponse.getStatusCode(),
-        "headers", apiResponse.getHeaders()
-        );
-        System.out.println(ow.writeValueAsString(output));
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+        try {
+            ApiResponse apiResponse = callFromOperationId();
+            Map<String, Object> output = Map.of(
+                    "body", apiResponse.getData(),
+                    "status_code", apiResponse.getStatusCode(),
+                    "headers", apiResponse.getHeaders()
+            );
+            System.out.println(ow.writeValueAsString(output));
+        } catch (ApiException e) {
+            Map<String, Object> output = Map.of(
+                    "body", e.getResponseBody(),
+                    "status_code", e.getCode(),
+                    "headers", e.getResponseHeaders()
+            );
+            System.out.println(ow.writeValueAsString(output));
+        }
     }
 
     private void readJsonData(String base64Json) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(Base64.getDecoder().decode(base64Json));
         operationId = jsonNode.get("operationId").asText("");
         data = jsonNode.get("data");
@@ -100,16 +111,31 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse apiAppApi() {
+    private ApiResponse apiAppApi() throws Exception {
+        ApiAppApi api = new ApiAppApi(getApiClient());
+        switch (operationId) {
+            case "apiAppCreate":
+                ApiAppCreateRequest createRequest = objectMapper.readValue(data.toString(), ApiAppCreateRequest.class);
+                createRequest.customLogoFile(getFile("custom_logo_file"));
+                return api.apiAppCreateWithHttpInfo(createRequest);
+        }
         return null;
     }
 
     private ApiResponse accountApi() throws Exception {
         AccountApi api = new AccountApi(getApiClient());
-        ApiClient apiClient = getApiClient();
         switch (operationId) {
+            case "accountCreate":
+                AccountCreateRequest request = objectMapper.readValue(data.toString(), AccountCreateRequest.class);
+                return api.accountCreateWithHttpInfo(request);
             case "accountGet":
                 return api.accountGetWithHttpInfo(parameters.get("account_id").asText());
+            case "accountUpdate":
+                AccountUpdateRequest updateRequest = objectMapper.readValue(data.toString(), AccountUpdateRequest.class);
+                return api.accountUpdateWithHttpInfo(updateRequest);
+            case "accountVerify":
+                AccountVerifyRequest verifyRequest = objectMapper.readValue(data.toString(), AccountVerifyRequest.class);
+                return api.accountVerifyWithHttpInfo(verifyRequest);
         }
         return null;
     }
@@ -134,6 +160,13 @@ public class Requester {
             );
         }
         return defaultClient;
+    }
+
+    private File getFile(String name) {
+        if (!files.get(name).asText().isBlank()) {
+            return new File(FILE_UPLOADS_DIR + "/" + files.get(name).asText());
+        }
+        return null;
     }
 
     public static void main(String[] args) throws Exception {

@@ -150,8 +150,11 @@ function run_csharp()
 
 function run_java()
 {
-    printf "Java not yet implemented\n"
-    exit 1
+    CONTAINER="docker.io/hellosign/hellosign-java-sdk"
+    REQUESTER_FILE=""
+    CMD="java -jar /app/target/sdk-tester-java-1.0-SNAPSHOT.jar"
+
+    run_container
 }
 
 function run_node()

@@ -53,7 +53,7 @@ function build_container()
 {
     SELECTED_SDK=$1
 
-    if [[ "${SELECTED_SDK}" == "csharp" ]] || [[ "${SELECTED_SDK}" == "java" ]]; then
+    if [[ "${SELECTED_SDK}" == "csharp" ]]; then
         printf "${SELECTED_SDK} not yet implemented\n"
         exit 1
     fi

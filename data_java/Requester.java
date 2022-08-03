@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.hellosign.openapi.*;
 import com.hellosign.openapi.api.AccountApi;
 import com.hellosign.openapi.api.ApiAppApi;
+import com.hellosign.openapi.api.SignatureRequestApi;
 import com.hellosign.openapi.auth.HttpBasicAuth;
 import com.hellosign.openapi.auth.HttpBearerAuth;
 import com.hellosign.openapi.model.*;
@@ -48,7 +49,7 @@ public class Requester {
             System.out.println(ow.writeValueAsString(output));
         } catch (ApiException e) {
             Map<String, Object> output = Map.of(
-                    "body", e.getResponseBody(),
+                    "body", e.getErrorResponse(),
                     "status_code", e.getCode(),
                     "headers", e.getResponseHeaders()
             );
@@ -91,7 +92,14 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse signatureRequestApi() {
+    private ApiResponse signatureRequestApi() throws Exception {
+        SignatureRequestApi api = new SignatureRequestApi(getApiClient());
+        switch (operationId) {
+            case "signatureRequestSend":
+                SignatureRequestSendRequest sendRequest = objectMapper.readValue(data.toString(), SignatureRequestSendRequest.class);
+                sendRequest.setFile(getFiles("file"));
+                return api.signatureRequestSendWithHttpInfo(sendRequest);
+        }
         return null;
     }
 
@@ -160,6 +168,14 @@ public class Requester {
             );
         }
         return defaultClient;
+    }
+
+    private List<File> getFiles(String name) {
+        List<File> files = new ArrayList<>();
+        this.files.get(name)
+                .iterator()
+                .forEachRemaining(jsonNode -> files.add(new File(FILE_UPLOADS_DIR + "/" + jsonNode.asText())));
+        return files;
     }
 
     private File getFile(String name) {

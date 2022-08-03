@@ -2,10 +2,10 @@ package com.hellosign.sdk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.hellosign.openapi.*;
-import org.hellosign.openapi.api.AccountApi;
-import org.hellosign.openapi.auth.HttpBasicAuth;
-import org.hellosign.openapi.model.AccountGetResponse;
+import com.hellosign.openapi.*;
+import com.hellosign.openapi.api.AccountApi;
+import com.hellosign.openapi.auth.HttpBasicAuth;
+import com.hellosign.openapi.model.AccountGetResponse;
 
 import java.io.File;
 import java.util.HashMap;

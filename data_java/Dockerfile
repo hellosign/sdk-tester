@@ -9,6 +9,7 @@ RUN mkdir /file_uploads && \
 
 COPY ./pom.xml /app/pom.xml
 COPY ./Requester.java /app/src/main/java/com/hellosign/sdk/Requester.java
+COPY ./run-dev /app/run-dev
 
 RUN cd /app && \
     mvn -f pom.xml compile assembly:single

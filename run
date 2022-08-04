@@ -153,6 +153,10 @@ function run_java()
     CONTAINER="docker.io/hellosign/hellosign-java-sdk"
     REQUESTER_FILE=""
     CMD="java -jar /app/target/sdk-tester-java-1.0-SNAPSHOT.jar"
+    if [[ $DEV_MODE -eq 1 ]]; then
+        REQUESTER_FILE="-v ${DIR}/data_java/Requester.java:/app/Requester.java"
+        CMD="bash /app/run-dev"
+    fi
 
     run_container
 }

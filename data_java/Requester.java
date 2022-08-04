@@ -319,6 +319,9 @@ public class Requester {
 
     private ApiClient getApiClient() throws Exception {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
+        if (devMode) {
+            defaultClient.addDefaultHeader("Cookie", "XDEBUG_SESSION=xdebug");
+        }
         if (apiServer != null && !apiServer.isBlank()) {
             defaultClient.setBasePath("https://" + apiServer + "/v3");
         }
@@ -360,7 +363,7 @@ public class Requester {
                 System.getenv("AUTH_KEY"),
                 System.getenv("API_SERVER"),
                 System.getenv("JSON_DATA"),
-                Boolean.parseBoolean(System.getenv("API_SERVER"))
+                Boolean.parseBoolean(System.getenv("DEV_MODE"))
         );
         r.run();
     }

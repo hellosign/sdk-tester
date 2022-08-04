@@ -21,6 +21,7 @@ main() {
       build_container php
       build_container python
       build_container ruby
+      build_container java
       exit 0
   fi
 

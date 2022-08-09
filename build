@@ -54,11 +54,6 @@ function build_container()
 {
     SELECTED_SDK=$1
 
-    if [[ "${SELECTED_SDK}" == "csharp" ]] || [[ "${SELECTED_SDK}" == "java" ]]; then
-        printf "${SELECTED_SDK} not yet implemented\n"
-        exit 1
-    fi
-
     IMG_NAME="hellosign/hellosign-${SELECTED_SDK}-sdk"
     printf "Building the ${SELECTED_SDK} container\n\n"
     docker image build \

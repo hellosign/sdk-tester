@@ -146,7 +146,7 @@ function run_csharp()
 {
     CONTAINER="docker.io/hellosign/hellosign-csharp-sdk"
     REQUESTER_FILE=""
-    CMD="dotnet run --project /app/hellosign-dotnet-sdk/sdk-tester/sdk-tester.csproj"
+    CMD="dotnet run --project /app/hellosign-dotnet-sdk/sdk-tester/sdk-tester.csproj -- ${AUTH_TYPE} ${AUTH_KEY} ${SERVER} ${JSON} ${DEV_MODE}"
 
     run_container
 }

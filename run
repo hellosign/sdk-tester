@@ -144,8 +144,11 @@ function validate_selected_sdk()
 
 function run_csharp()
 {
-    printf "C# not yet implemented\n"
-    exit 1
+    CONTAINER="docker.io/hellosign/hellosign-csharp-sdk"
+    REQUESTER_FILE=""
+    CMD="dotnet run --project /app/hellosign-dotnet-sdk/sdk-tester/sdk-tester.csproj"
+
+    run_container
 }
 
 function run_java()

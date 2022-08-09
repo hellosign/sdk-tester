@@ -21,6 +21,7 @@ main() {
       build_container php
       build_container python
       build_container ruby
+      build_container java
       exit 0
   fi
 
@@ -53,7 +54,7 @@ function build_container()
 {
     SELECTED_SDK=$1
 
-    if [[ "${SELECTED_SDK}" == "csharp" ]] || [[ "${SELECTED_SDK}" == "java" ]]; then
+    if [[ "${SELECTED_SDK}" == "csharp" ]]; then
         printf "${SELECTED_SDK} not yet implemented\n"
         exit 1
     fi

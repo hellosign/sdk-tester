@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Org.HelloSign.Api;
 using Org.HelloSign.Client;
 using Org.HelloSign.Model;
@@ -14,11 +15,11 @@ class Requester
     private string apiServer;
     private string authType;
     private string authKey;
-    private object? data;
+    private JObject? data;
     private bool devMode;
-    private object? files;
+    private JObject? files;
     private string? operationId;
-    private object? parameters;
+    private JObject? parameters;
 
     public Requester(string authType, string authKey, string apiServer, string jsonData, bool devMode)
     {
@@ -31,9 +32,9 @@ class Requester
 
     public void run()
     {
-        var apiResponse = callFromOperationId();
         try
         {
+            var apiResponse = callFromOperationId();
             var output = new Dictionary<string, object>
             {
                 ["body"] = apiResponse.Content,
@@ -46,7 +47,7 @@ class Requester
         {
             var output = new Dictionary<string, object>
             {
-                ["body"] = e.Data,
+                ["body"] = e.ErrorContent,
                 ["status_code"] = e.ErrorCode,
                 ["headers"] = e.Headers
             };
@@ -57,17 +58,20 @@ class Requester
     private void readJsonData(string base64Json)
     {
         var json = Encoding.UTF8.GetString(Convert.FromBase64String(base64Json));
-        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
+        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
         operationId =  dictionary["operationId"] as string;
-        dictionary.TryGetValue("data", out data);
-        dictionary.TryGetValue("files", out files);
-        dictionary.TryGetValue("parameters", out parameters);
+        dictionary.TryGetValue("data", out var dataObj );
+        dictionary.TryGetValue("files", out var filesObj);
+        dictionary.TryGetValue("parameters", out var parametersObj);
+
+        parameters = parametersObj as JObject;
     }
 
     private IApiResponse callFromOperationId()
     {
         var accountApi = new AccountApi(getConfiguration());
-        return accountApi.AccountGetWithHttpInfo();
+        parameters.TryGetValue("account_id", out var accountId);
+        return accountApi.AccountGetWithHttpInfo(accountId?.ToString());
     }
 
     private Configuration getConfiguration()

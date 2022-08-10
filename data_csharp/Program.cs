@@ -1,51 +1,122 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using Newtonsoft.Json;
 using Org.HelloSign.Api;
 using Org.HelloSign.Client;
 using Org.HelloSign.Model;
+using JsonConverter = Newtonsoft.Json.JsonConverter;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 
 class Requester
 {
-    static void Main(string[] args)
+    private string apiServer;
+    private string authType;
+    private string authKey;
+    private object? data;
+    private bool devMode;
+    private object? files;
+    private string? operationId;
+    private object? parameters;
+
+    public Requester(string authType, string authKey, string apiServer, string jsonData, bool devMode)
     {
-        string authType = args[0];
-        string authKey = args[1];
-        string apiServer = args[2];
-        string jsonData = args[3];
-        if (args.Length > 4)
-        {
-            bool devMode = int.Parse(args[4]) == 1;
-        }
+        this.authType = authType.ToLower();
+        this.authKey = authKey;
+        this.apiServer = apiServer;
+        this.devMode = devMode;
+        readJsonData(jsonData);
+    }
 
-        var config = new Configuration();
-        // Configure HTTP basic authorization: api_key
-        config.Username = authKey;
-
-        // or, configure Bearer (JWT) authorization: oauth2
-        // config.AccessToken = "YOUR_BEARER_TOKEN";
-
-        var apiInstance = new SignatureRequestApi(config);
-
-        var accountId = "all";
-
+    public void run()
+    {
+        var apiResponse = callFromOperationId();
         try
         {
-            var result = apiInstance.SignatureRequestList(accountId);
-            Console.WriteLine(result);
-            //var header =  apiInstance.SignatureRequestListWithHttpInfo(accountId).Headers;
-            //Console.WriteLine(header);
-
-            //var signatureRequestId = "02627ce4985b8b70083c5916e2b2648993bfa4e1";
-            //var result2 = apiInstance.SignatureRequestGet(signatureRequestId);
-            //Console.WriteLine(result2);
+            var output = new Dictionary<string, object>
+            {
+                ["body"] = apiResponse.Content,
+                ["status_code"] = (int)apiResponse.StatusCode,
+                ["headers"] = apiResponse.Headers
+            };
+            Console.WriteLine(JsonSerializer.Serialize(output));
         }
         catch (ApiException e)
         {
-            Console.WriteLine("Exception when calling HelloSign API: " + e.Message);
-            Console.WriteLine("Status Code: " + e.ErrorCode);
-            Console.WriteLine(e.StackTrace);
+            var output = new Dictionary<string, object>
+            {
+                ["body"] = e.Data,
+                ["status_code"] = e.ErrorCode,
+                ["headers"] = e.Headers
+            };
+            Console.WriteLine(JsonSerializer.Serialize(output));
         }
+    }
+
+    private void readJsonData(string base64Json)
+    {
+        var json = Encoding.UTF8.GetString(Convert.FromBase64String(base64Json));
+        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
+        operationId =  dictionary["operationId"] as string;
+        dictionary.TryGetValue("data", out data);
+        dictionary.TryGetValue("files", out files);
+        dictionary.TryGetValue("parameters", out parameters);
+    }
+
+    private IApiResponse callFromOperationId()
+    {
+        var accountApi = new AccountApi(getConfiguration());
+        return accountApi.AccountGetWithHttpInfo();
+    }
+
+    private Configuration getConfiguration()
+    {
+        var config = new Configuration();
+        if (!String.IsNullOrEmpty(apiServer))
+        {
+            var serverUrl = "https://" + apiServer + "/v3";
+            config.Servers[0] = new Dictionary<string, object>
+            {
+                { "url", serverUrl },
+                { "description", "No description provided" },
+            };
+        }
+
+        if (devMode)
+        {
+            config.DefaultHeaders.Add(new KeyValuePair<string, string>("Cookie", "XDEBUG_SESSION=xdebug"));
+        }
+
+        if (authType == "apikey")
+        {
+            config.Username = authKey;
+        } else if (authType == "oauth")
+        {
+            config.AccessToken = authKey;
+        }
+        else
+        {
+            throw new Exception("Invalid auth type. Must be \"apikey\" or \"oauth\"");
+        }
+
+        return config;
+    }
+
+    static void Main(string[] args)
+    {
+        var authType = args[0];
+        var authKey = args[1];
+        var apiServer = args[2];
+        var jsonData = args[3];
+        var devMode = false;
+        if (args.Length > 4)
+        {
+            devMode = int.Parse(args[4]) == 1;
+        }
+
+        var requester = new Requester(authType, authKey, apiServer, jsonData, devMode);
+        requester.run();
     }
 }
 

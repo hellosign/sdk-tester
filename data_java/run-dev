@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+mvn -f /app/pom.xml compile assembly:single
+java -jar /app/target/sdk-tester-java-1.0-SNAPSHOT.jar

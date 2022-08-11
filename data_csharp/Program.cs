@@ -14,15 +14,15 @@ class Requester
     private string apiServer;
     private string authType;
     private string authKey;
-    private JObject? data;
+    private JObject data = new();
     private bool devMode;
-    private JObject? files;
+    private JObject files = new();
     private string? operationId;
-    private JObject? parameters;
+    private JObject parameters = new();
 
     private readonly string FILE_UPLOADS_DIR =
-         /*"/file_uploads" */
-        "/Users/fenghao/PhpstormProjects/openapi/hellosign-dotnet-sdk/RunSDK/file_uploads";
+         "/file_uploads"
+        /*"/Users/fenghao/PhpstormProjects/openapi/hellosign-dotnet-sdk/RunSDK/file_uploads"*/;
 
 
     public Requester(string authType, string authKey, string apiServer, string jsonData, bool devMode)
@@ -62,20 +62,21 @@ class Requester
     private void ReadJsonData(string base64Json)
     {
         var json = Encoding.UTF8.GetString(Convert.FromBase64String(base64Json));
-        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
         operationId =  dictionary["operationId"] as string;
         dictionary.TryGetValue("data", out var dataObj );
         dictionary.TryGetValue("files", out var filesObj);
         dictionary.TryGetValue("parameters", out var parametersObj);
 
-        data = dataObj as JObject;
-        files = filesObj as JObject;
-        parameters = parametersObj as JObject;
+        data = dataObj as JObject ?? new JObject();
+        files = filesObj as JObject ?? new JObject();
+        parameters = parametersObj as JObject ??  new JObject();
     }
 
     private IApiResponse CallFromOperationId()
     {
-        return SignatureRequestApi();
+        return ApiAppApi();
+        //return SignatureRequestApi();
     }
 
     private IApiResponse AccountApi()
@@ -85,25 +86,36 @@ class Requester
         return accountApi.AccountGetWithHttpInfo(accountId?.ToString());
     }
 
+    private IApiResponse ApiAppApi()
+    {
+        var api = new ApiAppApi(GetConfiguration());
+        var apiAppCreateRequest = JsonConvert.DeserializeObject<ApiAppCreateRequest>(data.ToString()) ?? new ApiAppCreateRequest();
+        var customLogoFile = GetFile("custom_logo_file");
+        if (customLogoFile != null)
+        {
+            apiAppCreateRequest.CustomLogoFile = customLogoFile;
+        }
+        return api.ApiAppCreateWithHttpInfo(apiAppCreateRequest);
+    }
+
     private IApiResponse SignatureRequestApi()
     {
         var api = new SignatureRequestApi(GetConfiguration());
-        var sendRequest = JsonConvert.DeserializeObject<SignatureRequestSendRequest>(data.ToString());
-        sendRequest.File = GetFiles("file");
+        var sendRequest = JsonConvert.DeserializeObject<SignatureRequestSendRequest>(data.ToString()) ?? new SignatureRequestSendRequest();
+        var file = GetFiles("file");
+        if (file != null)
+        {
+            sendRequest.File = file;
+        }
         return api.SignatureRequestSendWithHttpInfo(sendRequest);
     }
 
     private Configuration GetConfiguration()
     {
         var config = new Configuration();
-        if (!String.IsNullOrEmpty(apiServer))
+        if (!string.IsNullOrEmpty(apiServer))
         {
-            var serverUrl = "https://" + apiServer + "/v3";
-            config.Servers[0] = new Dictionary<string, object>
-            {
-                { "url", serverUrl },
-                { "description", "No description provided" },
-            };
+            config.BasePath = "https://" + apiServer + "/v3";
         }
 
         if (devMode)
@@ -111,26 +123,31 @@ class Requester
             config.DefaultHeaders.Add(new KeyValuePair<string, string>("Cookie", "XDEBUG_SESSION=xdebug"));
         }
 
-        if (authType == "apikey")
+        switch (authType)
         {
-            config.Username = authKey;
-        } else if (authType == "oauth")
-        {
-            config.AccessToken = authKey;
-        }
-        else
-        {
-            throw new Exception("Invalid auth type. Must be \"apikey\" or \"oauth\"");
+            case "apikey":
+                config.Username = authKey;
+                break;
+            case "oauth":
+                config.AccessToken = authKey;
+                break;
+            default:
+                throw new Exception("Invalid auth type. Must be \"apikey\" or \"oauth\"");
         }
 
         return config;
     }
 
-    public List<Stream> GetFiles(string name)
+    private Stream? GetFile(string name)
+    {
+        var filename = files[name]?.ToString();
+        return filename == null ? null : new StreamReader(FILE_UPLOADS_DIR + $"/{filename}").BaseStream;
+    }
+
+    private List<Stream>? GetFiles(string name)
     {
         var jToken = files[name];
-
-        return jToken.Select(filename => new StreamReader(FILE_UPLOADS_DIR + $"/{filename}").BaseStream).ToList();
+        return jToken?.Select(filename => new StreamReader(FILE_UPLOADS_DIR + $"/{filename}").BaseStream).ToList();
     }
 
     static void Main(string[] args)

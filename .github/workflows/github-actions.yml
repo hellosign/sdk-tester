@@ -11,5 +11,6 @@ jobs:
     steps:
       - name: run sdk tester
         run: |
-          ./demo/setup
-          python3 demo/main.py
+          cd demo
+          ./setup
+          python3 main.py

@@ -1,9 +1,11 @@
 name: github-actions
 on:
-  workflow_dispatch:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron: '15 5,22 * * *'
+    - cron: '30 * * * *'
+
+  # Allow manually triggering of the workflow.
+  workflow_dispatch: { }
 
 jobs:
   run-sdk-tester:

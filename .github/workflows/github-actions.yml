@@ -9,6 +9,7 @@ jobs:
   run-sdk-tester:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: run sdk tester
         run: |
           cd demo

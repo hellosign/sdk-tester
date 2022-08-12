@@ -1,0 +1,14 @@
+name: github-actions
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: '30 5,22 * * *'
+
+jobs:
+  run-sdk-tester:
+    runs-on: ubuntu-latest
+    steps:
+      - name: run sdk tester
+        run: |
+          ./demo/setup
+          python3 demo/main.py

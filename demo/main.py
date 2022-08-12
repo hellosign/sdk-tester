@@ -113,14 +113,14 @@ if __name__ == '__main__':
     # Grab the following from config file, environment, or somewhere else
     #
 
-    # One of "node", "php", "python". Coming soon: "ruby", "csharp", "java"
+    # One of "node", "php", "python", "ruby", "csharp", "java"
     sdk_language = 'php'
     # Uploads directory, containing PDFs you may want to upload to the API
     uploads_dir = f'{dir_path}/../file_uploads'
     # One of "apikey" or "oauth"
     api_auth = 'apikey'
     # The API key or OAuth bearer token to use for the request
-    api_key = 'fef31706c2825a4d08c27987031f0aaaff7b9f298d2e926233b834183dc6a872'
+    api_key = os.environ['API_KEY']
     # Change server, ie dev/qa/staging/prod
     server = 'api.hellosign.com'
 

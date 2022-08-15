@@ -144,6 +144,7 @@ function validate_selected_sdk()
 
 function run_csharp()
 {
+    exit 1
     CONTAINER="docker.io/hellosign/hellosign-csharp-sdk"
     REQUESTER_FILE=""
     CMD="dotnet run -v quiet --project /app/hellosign-dotnet-sdk/sdk-tester/sdk-tester.csproj -- ${AUTH_TYPE} ${AUTH_KEY} ${SERVER} ${JSON} ${DEV_MODE}"

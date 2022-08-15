@@ -13,6 +13,8 @@ main() {
       exit 0
   fi
 
+  exit 1
+
   # lowercase
   SELECTED_SDK="${SELECTED_SDK,,}"
 

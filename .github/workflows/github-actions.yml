@@ -27,6 +27,6 @@ jobs:
           # See also: https://api.slack.com/methods/chat.postMessage#channels
           channel-id: 'C03U3TD1MA5'
           # For posting a simple plain text message
-          slack-message: "GitHub build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+          slack-message: "GitHub build result: ${{ job.status }}\nlog:${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

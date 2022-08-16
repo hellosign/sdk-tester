@@ -9,17 +9,7 @@ on:
   workflow_dispatch: { }
 
 jobs:
-  build-sdk-containers:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: build sdk containers
-        run: |
-          cd demo
-          ./setup
-
   run-sdk-tester:
-    needs: build-sdk-containers
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
@@ -34,6 +24,7 @@ jobs:
           SERVER: 'api.hellosign.com'
         run: |
           cd demo
+          ./setup
           python3 main.py
       - name: Post to a Slack channel
         if: ${{ failure() }}

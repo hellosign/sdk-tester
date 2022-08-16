@@ -26,8 +26,13 @@ jobs:
           ./build ${{ matrix.language }}
           cd demo
           python3 main.py
+
+  notifiy-slack:
+    needs: run-sdk-tester
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
       - name: Post to a Slack channel
-        if: ${{ failure() }}
         id: slack
         uses: slackapi/slack-github-action@v1.21.0
         with:
@@ -36,13 +41,6 @@ jobs:
           # 'C030GQLB41L' for #alerts-eng-hs-api-notifications, 'C03U3TD1MA5' for #test-slackbot
           channel-id: 'C03U3TD1MA5'
           # For posting a simple plain text message
-          slack-message: "SDK tester result: ${{ job.status }}\nLog: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-message: "SDK tester result: ${{ needs.run-sdk-tester.result }}\nLog: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
-  notifiy-slack:
-    needs: run-sdk-tester
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    steps:
-      - run: echo ${{ needs.run-sdk-tester.result }}

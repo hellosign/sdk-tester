@@ -9,8 +9,17 @@ on:
   workflow_dispatch: { }
 
 jobs:
-  run-sdk-tester:
+  build-sdk-containers:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        run: |
+          ./demo/setup
+
+  run-sdk-tester:
+    needs: build-sdk-containers
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.language }}
     strategy:
       matrix:
         language: [ 'node', 'php', 'python', 'ruby', 'csharp', 'java' ]
@@ -22,9 +31,7 @@ jobs:
           LANGUAGE: ${{ matrix.language }}
           SERVER: 'api.hellosign.com'
         run: |
-          cd demo
-          ./setup
-          python3 main.py
+          python3 demo/main.py
       - name: Post to a Slack channel
         if: ${{ failure() }}
         id: slack
@@ -32,7 +39,8 @@ jobs:
         with:
           # Slack channel id, channel name, or user id to post message.
           # See also: https://api.slack.com/methods/chat.postMessage#channels
-          channel-id: 'C030GQLB41L'
+          # 'C030GQLB41L' for #alerts-eng-hs-api-notifications, 'C03U3TD1MA5' for #test-slackbot
+          channel-id: 'C03U3TD1MA5'
           # For posting a simple plain text message
           slack-message: "SDK tester result: ${{ job.status }}\nLog: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:

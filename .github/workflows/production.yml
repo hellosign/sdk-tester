@@ -21,7 +21,7 @@ jobs:
   run-sdk-tester:
     needs: build-sdk-containers
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.language }}
+    continue-on-error: true
     strategy:
       matrix:
         language: [ 'node', 'php', 'python', 'ruby', 'csharp', 'java' ]

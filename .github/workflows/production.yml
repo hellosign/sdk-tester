@@ -23,8 +23,8 @@ jobs:
           LANGUAGE: ${{ matrix.language }}
           SERVER: 'api.hellosign.com'
         run: |
+          ./build ${{ matrix.language }}
           cd demo
-          ./setup
           python3 main.py
       - name: Post to a Slack channel
         if: ${{ failure() }}

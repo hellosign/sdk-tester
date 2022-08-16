@@ -11,8 +11,8 @@ on:
 jobs:
   run-sdk-tester:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         language: [ 'node', 'php', 'python', 'ruby', 'csharp', 'java' ]
     steps:

@@ -83,7 +83,7 @@ def test_create_account_success(tester: ApiTester):
     }
 
     response = tester.run(json_data)
-
+    print(f"\n\nResponse : test_create_account_success {response}")
     assert response.status_code == 200
     assert response.body['account']['email_address'] == email_address
 
@@ -101,7 +101,7 @@ def test_create_account_failure(tester: ApiTester):
     }
 
     response = tester.run(json_data)
-
+    print(f"\n\nResponse : test_create_account_failure {response}")
     assert response.status_code == 400
     assert 'email_address not valid' in response.body['error']['error_msg']
 
@@ -120,9 +120,9 @@ if __name__ == '__main__':
     # One of "apikey" or "oauth"
     api_auth = 'apikey'
     # The API key or OAuth bearer token to use for the request
-    api_key = 'fef31706c2825a4d08c27987031f0aaaff7b9f298d2e926233b834183dc6a872'
+    api_key = '356c794cb4a0952cdee4ea1ad259cd775e1cabf6a1c9ba291f78eadf38e01a74'
     # Change server, ie dev/qa/staging/prod
-    server = 'api.hellosign.com'
+    server = 'api.qa-hellosign.com'
 
     container_bin = f'{dir_path}/../run'
 

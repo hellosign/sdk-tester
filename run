@@ -46,7 +46,7 @@ main() {
     done
 
     # lowercase
-    SELECTED_SDK="${SELECTED_SDK,,}"
+   # SELECTED_SDK="${SELECTED_SDK,,}"
 
     validate_auth
     validate_json_data

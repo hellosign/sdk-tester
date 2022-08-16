@@ -43,6 +43,6 @@ jobs:
   notifiy-slack:
     needs: run-sdk-tester
     runs-on: ubuntu-latest
-    if: ${{ always() && }}
+    if: ${{ always() }}
     steps:
       - run: echo ${{ needs.run-sdk-tester.result }}

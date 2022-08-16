@@ -114,7 +114,7 @@ if __name__ == '__main__':
     #
 
     # One of "node", "php", "python", "ruby", "csharp", "java"
-    sdk_language = 'php'
+    sdk_language = os.environ['LANGUAGE']
     # Uploads directory, containing PDFs you may want to upload to the API
     uploads_dir = f'{dir_path}/../file_uploads'
     # One of "apikey" or "oauth"
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     # The API key or OAuth bearer token to use for the request
     api_key = os.environ['API_KEY']
     # Change server, ie dev/qa/staging/prod
-    server = 'api.hellosign.com'
+    server = os.environ['SERVER']
 
     container_bin = f'{dir_path}/../run'
 

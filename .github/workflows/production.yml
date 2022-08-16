@@ -1,4 +1,4 @@
-name: github-actions
+name: production
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
@@ -11,11 +11,16 @@ on:
 jobs:
   run-sdk-tester:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [ 'node', 'php', 'python', 'ruby', 'csharp', 'java' ]
     steps:
       - uses: actions/checkout@v3
       - name: run sdk tester
         env:
           API_KEY: ${{ secrets.API_KEY }}
+          LANGUAGE: ${{ matrix.language }}
+          SERVER: 'api.hellosign.com'
         run: |
           cd demo
           ./setup

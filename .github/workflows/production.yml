@@ -39,3 +39,10 @@ jobs:
           slack-message: "SDK tester result: ${{ job.status }}\nLog: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  notifiy-slack:
+    needs: run-sdk-tester
+    runs-on: ubuntu-latest
+    if: ${{ always() && }}
+    steps:
+      - run: echo ${{ needs.run-sdk-tester.result }}

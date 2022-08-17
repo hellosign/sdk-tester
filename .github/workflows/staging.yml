@@ -26,6 +26,9 @@ jobs:
           ./build ${{ matrix.language }}
           cd demo
           python3 main.py
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
 
   notifiy-slack:
     needs: run-sdk-tester

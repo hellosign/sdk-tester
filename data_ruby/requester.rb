@@ -165,16 +165,16 @@ class Requester
   end
 
   def get_file(name)
-    if name.is_a?(String) && self.files.key?(name)
-      File.open(FILE_UPLOADS_DIR + '/' + self.files[name], 'r')
+    if name.is_a?(String) && self.files.key?(name.to_sym)
+      File.open(FILE_UPLOADS_DIR + '/' + self.files[name.to_sym], 'r')
     end
   end
 
   def get_files(name)
-    if name.is_a?(String) && self.files.key?(name) && self.files[name].length > 0
+    if name.is_a?(String) && self.files.key?(name.to_sym) && self.files[name.to_sym].length > 0
       files = []
 
-      self.files[name].each do |file|
+      self.files[name.to_sym].each do |file|
         files.append(File.open(FILE_UPLOADS_DIR + '/' + file), 'w')
       end
 

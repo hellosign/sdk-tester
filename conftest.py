@@ -1,5 +1,6 @@
 import pytest
 import sys
+import os
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 utilsdir = f'{scriptdir}/utils/'
 sys.path.insert(0, utilsdir)
@@ -7,6 +8,12 @@ import helpers_hsapi
 import os
 import json
 import requests
+import base64
+import json
+
+import subprocess
+import uuid
+from typing import NamedTuple
 
 
 @pytest.fixture(scope='module')
@@ -79,3 +86,41 @@ def get_api_nonencrypt_key(get_api_env_url, get_env):
     else:
         api_key = shared_records.prod_api_key
     return api_key
+
+
+
+def run(payload: dict):
+    json_dump = json.dumps(payload)
+    base64_json = base64.b64encode(json_dump.encode('utf-8'))
+    base64_json_string = base64_json.decode('utf-8')
+
+    cmd = [
+            _container_bin,
+            f'--sdk={_sdk_language}',
+            f'--auth_type={_auth_type}',
+            f'--auth_key={self._auth_key}',
+            f'--uploads_dir={self._uploads_dir}',
+            f'--server={self._server}',
+            f'--json={base64_json_string}',
+        ]
+    response = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+    )
+
+    if response.returncode:
+        raise RuntimeError(
+                "Error running container:\n" +
+                response.stdout.decode('utf-8')
+        )
+
+    if response.stderr:
+        raise RuntimeError(
+             "Error running container:\n" +
+            response.stderr.decode('utf-8')
+        )
+
+    payload = json.loads(response.stdout.decode('utf-8'))
+
+    return payload['body'],payload['status_code'],payload['headers']

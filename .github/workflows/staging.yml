@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: run sdk tester
         env:
-          API_KEY: ${{ secrets.API_KEY }}
+          API_KEY: ${{ secrets.API_KEY_STAGING }}
           LANGUAGE: ${{ matrix.language }}
           SERVER: 'api.staging-hellosign.com'
         run: |

@@ -41,6 +41,6 @@ jobs:
           # 'C030GQLB41L' for #alerts-eng-hs-api-notifications, 'C03U3TD1MA5' for #test-slackbot
           channel-id: 'C03U3TD1MA5'
           # For posting a simple plain text message
-          slack-message: "SDK tester result: ${{ needs.run-sdk-tester.result }}\nLog: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-message: "QA SDK tester result: ${{ needs.run-sdk-tester.result }}\nLog: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

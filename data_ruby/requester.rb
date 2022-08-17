@@ -96,7 +96,7 @@ class Requester
 
     self.operation_id = json[:operationId]
     self.data = json[:data] || {}
-    self.files = json[:files] || {}
+    self.files = JSON.parse(json[:files].to_json, :symbolize_names => false) || {}
     self.parameters = json[:parameters] || {}
   end
 
@@ -166,7 +166,7 @@ class Requester
 
   def get_file(name)
     if name.is_a?(String) && self.files.key?(name)
-      File.open(FILE_UPLOADS_DIR + '/' + self.files[name], 'r')
+      File.new(FILE_UPLOADS_DIR + '/' + self.files[name], 'r')
     end
   end
 
@@ -175,7 +175,7 @@ class Requester
       files = []
 
       self.files[name].each do |file|
-        files.append(File.open(FILE_UPLOADS_DIR + '/' + file), 'w')
+        files.append(File.new(FILE_UPLOADS_DIR + '/' + file, 'r'))
       end
 
       files
@@ -859,7 +859,7 @@ class Requester
   end
 
   def to_boolean(s)
-    !!(s =~ /^(true|t|yes|y|1)$/i)
+    (s == true || s == 'true' || s == 1)
   end
 end
 

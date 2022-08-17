@@ -60,10 +60,7 @@ class Requester
         // @ts-ignore
         result.then(response => {
             console.log(JSON.stringify({
-                body: HelloSignSDK.ObjectSerializer.serialize(
-                    response.body,
-                    response.body.constructor.name,
-                ),
+                body: response.response.data,
                 status_code: response.response.status,
                 headers: response.response.headers,
             }, null, 4));
@@ -72,10 +69,7 @@ class Requester
         }).catch(e => {
             if (e instanceof HelloSignSDK.HttpError) {
                 console.log(JSON.stringify({
-                    body: HelloSignSDK.ObjectSerializer.serialize(
-                        e.body,
-                        e.body.constructor.name,
-                    ),
+                    body: e.response.data,
                     status_code: e.statusCode,
                     headers: e.response.headers,
                 }, null, 4));

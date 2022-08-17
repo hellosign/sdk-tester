@@ -42,7 +42,8 @@ class Requester
                 ["status_code"] = (int)apiResponse.StatusCode,
                 ["headers"] = apiResponse.Headers
             };
-            Console.WriteLine(JsonSerializer.Serialize(output));
+
+            Console.WriteLine(JsonConvert.SerializeObject(output));
         }
         catch (ApiException e)
         {
@@ -52,7 +53,7 @@ class Requester
                 ["status_code"] = e.ErrorCode,
                 ["headers"] = e.Headers
             };
-            Console.WriteLine(JsonSerializer.Serialize(output));
+            Console.WriteLine(JsonConvert.SerializeObject(output));
         }
     }
 

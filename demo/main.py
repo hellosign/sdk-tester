@@ -33,7 +33,6 @@ class ApiTester(object):
         json_dump = json.dumps(payload)
         base64_json = base64.b64encode(json_dump.encode('utf-8'))
         base64_json_string = base64_json.decode('utf-8')
-        print(base64_json_string)
 
         cmd = [
             self._container_bin,
@@ -126,7 +125,7 @@ def test_signature_request_create_embedded(tester: ApiTester):
                         "hs-api-qa+sdk+cc1@hellosign.com",
                         "hs-api-qa+sdk+cc2@hellosign.com"
                     ],
-                    "client_id": "c534d49b9399e1de6eeb493fc184ee06",
+                    "client_id": "efdbab0dd86acda1aaa3d56ea3ded8cf",
                     "custom_fields": [
                         {
                             "name": "Cost",
@@ -138,26 +137,6 @@ def test_signature_request_create_embedded(tester: ApiTester):
                     "field_options": {
                         "date_format": "MM / DD / YYYY"
                     },
-                    "form_field_rules": [
-                        {
-                            "id": "rule_1",
-                            "trigger_operator": "AND",
-                            "triggers": [
-                                {
-                                    "id": "uniqueIdHere_1",
-                                    "operator": "is",
-                                    "value": "foo"
-                                }
-                            ],
-                            "actions": [
-                                {
-                                    "field_id": "uniqueIdHere_2",
-                                    "hidden": True,
-                                    "type": "change-field-visibility"
-                                }
-                            ]
-                        }
-                    ],
                     "form_fields_per_document": [
                         {
                             "document_index": 0,
@@ -172,32 +151,6 @@ def test_signature_request_create_embedded(tester: ApiTester):
                             "signer": "0",
                             "page": 1,
                             "validation_type": "numbers_only",
-                        },
-                        {
-                            "document_index": 0,
-                            "api_id": "uniqueIdHere_2",
-                            "name": "",
-                            "type": "signature",
-                            "x": 530,
-                            "y": 415,
-                            "width": 120,
-                            "height": 30,
-                            "required": True,
-                            "signer": "0",
-                            "page": 1,
-                        },
-                        {
-                            "document_index": 0,
-                            "api_id": "uniqueIdHere_3",
-                            "name": "",
-                            "type": "signature",
-                            "x": 789,
-                            "y": 567,
-                            "width": 120,
-                            "height": 30,
-                            "required": True,
-                            "signer": "1",
-                            "page": 1,
                         }
                     ],
                     "hide_text_tags": False,

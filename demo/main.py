@@ -33,6 +33,7 @@ class ApiTester(object):
         json_dump = json.dumps(payload)
         base64_json = base64.b64encode(json_dump.encode('utf-8'))
         base64_json_string = base64_json.decode('utf-8')
+        print(base64_json_string)
 
         cmd = [
             self._container_bin,
@@ -105,6 +106,140 @@ def test_create_account_failure(tester: ApiTester):
     assert response.status_code == 400
     assert 'email_address not valid' in response.body['error']['error_msg']
 
+def test_signature_request_create_embedded(tester: ApiTester):
+    print(f"sdk langauage {sdk_language}")
+    print(f"url {server}")
+    json_data = {
+                    "operationId":"signatureRequestCreateEmbedded",
+                    "data": {
+                    "allow_decline": True,
+                    "allow_reassign": True,
+                    "attachments": [
+                        {
+                            "name": "Attachment1",
+                            "signer_index": 1,
+                            "instructions": "Upload your Driver's License",
+                            "required": True
+                        }
+                    ],
+                    "cc_email_addresses": [
+                        "hs-api-qa+sdk+cc1@hellosign.com",
+                        "hs-api-qa+sdk+cc2@hellosign.com"
+                    ],
+                    "client_id": "c534d49b9399e1de6eeb493fc184ee06",
+                    "custom_fields": [
+                        {
+                            "name": "Cost",
+                            "value": "$20,000",
+                            "editor": "0",
+                            "required": True
+                        }
+                    ],
+                    "field_options": {
+                        "date_format": "MM / DD / YYYY"
+                    },
+                    "form_field_rules": [
+                        {
+                            "id": "rule_1",
+                            "trigger_operator": "AND",
+                            "triggers": [
+                                {
+                                    "id": "uniqueIdHere_1",
+                                    "operator": "is",
+                                    "value": "foo"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "field_id": "uniqueIdHere_2",
+                                    "hidden": True,
+                                    "type": "change-field-visibility"
+                                }
+                            ]
+                        }
+                    ],
+                    "form_fields_per_document": [
+                        {
+                            "document_index": 0,
+                            "api_id": "uniqueIdHere_1",
+                            "name": "",
+                            "type": "text",
+                            "x": 112,
+                            "y": 328,
+                            "width": 100,
+                            "height": 16,
+                            "required": True,
+                            "signer": "0",
+                            "page": 1,
+                            "validation_type": "numbers_only",
+                        },
+                        {
+                            "document_index": 0,
+                            "api_id": "uniqueIdHere_2",
+                            "name": "",
+                            "type": "signature",
+                            "x": 530,
+                            "y": 415,
+                            "width": 120,
+                            "height": 30,
+                            "required": True,
+                            "signer": "0",
+                            "page": 1,
+                        },
+                        {
+                            "document_index": 0,
+                            "api_id": "uniqueIdHere_3",
+                            "name": "",
+                            "type": "signature",
+                            "x": 789,
+                            "y": 567,
+                            "width": 120,
+                            "height": 30,
+                            "required": True,
+                            "signer": "1",
+                            "page": 1,
+                        }
+                    ],
+                    "hide_text_tags": False,
+                    "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.",
+                    "metadata": {
+                        "field1": "value1"
+                    },
+                    "signers": [
+                        {
+                            "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
+                            "name": "Jack",
+                            "order": 0
+                        },
+                        {
+                            "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
+                            "name": "Jill",
+                            "order": 1
+                        }
+                    ],
+                    "signing_options": {
+                        "draw": True,
+                        "type": True,
+                        "upload": True,
+                        "phone": False,
+                        "default_type": "draw"
+                    },
+                    "subject": "The NDA we talked about",
+                    "test_mode": True,
+                    "title": "NDA with Acme Co.",
+                    "use_text_tags": False
+                 },
+                 "files": {
+                     "file": [
+                       "pdf-sample.pdf"
+                     ]
+                 },
+                 "parameters": {}
+            }
+
+    response = tester.run(json_data)
+    print(f"\n\nResponse : test_signature_request_create_embedded {response.body}")
+    assert response.status_code == 200
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -135,5 +270,6 @@ if __name__ == '__main__':
         server,
     )
 
+    test_signature_request_create_embedded(tester)
     test_create_account_success(tester)
     test_create_account_failure(tester)

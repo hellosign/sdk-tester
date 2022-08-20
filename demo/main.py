@@ -103,46 +103,7 @@ def test_create_account_failure(tester: ApiTester):
     response = tester.run(json_data)
     print(f"\n\nResponse : test_create_account_failure {response}")
     assert response.status_code == 400
-    #assert 'email_address not valid' in response.body['error']['error_msg']
-
-
-# def test_signature_request_send(tester: ApiTester):
-#
-#     json_data= {
-#       "operationId": "signatureRequestSend",
-#       "parameters": {},
-#       "data": {
-#         "cc_email_addresses": [
-#           "hs-api-qa+sdk+cc1@hellosign.com",
-#           "hs-api-qa+sdk+cc2@hellosign.com"
-#         ],
-#         "message": "Please sign this NDA and then we can discuss more. Let me know if you\nhave any questions.",
-#         "signers": [
-#           {
-#             "email_address": "hs-api-qa+sdk+signer@hellosign.com",
-#             "name": "Signer 1",
-#             "order": 0,
-#             "sms_phone_number": "+14155550100",
-#             "sms_phone_number_type": "delivery"
-#           }
-#         ],
-#         "subject": "The NDA we talked about",
-#         "test_mode": False,
-#         "title": "NDA with Acme Co."
-#       },
-#       "files": {
-#         "file": [
-#              "pdf-sample.pdf",
-#              "pdf-sample-2.pdf",
-#         ]
-#       }
-#     }
-#     response = tester.run(json_data)
-#     print(f"\n\nResponse : test_signature_request_send {response.body}")
-#     assert response.status_code == 200
-
-
-
+    assert 'email_address not valid' in response.body['error']['error_msg']
 
 
 if __name__ == '__main__':

@@ -1,126 +1,55 @@
 import pytest
 import sys
 import os
-scriptdir = os.path.dirname(os.path.realpath(__file__))
-utilsdir = f'{scriptdir}/utils/'
-sys.path.insert(0, utilsdir)
-import helpers_hsapi
-import os
-import json
-import requests
-import base64
-import json
-
-import subprocess
-import uuid
-from typing import NamedTuple
-
+# scriptdir = os.path.dirname(os.path.realpath(__file__))
+# utilsdir = f'{scriptdir}/utils/'
+# sys.path.insert(0, utilsdir)
 
 @pytest.fixture(scope='module')
-def get_env():
-    return os.environ.get(shared_records.hsenv_var_name, 'qa')
+def container_bin():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    print(f"dir path {dir_path}")
 
+    container_bin = f'{dir_path}/run'
+    return container_bin
+    #
+
+    # Grab the following from config file, environment, or somewhere else
+    #
+@pytest.fixture(scope='module')
+def sdk_language():
+    # One of "node", "php", "python". Coming soon: "ruby", "csharp", "java"
+    sdk_language = 'php'
+    print(f"SDK Language : {sdk_language}")
+    return sdk_language
 
 @pytest.fixture(scope='module')
-def get_sdk_env_url(get_env):
-    if get_env == shared_records.prod_hs_env_str:
-        env_url = 'api.hellosign.com'
-    elif get_env == shared_records.staging_hs_env_str:
-        env_url = 'api.staging-hellosign.com'
-    elif get_env == shared_records.qa_hs_env_str:
-        env_url = 'api.qa-hellosign.com'
-    else:
-        pytest.fail(f'\nERROR - unhandled HS environment ({get_env})')
+def uploads_dir():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    print(f"dir path {dir_path}")
+    # Uploads directory, containing PDFs you may want to upload to the API
+    uploads_dir = f'{dir_path}/file_uploads'
+    print(f"File Upload directory : {uploads_dir}")
+    return uploads_dir
 
-    return env_url
+@pytest.fixture(scope='module')
+def auth_type():
+    # One of "apikey" or "oauth"
+    api_auth = 'apikey'
+    return api_auth
 
-
-@pytest.fixture(scope='function')
-def get_client_id(get_env, test_instance, get_api_key, get_api_env_url):
-    API_APP = ""
-    if get_env == shared_records.qa_hs_env_str:
-        API_APP = shared_records.HS_API_APP_QA
-    if get_env == shared_records.staging_hs_env_str:
-        API_APP = shared_records.HS_API_APP_STAGING
-    if get_env == shared_records.prod_hs_env_str:
-        API_APP = shared_records.HS_API_APP_PROD
-
-    print(f"API APP ::  {API_APP}")
-    res = helpers_hsapi.get_list_api_apps(test_instance, get_api_key, get_api_env_url, page_size=30)
-    res_json = json.loads(res.text)
-    assert res.status_code == shared_records.STATUS_OK
-    for app_num in range(len(res_json['api_apps'])):
-        if res_json['api_apps'][app_num]['name'] == API_APP:
-            # Get the client_id
-            print(f"App Name found ::  {res_json['api_apps'][app_num]['name']}")
-            client_id = res_json['api_apps'][app_num]['client_id']
-            print(f"Client ID :: {client_id}")
-            return client_id
-    return shared_records.client_id
-    #shared_records.get_env_var_value(records.settings, shared_records.cred_apicreds, 'client_id')
-
-
-
-@pytest.fixture(scope="module")
-def get_api_nonencrypt_key(get_api_env_url, get_env):
-    """
-    Fetch API Key
-    Account : hs-api-qa@hellosign.com - Enterprise account.
-    """
-    if get_env != shared_records.prod_hs_env_str:
-        if get_env == shared_records.staging_hs_env_str:
-            #guid = records.settings[shared_records.guid]['staging_hs_internal_guid']
-            guid = shared_records.staging_hs_internal_guid
-        elif get_env == shared_records.qa_hs_env_str:
-            #guid = records.settings[shared_records.guid]['qa_hs_internal_guid']
-            guid = shared_records.qa_hs_internal_guid
-        email_address = shared_records.hsapi_email_name_no_ext
-        encoded_email = shared_records.encode_url(email_address)
-        url = shared_records.hsapi_get_api_key_url.substitute(env=get_api_env_url, guid=guid,
-                                                              email_address=encoded_email)
-        res = requests.get(url)
-        res_json = json.loads(res.text)
-        api_key = res_json['api_key']
-        # api_key = shared_records.base64encoding(api_key)
-        print(f"get_api_key : {api_key}")
-    else:
-        api_key = shared_records.prod_api_key
+@pytest.fixture(scope='module')
+def auth_key():
+    # The API key or OAuth bearer token to use for the request
+    api_key = '8870da771faa38e6bebae2ad163a5b69f1ae55f70e4669c0f0cd98c9809212cb'
     return api_key
 
+@pytest.fixture(scope='module')
+def server():
+    # Change server, ie dev/qa/staging/prod
+    server = 'api.staging-hellosign.com'
+    print(f"Server : {server}")
+    return server
 
 
-def run(payload: dict):
-    json_dump = json.dumps(payload)
-    base64_json = base64.b64encode(json_dump.encode('utf-8'))
-    base64_json_string = base64_json.decode('utf-8')
 
-    cmd = [
-            _container_bin,
-            f'--sdk={_sdk_language}',
-            f'--auth_type={_auth_type}',
-            f'--auth_key={self._auth_key}',
-            f'--uploads_dir={self._uploads_dir}',
-            f'--server={self._server}',
-            f'--json={base64_json_string}',
-        ]
-    response = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-    )
-
-    if response.returncode:
-        raise RuntimeError(
-                "Error running container:\n" +
-                response.stdout.decode('utf-8')
-        )
-
-    if response.stderr:
-        raise RuntimeError(
-             "Error running container:\n" +
-            response.stderr.decode('utf-8')
-        )
-
-    payload = json.loads(response.stdout.decode('utf-8'))
-
-    return payload['body'],payload['status_code'],payload['headers']

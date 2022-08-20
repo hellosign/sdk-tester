@@ -1,19 +1,54 @@
-import requests
-def get_list_api_apps(test_instance, get_api_key, api_env_url, page_size=30):
-    """ List the API apps """
-    if not get_api_key:
-        test_instance.fail('ERROR - api_key is required')
+import base64
+import json
+import os
+import subprocess
+import uuid
+from typing import NamedTuple
 
-    url = shared_records.hsapi_list_api_apps.substitute(env=api_env_url, page_size=page_size)
+class ApiResponse(NamedTuple):
+    body: dict
+    status_code: int
+    headers: dict
 
-    headers = {
-        'Authorization': 'Basic ' + get_api_key,
-    }
 
-    print(f"\n URL %s {url}")
+def run(json_dump,container_bin,sdk_language,uploads_dir,auth_type,auth_key,server):
+    # json_dump = json.dumps(payload)
+    # print(f"json_dump {json_dump}")
+    base64_json = base64.b64encode(json_dump.encode('utf-8'))
+    base64_json_string = base64_json.decode('utf-8')
+    #print(f"base64_json {base64_json_string}")
 
-    res = requests.get(url, headers=headers)
+    cmd = [
+            container_bin,
+            f'--sdk={sdk_language}',
+            f'--auth_type={auth_type}',
+            f'--auth_key={auth_key}',
+            f'--uploads_dir={uploads_dir}',
+            f'--server={server}',
+            f'--json={base64_json_string}',
+        ]
+    response = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+    )
 
-    print(f"\n Response : get_api_app: {res.status_code}")
+    if response.returncode:
+        raise RuntimeError(
+                "Error running container:\n" +
+                response.stdout.decode('utf-8')
+        )
 
-    return res
+    if response.stderr:
+        raise RuntimeError(
+             "Error running container:\n" +
+            response.stderr.decode('utf-8')
+        )
+
+    payload = json.loads(response.stdout.decode('utf-8'))
+
+    return ApiResponse(
+        body=payload['body'],
+        status_code=payload['status_code'],
+        headers=payload['headers'],
+    )

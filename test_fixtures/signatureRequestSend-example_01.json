@@ -3,7 +3,7 @@
   "parameters": {},
   "data": {
     "allow_decline": true,
-    "allow_reassign": true,
+    "allow_reassign": false,
     "attachments": [
       {
         "name": "Attachment1",
@@ -212,7 +212,7 @@
     },
     "signing_redirect_url": "https://example.com/redirect",
     "subject": "The NDA we talked about",
-    "test_mode": true,
+    "test_mode": false,
     "title": "NDA with Acme Co.",
     "use_text_tags": true
   },

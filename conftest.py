@@ -18,8 +18,8 @@ def container_bin():
     #
 @pytest.fixture(scope='module')
 def sdk_language():
-    # One of "node", "php", "python". Coming soon: "ruby", "csharp", "java"
-    sdk_language = 'php'
+    # One of "node", "php", "python", "ruby", "csharp", "java"
+    sdk_language = os.environ['LANGUAGE']
     print(f"SDK Language : {sdk_language}")
     return sdk_language
 
@@ -41,13 +41,13 @@ def auth_type():
 @pytest.fixture(scope='module')
 def auth_key():
     # The API key or OAuth bearer token to use for the request
-    api_key = '8870da771faa38e6bebae2ad163a5b69f1ae55f70e4669c0f0cd98c9809212cb'
+    api_key = os.environ['API_KEY']
     return api_key
 
 @pytest.fixture(scope='module')
 def server():
     # Change server, ie dev/qa/staging/prod
-    server = 'api.staging-hellosign.com'
+    server = os.environ['SERVER']
     print(f"Server : {server}")
     return server
 

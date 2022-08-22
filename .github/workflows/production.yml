@@ -7,7 +7,13 @@ on:
     - cron: '0 12 * * *'
 
   # Allow manually triggering of the workflow.
-  workflow_dispatch: { }
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 jobs:
   run-sdk-tester:
@@ -27,6 +33,10 @@ jobs:
           ./build ${{ matrix.language }}
           cd demo
           python3 main.py
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
   notifiy-slack:
     needs: run-sdk-tester

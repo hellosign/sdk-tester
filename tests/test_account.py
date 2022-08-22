@@ -27,7 +27,7 @@ def test_create_account_success(container_bin,sdk_language,uploads_dir,auth_type
         "files": {},
     }
     json_dump = json.dumps(json_data)
-    print(f"json_dump {json_dump}")
+    #print(f"json_dump {json_dump}")
 
     response = helpers_hsapi.run(json_dump, container_bin, sdk_language, uploads_dir, auth_type,
                                  auth_key, server)
@@ -36,3 +36,22 @@ def test_create_account_success(container_bin,sdk_language,uploads_dir,auth_type
     assert response.body['account']['email_address'] == email_address
 
 
+def test_create_account_failure(container_bin,sdk_language,uploads_dir,auth_type,auth_key,server):
+    email_address = 'INVALID_EMAIL_ADDRESS@.com'
+
+    json_data = {
+        "operationId": "accountCreate",
+        "parameters": {},
+        "data": {
+            "email_address": email_address,
+        },
+        "files": {},
+    }
+
+    json_dump = json.dumps(json_data)
+    print(f"json_dump {json_dump}")
+    response = helpers_hsapi.run(json_dump, container_bin, sdk_language, uploads_dir, auth_type,
+                                 auth_key, server)
+    print(f"\n\nResponse : test_create_account_failure {response}")
+    assert response.status_code == 400
+    assert 'email_address not valid' in response.body['error']['error_msg']

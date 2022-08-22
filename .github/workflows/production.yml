@@ -33,6 +33,8 @@ jobs:
           ./build ${{ matrix.language }}
           cd demo
           python3 main.py
+          pip install -U pytest
+
       # Enable tmate debugging of manually-triggered workflows if the input option was provided
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3

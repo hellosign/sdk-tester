@@ -51,13 +51,13 @@ class ApiTester(object):
 
         if response.returncode:
             raise RuntimeError(
-                "Error running container:\n" +
+                "Error running container return code:\n" +
                 response.stdout.decode('utf-8')
             )
 
         if response.stderr:
             raise RuntimeError(
-                "Error running container:\n" +
+                "Error running containe stderr:\n" +
                 response.stderr.decode('utf-8')
             )
 
@@ -71,7 +71,7 @@ class ApiTester(object):
 
 
 def test_create_account_success(tester: ApiTester):
-    email_address = f'signer{uuid.uuid4()}@example.com'
+    email_address = f'signer{uuid.uuid4()}@hellosign.com'
 
     json_data = {
         "operationId": "accountCreate",
@@ -83,7 +83,7 @@ def test_create_account_success(tester: ApiTester):
     }
 
     response = tester.run(json_data)
-
+    print(f"\n\nResponse : test_create_account_success {response}")
     assert response.status_code == 200
     assert response.body['account']['email_address'] == email_address
 
@@ -101,7 +101,7 @@ def test_create_account_failure(tester: ApiTester):
     }
 
     response = tester.run(json_data)
-
+    print(f"\n\nResponse : test_create_account_failure {response}")
     assert response.status_code == 400
     assert 'email_address not valid' in response.body['error']['error_msg']
 
@@ -196,7 +196,7 @@ def test_signature_request_create_embedded(tester: ApiTester):
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
-
+    print(f"dir path {dir_path}")
     #
     # Grab the following from config file, environment, or somewhere else
     #
@@ -226,3 +226,4 @@ if __name__ == '__main__':
     test_signature_request_create_embedded(tester)
     test_create_account_success(tester)
     test_create_account_failure(tester)
+

@@ -67,6 +67,22 @@ Uses the selected HelloSign OpenAPI SDK to make a request to the HelloSign API
 The command to run each script is identical to each other, and they all require
 the same flags to function correctly.
 
+## Run test using Pytest
+install pytest using below command
+```bash
+pip3 install pytest
+```
+To run all the tests under the tests/ folder
+```bash
+ pytest -svra  tests/ 
+```
+
+To run individual tests from a file. 
+```bash
+pytest -svra tests/test_signature_request.py::test_signature_request_send
+```
+
+
 # Flags
 
 ## `--sdk` SDK (required)

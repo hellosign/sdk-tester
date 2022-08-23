@@ -86,7 +86,7 @@ class Requester
   def read_json_data(base64_json)
     if base64_json.is_a?(String) && !base64_json.to_s.strip.empty?
       begin
-        json = JSON.parse(Base64.decode64(base64_json), :symbolize_names => true)
+        json = JSON.parse(Base64.decode64(base64_json))
       rescue StandardError
         raise 'Invalid base64 JSON data provided.'
       end
@@ -94,10 +94,10 @@ class Requester
       raise 'No valid JSON data provided.'
     end
 
-    self.operation_id = json[:operationId]
-    self.data = json[:data] || {}
-    self.files = JSON.parse(json[:files].to_json, :symbolize_names => false) || {}
-    self.parameters = json[:parameters] || {}
+    self.operation_id = json['operationId']
+    self.data = json['data'] || {}
+    self.files = JSON.parse(json['files'].to_json) || {}
+    self.parameters = json['parameters'] || {}
   end
 
   def call_from_operation_id

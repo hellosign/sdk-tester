@@ -97,7 +97,7 @@ class Requester
     self.operation_id = json[:operationId]
     self.data = json[:data] || {}
     self.files = JSON.parse(json[:files].to_json, :symbolize_names => false) || {}
-    self.parameters = json[:parameters] || {}
+    self.parameters = JSON.parse(json[:parameters].to_json, :symbolize_names => false) || {}
   end
 
   def call_from_operation_id

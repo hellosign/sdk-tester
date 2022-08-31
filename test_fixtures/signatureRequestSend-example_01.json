@@ -183,9 +183,7 @@
       {
         "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
         "name": "Signer 1",
-        "order": 0,
-        "sms_phone_number": "+14155550100",
-        "sms_phone_number_type": "delivery"
+        "order": 0
       },
       {
         "email_address": "hs-api-qa+sdk+signer2@hellosign.com",

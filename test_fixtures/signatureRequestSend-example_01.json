@@ -212,7 +212,7 @@
     },
     "signing_redirect_url": "https://example.com/redirect",
     "subject": "The NDA we talked about",
-    "test_mode": false,
+    "test_mode": true,
     "title": "NDA with Acme Co.",
     "use_text_tags": true
   },

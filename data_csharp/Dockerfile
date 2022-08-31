@@ -17,7 +17,7 @@ RUN cd /app && \
     git submodule update --init --recursive --remote && \
     dotnet new console -o sdk-tester && \
     mv /app/Program.cs sdk-tester && \
-    dotnet add sdk-tester/sdk-tester.csproj reference src/Org.HelloSign/Org.HelloSign.csproj && \
+    dotnet add sdk-tester/sdk-tester.csproj reference src/HelloSign/HelloSign.csproj && \
     dotnet build
 
 

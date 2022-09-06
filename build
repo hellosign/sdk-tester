@@ -14,7 +14,7 @@ main() {
   fi
 
   # lowercase
- # SELECTED_SDK="${SELECTED_SDK,,}"
+  SELECTED_SDK="${SELECTED_SDK,,}"
 
   if [[ ${SELECTED_SDK} == "all" ]]; then
       build_container node

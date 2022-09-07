@@ -185,9 +185,9 @@ class Requester
 
     private getFile(name: string): HelloSignSDK.RequestFile | undefined
     {
-        if (this.parameters.hasOwnProperty(name)) {
+        if (this.files.hasOwnProperty(name)) {
             return fs.createReadStream(
-                `${this.FILE_UPLOADS_DIR}/${this.parameters[name]}`
+                `${this.FILE_UPLOADS_DIR}/${this.files[name]}`
             );
         }
 
@@ -196,10 +196,10 @@ class Requester
 
     private getFiles(name: string): HelloSignSDK.RequestFile[] | undefined
     {
-        if (this.parameters.hasOwnProperty(name)) {
+        if (this.files.hasOwnProperty(name)) {
             let files: HelloSignSDK.RequestFile[] = [];
 
-            for (let file of this.parameters[name]) {
+            for (let file of this.files[name]) {
                 files.push(fs.createReadStream(
                     `${this.FILE_UPLOADS_DIR}/${file}`
                 ));

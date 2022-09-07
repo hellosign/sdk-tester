@@ -3,7 +3,7 @@
   "parameters": {},
   "data": {
     "allow_decline": true,
-    "allow_reassign": true,
+    "allow_reassign": false,
     "attachments": [
       {
         "name": "Attachment1",
@@ -181,24 +181,22 @@
     },
     "signers": [
       {
-        "email_address": "s1@example.com",
+        "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
         "name": "Signer 1",
-        "order": 0,
-        "sms_phone_number": "+14155550100",
-        "sms_phone_number_type": "delivery"
+        "order": 0
       },
       {
-        "email_address": "s2@example.com",
+        "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
         "name": "Signer 2",
         "order": 1
       },
       {
-        "email_address": "s3@example.com",
+        "email_address": "hs-api-qa+sdk+signer3@hellosign.com",
         "name": "Signer 3",
         "order": 2
       },
       {
-        "email_address": "s4@example.com",
+        "email_address": "hs-api-qa+sdk+signer4@hellosign.com",
         "name": "Signer 4",
         "order": 3
       }

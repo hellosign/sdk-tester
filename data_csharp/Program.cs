@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.HelloSign.Api;
-using Org.HelloSign.Client;
-using Org.HelloSign.Model;
+using HelloSign.Api;
+using HelloSign.Client;
+using HelloSign.Model;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 

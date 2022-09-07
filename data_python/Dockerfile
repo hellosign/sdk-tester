@@ -4,6 +4,8 @@ LABEL maintainer="HelloSign API Team <apisupport@hellosign.com>"
 USER root
 
 RUN mkdir /file_uploads && \
+    mkdir /test_fixtures && \
+    mkdir /tests && \
     mkdir /app
 
 COPY ./requester.py /app/requester.py
@@ -16,3 +18,5 @@ RUN cd /app && \
 WORKDIR /app
 VOLUME /file_uploads
 VOLUME /app
+VOLUME /test_fixtures
+VOLUME /tests

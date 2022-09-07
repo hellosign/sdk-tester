@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'hello_sign',
+gem 'hellosign-ruby-sdk',
   git: 'https://github.com/HelloFax/hellosign-ruby-sdk.git',
   branch: 'openapi'

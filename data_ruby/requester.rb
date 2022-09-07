@@ -1,6 +1,6 @@
 require 'base64'
 require 'json'
-require 'hello_sign'
+require 'hellosign-ruby-sdk'
 
 class Requester
   FILE_UPLOADS_DIR = __dir__ + '/../file_uploads'

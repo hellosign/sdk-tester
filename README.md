@@ -49,8 +49,8 @@ Uses the selected HelloSign OpenAPI SDK to make a request to the HelloSign API
 --auth_type       one of "apikey", "oauth"
                     (required)
 --auth_key        auth key
-                    If --auth_key=apikey, pass API Key
-                    If --auth_key=oauth, pass OAuth Bearer Token
+                    If --auth_type=apikey, pass API Key
+                    If --auth_type=oauth, pass OAuth Bearer Token
                     (required)
 --json            valid JSON file containing all request data
                     OR base64-encoded JSON string

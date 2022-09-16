@@ -1,0 +1,62 @@
+{
+  "operationId": "signatureRequestBulkCreateEmbeddedWithTemplate",
+  "parameters": {},
+  "data": {
+    "allow_decline": true,
+    "client_id": "efdbab0dd86acda1aaa3d56ea3ded8cf",
+    "custom_fields": [
+      {
+        "name": "Cost",
+        "value": "$20,000",
+        "editor": "Client",
+        "required": true
+      }
+    ],
+    "message": "Glad we could come to an agreement.",
+    "metadata": {
+      "field1": "value1"
+    },
+    "signer_file": "pdf-sample.pdf",
+    "signer_list": [
+      {
+        "signers": [
+          {
+            "role": "role1",
+            "name": "George",
+            "email_address": "hs-api-qa+sdk+george@hellosign.com",
+            "pin": "d79a3td"
+          }
+        ],
+        "custom_fields": [
+          {
+            "name": "company",
+            "value": "ABC Corp"
+          }
+        ]
+      },
+      {
+        "signers": [
+          {
+            "role": "role1",
+            "name": "Mary",
+            "email_address": "hs-api-qa+sdk+mary@hellosign.com",
+            "pin": "gd9as5b"
+          }
+        ],
+        "custom_fields": [
+          {
+            "name": "company",
+            "value": "123 LLC"
+          }
+        ]
+      }
+    ],
+    "signing_redirect_url": "https://example.com/redirect",
+    "subject": "Purchase Order",
+    "template_ids": [
+      "4e6aa24e6ffa910ada1de376b1a37c004292345b"
+    ],
+    "test_mode": true,
+    "title": "My amazing title"
+  }
+}

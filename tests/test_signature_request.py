@@ -37,3 +37,54 @@ def test_signature_request_create_embedded(container_bin, sdk_language, uploads_
 
     print(f"\n\nResponse : test_signature_request_create_embedded {response.body}")
     assert response.status_code == 200
+
+
+signatureRequestSendWithTemplate_filename = f'{root_dir}/test_fixtures/signatureRequestSendWithTemplateRequest.json'
+with open(signatureRequestSendWithTemplate_filename, "r") as fs:
+    signatureRequestSendWithTemplate_data = fs.read()
+
+def test_signature_request_send_with_template(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    response = helpers_hsapi.run(signatureRequestSendWithTemplate_data, container_bin, sdk_language, uploads_dir,
+                                 auth_type, auth_key, server)
+
+    print(f"\n\nResponse : test_signature_request_send_with_template {response.body}")
+    assert response.status_code == 200
+
+
+signatureRequestBulkSendWithTemplateRequest_filename = f'{root_dir}/test_fixtures/signatureRequestBulkSendWithTemplateRequest.json'
+with open(signatureRequestBulkSendWithTemplateRequest_filename, "r") as fs:
+    signatureRequestBulkSendWithTemplateRequest_data = fs.read()
+
+def test_signature_request_bulk_send_with_template(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    response = helpers_hsapi.run(signatureRequestBulkSendWithTemplateRequest_data, container_bin, sdk_language, uploads_dir,
+                                 auth_type, auth_key, server)
+
+    print(f"\n\nResponse : test_signature_request_bulk_send_with_template {response.body}")
+    assert response.status_code == 200
+
+
+signatureRequestCreateEmbeddedWithTemplateRequest_filename = f'{root_dir}/test_fixtures/signatureRequestCreateEmbeddedWithTemplateRequest.json'
+with open(signatureRequestCreateEmbeddedWithTemplateRequest_filename, "r") as fs:
+    signatureRequestCreateEmbeddedWithTemplateRequest_data = fs.read()
+
+
+def test_signature_request_create_embedded_with_template(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    response = helpers_hsapi.run(signatureRequestCreateEmbeddedWithTemplateRequest_data, container_bin, sdk_language,
+                                 uploads_dir,
+                                 auth_type, auth_key, server)
+
+    print(f"\n\nResponse : test_signature_request_create_embedded_with_template {response.body}")
+    assert response.status_code == 200
+
+signatureRequestBulkCreateEmbeddedWithTemplateRequest_filename = f'{root_dir}/test_fixtures/signatureRequestBulkCreateEmbeddedWithTemplateRequest.json'
+with open(signatureRequestBulkCreateEmbeddedWithTemplateRequest_filename, "r") as fs:
+    signatureRequestBulkCreateEmbeddedWithTemplateRequest_data = fs.read()
+
+
+def test_signature_request_bulk_create_embedded_with_template(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    response = helpers_hsapi.run(signatureRequestBulkCreateEmbeddedWithTemplateRequest_data, container_bin, sdk_language,
+                                 uploads_dir,
+                                 auth_type, auth_key, server)
+
+    print(f"\n\nResponse : test_signature_request_bulk_create_embedded_with_template {response.body}")
+    assert response.status_code == 200

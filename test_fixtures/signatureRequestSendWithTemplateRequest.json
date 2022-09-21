@@ -1,0 +1,47 @@
+{
+   "operationId": "signatureRequestSendWithTemplate",
+   "parameters" : {},
+  "data": {
+    "allow_decline": true,
+    "client_id": "efdbab0dd86acda1aaa3d56ea3ded8cf",
+    "custom_fields": [
+      {
+        "name": "Cost",
+        "value": "$20,000",
+        "editor": "role1",
+        "required": true
+      }
+    ],
+    "is_qualified_signature": false,
+    "message": "Glad we could come to an agreement.",
+    "metadata": {
+      "field1": "value1"
+    },
+    "signers": [
+      {
+        "role": "role1",
+        "name": "George",
+        "email_address": "hs-api-qa+sdk+signer1@hellosign.com"
+      }
+    ],
+    "signing_options": {
+      "draw": true,
+      "type": true,
+      "upload": true,
+      "phone": false,
+      "default_type": "draw"
+    },
+    "signing_redirect_url": "https://example.com/redirect",
+    "subject": "Purchase Order",
+    "template_ids": [
+      "4e6aa24e6ffa910ada1de376b1a37c004292345b"
+    ],
+    "test_mode": true,
+    "title": "NDA with Acme Co."
+  },
+  "files": {
+    "file": [
+      "pdf-sample.pdf"
+    ]
+  }
+}

@@ -477,12 +477,9 @@ class Requester
             );
         }
 
-        if (this.operationId === 'signatureRequestFiles') {
-            return api.signatureRequestFiles(
-                this.parameters['signature_request_id'],
-                this.parameters['file_type'] ?? 'pdf',
-                this.parameters['get_url'] ?? false,
-                this.parameters['get_data_uri'] ?? false,
+        if (this.operationId === 'signatureRequestFilesAsFileUrl') {
+            return api.signatureRequestFilesAsFileUrl(
+                this.parameters['signature_request_id']
             );
         }
 
@@ -671,12 +668,9 @@ class Requester
             );
         }
 
-        if (this.operationId === 'templateFiles') {
-            return api.templateFiles(
-                this.parameters['template_id'],
-                this.parameters['file_type'] ?? null,
-                this.parameters['get_url'] ?? false,
-                this.parameters['get_data_uri'] ?? false,
+        if (this.operationId === 'templateFilesAsFileUrl') {
+            return api.templateFilesAsFileUrl(
+                this.parameters['template_id']
             );
         }
 

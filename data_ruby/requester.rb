@@ -486,14 +486,11 @@ class Requester
       )
     end
 
-    if self.operation_id === 'signatureRequestFiles'
-      return api.signature_request_files_with_http_info(
+    if self.operation_id === 'signatureRequestFilesAsFileUrl'
+      return api.signature_request_files_as_file_url_with_http_info(
         self.parameters['signature_request_id'],
         {
-          header_params: self.header_params,
-          file_type: self.parameters['file_type'] || 'pdf',
-          get_url: self.parameters['get_url'] || false,
-          get_data_uri: self.parameters['get_data_uri'] || false,
+          header_params: self.header_params
         }
       )
     end
@@ -722,14 +719,11 @@ class Requester
       )
     end
 
-    if self.operation_id === 'templateFiles'
-      return api.template_files_with_http_info(
+    if self.operation_id === 'templateFilesAsFileUrl'
+      return api.template_files_as_file_url_with_http_info(
         self.parameters['template_id'],
         {
-          header_params: self.header_params,
-          file_type: self.parameters['file_type'] || nil,
-          get_url: self.parameters['get_url'] || false,
-          get_data_uri: self.parameters['get_data_uri'] || false,
+          header_params: self.header_params
         }
       )
     end

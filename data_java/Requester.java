@@ -114,12 +114,9 @@ public class Requester {
                 return api.templateCreateEmbeddedDraftWithHttpInfo(embeddedDraftRequest);
             case "templateDelete":
                 return api.templateDeleteWithHttpInfo(parameters.get("template_id").asText());
-            case "templateFiles":
-                return api.templateFilesWithHttpInfo(
-                        parameters.get("template_id").asText(),
-                        parameters.get("file_type").asText("pdf"),
-                        parameters.get("get_url").asBoolean(false),
-                        parameters.get("get_data_url").asBoolean(false)
+            case "templateFilesAsFileUrl":
+                return api.templateFilesAsFileUrlWithHttpInfo(
+                        parameters.get("template_id").asText()
                 );
             case "templateGet":
                 return api.templateGetWithHttpInfo(parameters.get("template_id").asText());
@@ -188,12 +185,9 @@ public class Requester {
                         objectMapper.readValue(data.toString(), SignatureRequestCreateEmbeddedWithTemplateRequest.class);
                 embeddedWithTemplateRequest.setFile(getFiles("file"));
                 return api.signatureRequestCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
-            case "signatureRequestFiles":
-                return api.signatureRequestFilesWithHttpInfo(
-                        parameters.get("signature_request_id").asText(),
-                        parameters.get("file_type").asText("pdf"),
-                        parameters.get("get_url").asBoolean(false),
-                        parameters.get("get_data_uri").asBoolean(false)
+            case "signatureRequestFilesAsFileUrl":
+                return api.signatureRequestFilesAsFileUrlWithHttpInfo(
+                        parameters.get("signature_request_id").asText()
                 );
             case "signatureRequestGet":
                 return api.signatureRequestGetWithHttpInfo(parameters.get("signature_request_id").asText());

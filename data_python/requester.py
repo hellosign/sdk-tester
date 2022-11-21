@@ -346,12 +346,9 @@ class Requester(object):
                 _return_http_data_only=False
             )
 
-        if self._operation_id == 'signatureRequestFiles':
-            return api.signature_request_files(
+        if self._operation_id == 'signatureRequestFilesAsFileUrl':
+            return api.signature_request_files_as_file_url(
                 self._parameters.get('signature_request_id'),
-                file_type=self._parameters.get('file_type', 'pdf'),
-                get_url=self._parameters.get('get_url', False),
-                get_data_uri=self._parameters.get('get_data_uri', False),
                 _return_http_data_only=False
             )
 
@@ -494,12 +491,9 @@ class Requester(object):
                 _return_http_data_only=False
             )
 
-        if self._operation_id == 'templateFiles':
-            return api.template_files(
+        if self._operation_id == 'templateFilesAsFileUrl':
+            return api.template_files_as_file_url(
                 self._parameters.get('template_id'),
-                file_type=self._parameters.get('file_type', None),
-                get_url=self._parameters.get('get_url', False),
-                get_data_uri=self._parameters.get('get_data_uri', False),
                 _return_http_data_only=False
             )
 

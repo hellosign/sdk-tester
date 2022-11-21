@@ -244,12 +244,9 @@ class Requester
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
-            case "signatureRequestFiles":
-                return api.SignatureRequestFilesWithHttpInfo(
-                    GetParamValue("signature_request_id"),
-                    GetParamValue("file_type","pdf"),
-                    bool.Parse(GetParamValue("get_url", "false")),
-                    bool.Parse(GetParamValue("get_data_uri","false"))
+            case "signatureRequestFilesAsFileUrl":
+                return api.SignatureRequestFilesAsFileUrlWithHttpInfo(
+                    GetParamValue("signature_request_id")
                 );
             case "signatureRequestGet":
                 return api.SignatureRequestGetWithHttpInfo(GetParamValue("signature_request_id"));
@@ -338,12 +335,9 @@ class Requester
                 return api.TemplateCreateEmbeddedDraftWithHttpInfo(embeddedDraftRequest);
             case "templateDelete":
                 return api.TemplateDeleteWithHttpInfo(GetParamValue("template_id"));
-            case "templateFiles":
-                return api.TemplateFilesWithHttpInfo(
-                    GetParamValue("template_id"),
-                    GetParamValue("file_type","pdf"),
-                    bool.Parse(GetParamValue("get_url", "false")),
-                    bool.Parse(GetParamValue("get_data_url", "false"))
+            case "templateFilesAsFileUrl":
+                return api.TemplateFilesAsFileUrlWithHttpInfo(
+                    GetParamValue("template_id")
                 );
             case "templateGet":
                 return api.TemplateGetWithHttpInfo(GetParamValue("template_id"));

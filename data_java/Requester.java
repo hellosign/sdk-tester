@@ -301,7 +301,7 @@ public class Requester {
                 return api.accountCreateWithHttpInfo(request);
             case "accountGet":
                 return api.accountGetWithHttpInfo(
-                        Optional.ofNullable(parameters.get("account_id")).map(JsonNode::asText).orElse(null)
+                        Optional.ofNullable(parameters.get("account_id")).map(JsonNode::asText).orElse(null),
                         Optional.ofNullable(parameters.get("email_address")).map(JsonNode::asText).orElse(null)
                 );
             case "accountUpdate":

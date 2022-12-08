@@ -213,6 +213,7 @@ class Requester
         if ($this->operationId === 'accountGet') {
             return $api->accountGetWithHttpInfo(
                 $this->parameters['account_id'] ?? null,
+                $this->parameters['email_address'] ?? null,
             );
         }
 

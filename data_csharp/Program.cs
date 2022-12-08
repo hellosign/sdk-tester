@@ -96,7 +96,7 @@ class Requester
                 var createRequest = JsonConvert.DeserializeObject<AccountCreateRequest>(data.ToString()) ?? new AccountCreateRequest();
                 return api.AccountCreateWithHttpInfo(createRequest);
             case "accountGet":
-                return api.AccountGetWithHttpInfo(parameters?["account_id"]?.ToString());
+                return api.AccountGetWithHttpInfo(parameters?["account_id"]?.ToString(), parameters?["email_address"]?.ToString());
             case "accountUpdate":
                 var updateRequest = JsonConvert.DeserializeObject<AccountUpdateRequest>(data.ToString()) ?? new AccountUpdateRequest();
                 return api.AccountUpdateWithHttpInfo(updateRequest);

@@ -229,7 +229,8 @@ class Requester
 
         if (this.operationId === 'accountGet') {
             return api.accountGet(
-                this.parameters['account_id'] ?? null
+                this.parameters['account_id'] ?? null,
+                this.parameters['email_address'] ?? null
             );
         }
 

@@ -300,7 +300,10 @@ public class Requester {
                 AccountCreateRequest request = objectMapper.readValue(data.toString(), AccountCreateRequest.class);
                 return api.accountCreateWithHttpInfo(request);
             case "accountGet":
-                return api.accountGetWithHttpInfo(parameters.get("account_id").asText());
+                return api.accountGetWithHttpInfo(
+                        Optional.ofNullable(parameters.get("account_id")).map(JsonNode::asText).orElse(null),
+                        Optional.ofNullable(parameters.get("email_address")).map(JsonNode::asText).orElse(null)
+                );
             case "accountUpdate":
                 AccountUpdateRequest updateRequest = objectMapper.readValue(data.toString(), AccountUpdateRequest.class);
                 return api.accountUpdateWithHttpInfo(updateRequest);

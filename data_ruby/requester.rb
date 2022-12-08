@@ -205,6 +205,7 @@ class Requester
         {
           header_params: self.header_params,
           account_id: self.parameters['account_id'] || nil,
+          email_address: self.parameters['email_address'] || nil,
         }
       )
     end

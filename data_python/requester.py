@@ -172,6 +172,8 @@ class Requester(object):
 
         if self._operation_id == 'accountGet':
             return api.account_get(
+                account_id=self._parameters.get('account_id', None),
+                email_address=self._parameters.get('email_address', None),
                 _return_http_data_only=False
             )
 

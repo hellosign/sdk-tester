@@ -1,0 +1,131 @@
+{
+    "operationId": "unclaimedDraftCreateEmbedded",
+    "data": {
+        "allow_decline": true,
+        "allow_reassign": true,
+        "client_id" : "4443b51c0b42b95db849ce0256821c6f",
+        "attachments": [
+            {
+                "name": "Attachment1",
+                "signer_index": 1,
+                "instructions": "Upload your Driver's License",
+                "required": true
+            }
+        ],
+        "signers": [
+            {
+                "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
+                "name": "Jack",
+                "order": 0
+            },
+            {
+                "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
+                "name": "Jill",
+                "order": 1
+            }
+        ],
+        "cc_email_addresses": [
+            "hs-api-qa+sdk+cc1@hellosign.com",
+            "hs-api-qa+sdk+cc2@hellosign.com"
+        ],
+        "custom_fields": [
+            {
+                "name": "Cost",
+                "value": "$20,000",
+                "editor": "0",
+                "required": true
+            }
+        ],
+        "field_options": {
+            "date_format": "MM / DD / YYYY"
+        },
+        "form_field_rules": [
+            {
+                "id": "rule_1",
+                "trigger_operator": "AND",
+                "triggers": [
+                    {
+                        "id": "uniqueIdHere_1",
+                        "operator": "is",
+                        "value": "foo"
+                    }
+                ],
+                "actions": [
+                    {
+                        "field_id": "uniqueIdHere_2",
+                        "hidden": true,
+                        "type": "change-field-visibility"
+                    }
+                ]
+            }
+        ],
+
+        "form_fields_per_document": [
+            {
+                "document_index": 0,
+                "api_id": "uniqueIdHere_1",
+                "name": "",
+                "type": "text",
+                "x": 112,
+                "y": 328,
+                "width": 100,
+                "height": 16,
+                "required": true,
+                "signer": "0",
+                "page": 1,
+                "validation_type": "numbers_only"
+            },
+            {
+                "document_index": 0,
+                "api_id": "uniqueIdHere_2",
+                "name": "",
+                "type": "signature",
+                "x": 530,
+                "y": 415,
+                "width": 120,
+                "height": 30,
+                "required": true,
+                "signer": "0",
+                "page": 1
+            },
+            {
+                "document_index": 0,
+                "api_id": "uniqueIdHere_3",
+                "name": "",
+                "type": "signature",
+                "x": 789,
+                "y": 567,
+                "width": 120,
+                "height": 30,
+                "required": true,
+                "signer": "1",
+                "page": 1
+            }
+        ],
+        "hide_text_tags": false,
+        "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.",
+        "metadata": {
+            "field1": "value1"
+        },
+
+      "requester_email_address": "hs-api-qa+sdk+requester@hellosign.com",
+        "signing_options": {
+            "draw": true,
+            "type": true,
+            "upload": true,
+            "phone": false,
+            "default_type": "draw"
+        },
+        "subject": "The NDA we talked about",
+        "test_mode": true,
+        "use_text_tags": false,
+        "skip_me_now" : false
+    },
+    "files": {
+        "file": [
+            "pdf-sample.pdf",
+            "pdf-sample-2.pdf"
+        ]
+    },
+    "parameters": {}
+}

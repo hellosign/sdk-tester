@@ -19,7 +19,7 @@ unclaimed_draft_create_embedded_filename = f'{root_dir}/test_fixtures/unclaimed_
 with open(unclaimed_draft_create_embedded_filename, "r") as fs:
     unclaimed_draft_create_embedded_data = fs.read()
 
-def test_post_unclaimed_draft_create_embedded(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server,get_client_id):
+def test_post_unclaimed_draft_create_embedded(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
     response = helpers_hsapi.run(unclaimed_draft_create_embedded_data, container_bin, sdk_language, uploads_dir, auth_type,
                                  auth_key, server)
 
@@ -33,7 +33,7 @@ unclaimed_draft_create_embedded_filename = f'{root_dir}/test_fixtures/unclaimed_
 with open(unclaimed_draft_create_embedded_filename, "r") as fs:
     unclaimed_draft_create_embedded__data = fs.read()
 
-def test_post_unclaimed_draft_create_embedded_selfsign(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server,get_client_id):
+def test_post_unclaimed_draft_create_embedded_selfsign(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
     '''
     :param container_bin:
     :param sdk_language:

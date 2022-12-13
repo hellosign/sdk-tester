@@ -331,7 +331,7 @@ class Requester(object):
         if self._operation_id == 'signatureRequestCreateEmbedded':
             obj = self._serialize(models.SignatureRequestCreateEmbeddedRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_create_embedded(
                 obj,
@@ -341,7 +341,7 @@ class Requester(object):
         if self._operation_id == 'signatureRequestCreateEmbeddedWithTemplate':
             obj = self._serialize(models.SignatureRequestCreateEmbeddedWithTemplateRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_create_embedded_with_template(
                 obj,
@@ -393,7 +393,7 @@ class Requester(object):
         if self._operation_id == 'signatureRequestSend':
             obj = self._serialize(models.SignatureRequestSendRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_send(
                 obj,
@@ -403,7 +403,7 @@ class Requester(object):
         if self._operation_id == 'signatureRequestSendWithTemplate':
             obj = self._serialize(models.SignatureRequestSendWithTemplateRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_send_with_template(
                 obj,
@@ -480,7 +480,7 @@ class Requester(object):
         if self._operation_id == 'templateCreateEmbeddedDraft':
             obj = self._serialize(models.TemplateCreateEmbeddedDraftRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.template_create_embedded_draft(
                 obj,
@@ -526,7 +526,7 @@ class Requester(object):
         if self._operation_id == 'templateUpdateFiles':
             obj = self._serialize(models.TemplateUpdateFilesRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.template_update_files(
                 self._parameters.get('template_id'),
@@ -540,7 +540,7 @@ class Requester(object):
         if self._operation_id == 'unclaimedDraftCreate':
             obj = self._serialize(models.UnclaimedDraftCreateRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.unclaimed_draft_create(
                 obj,
@@ -550,7 +550,7 @@ class Requester(object):
         if self._operation_id == 'unclaimedDraftCreateEmbedded':
             obj = self._serialize(models.UnclaimedDraftCreateEmbeddedRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.unclaimed_draft_create_embedded(
                 obj,
@@ -560,7 +560,7 @@ class Requester(object):
         if self._operation_id == 'unclaimedDraftCreateEmbeddedWithTemplate':
             obj = self._serialize(models.UnclaimedDraftCreateEmbeddedWithTemplateRequest)
 
-            obj['file'] = self._get_files('file')
+            obj['files'] = self._get_files('files')
 
             return api.unclaimed_draft_create_embedded_with_template(
                 obj,

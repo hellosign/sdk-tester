@@ -436,7 +436,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestCreateEmbeddedWithHttpInfo(
                 $obj,
@@ -448,7 +448,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestCreateEmbeddedWithTemplateWithHttpInfo(
                 $obj,
@@ -504,7 +504,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestSendWithHttpInfo(
                 $obj,
@@ -516,7 +516,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestSendWithTemplateWithHttpInfo(
                 $obj,
@@ -619,7 +619,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->templateCreateEmbeddedDraftWithHttpInfo(
                 $obj,
@@ -669,7 +669,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->templateUpdateFilesWithHttpInfo(
                 $this->parameters['template_id'],
@@ -692,7 +692,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->unclaimedDraftCreateWithHttpInfo(
                 $obj,
@@ -704,7 +704,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->unclaimedDraftCreateEmbeddedWithHttpInfo(
                 $obj,
@@ -716,7 +716,7 @@ class Requester
                 $this->data,
             );
 
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->unclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(
                 $obj,

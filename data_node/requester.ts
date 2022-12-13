@@ -457,7 +457,7 @@ class Requester
                 'SignatureRequestCreateEmbeddedRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestCreateEmbedded(
                 obj,
@@ -471,7 +471,7 @@ class Requester
                 'SignatureRequestCreateEmbeddedWithTemplateRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestCreateEmbeddedWithTemplate(
                 obj,
@@ -531,7 +531,7 @@ class Requester
                 'SignatureRequestSendRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestSend(
                 obj,
@@ -545,7 +545,7 @@ class Requester
                 'SignatureRequestSendWithTemplateRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestSendWithTemplate(
                 obj,
@@ -656,7 +656,7 @@ class Requester
                 'TemplateCreateEmbeddedDraftRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.templateCreateEmbeddedDraft(
                 obj,
@@ -710,7 +710,7 @@ class Requester
                 'TemplateUpdateFilesRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.templateUpdateFiles(
                 this.parameters['template_id'],
@@ -732,7 +732,7 @@ class Requester
                 'UnclaimedDraftCreateRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.unclaimedDraftCreate(
                 obj,
@@ -746,7 +746,7 @@ class Requester
                 'UnclaimedDraftCreateEmbeddedRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.unclaimedDraftCreateEmbedded(
                 obj,
@@ -760,7 +760,7 @@ class Requester
                 'UnclaimedDraftCreateEmbeddedWithTemplateRequest',
             );
 
-            obj.file = this.getFiles('file');
+            obj.files = this.getFiles('files');
 
             return api.unclaimedDraftCreateEmbedded(
                 obj,

@@ -63,7 +63,7 @@ class Requester
         var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
         operationId =  dictionary["operationId"] as string;
         dictionary.TryGetValue("data", out var dataObj );
-        dictionary.TryGetValue("files", out var filesObj);
+        dictionary.TryGetValue("files", out var filessObj);
         dictionary.TryGetValue("parameters", out var parametersObj);
 
         data = dataObj as JObject ?? new JObject();
@@ -201,7 +201,7 @@ class Requester
     private IApiResponse? SignatureRequestApi()
     {
         var api = new SignatureRequestApi(GetConfiguration());
-        var file = GetFiles("file");
+        var files = GetFiles("files");
         var signerFile = GetFile("signer_file");
         switch (operationId)
         {
@@ -229,18 +229,18 @@ class Requester
             case "signatureRequestCreateEmbedded":
                 var embeddedRequest = JsonConvert.DeserializeObject<SignatureRequestCreateEmbeddedRequest>(data.ToString()) ??
                                                             new SignatureRequestCreateEmbeddedRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    embeddedRequest.File = file;
+                    embeddedRequest.Files = files;
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
                 var embeddedWithTemplateRequest = JsonConvert.DeserializeObject<SignatureRequestCreateEmbeddedWithTemplateRequest>(data.ToString()) ??
                                       new SignatureRequestCreateEmbeddedWithTemplateRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    embeddedWithTemplateRequest.File = file;
+                    embeddedWithTemplateRequest.Files = files;
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
@@ -267,17 +267,17 @@ class Requester
                 return api.SignatureRequestRemoveWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestSend":
                 var sendRequest = JsonConvert.DeserializeObject<SignatureRequestSendRequest>(data.ToString()) ?? new SignatureRequestSendRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    sendRequest.File = file;
+                    sendRequest.Files = files;
                 }
                 return api.SignatureRequestSendWithHttpInfo(sendRequest);
             case "signatureRequestSendWithTemplate":
                 var sendWithTemplateRequest = JsonConvert.DeserializeObject<SignatureRequestSendWithTemplateRequest>(data.ToString()) ??
                                                               new SignatureRequestSendWithTemplateRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    sendWithTemplateRequest.File = file;
+                    sendWithTemplateRequest.Files = files;
                 }
                 return api.SignatureRequestSendWithTemplateWithHttpInfo(sendWithTemplateRequest);
             case "signatureRequestUpdate":
@@ -320,7 +320,7 @@ class Requester
     private IApiResponse? TemplateApi()
     {
         var api = new TemplateApi(GetConfiguration());
-        var file = GetFiles("file");
+        var files = GetFiles("files");
 
         switch (operationId) {
             case "templateAddUser":
@@ -357,9 +357,9 @@ class Requester
                 var updateFilesRequest =
                     JsonConvert.DeserializeObject<TemplateUpdateFilesRequest>(data.ToString()) ??
                     new TemplateUpdateFilesRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    updateFilesRequest.File = file;
+                    updateFilesRequest.Files = files;
                 }
                 return api.TemplateUpdateFilesWithHttpInfo(GetParamValue("template_id"), updateFilesRequest);
         }
@@ -369,34 +369,34 @@ class Requester
     private IApiResponse? UnclaimedDraftApi()
     {
         var api = new UnclaimedDraftApi(GetConfiguration());
-        var file = GetFiles("file");
+        var files = GetFiles("files");
 
         switch (operationId) {
             case "unclaimedDraftCreate":
                 var createRequest =
                     JsonConvert.DeserializeObject<UnclaimedDraftCreateRequest>(data.ToString()) ??
                     new UnclaimedDraftCreateRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    createRequest.File = file;
+                    createRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateWithHttpInfo(createRequest);
             case "unclaimedDraftCreateEmbedded":
                 var createEmbeddedRequest =
                     JsonConvert.DeserializeObject<UnclaimedDraftCreateEmbeddedRequest>(data.ToString()) ??
                     new UnclaimedDraftCreateEmbeddedRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    createEmbeddedRequest.File = file;
+                    createEmbeddedRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateEmbeddedWithHttpInfo(createEmbeddedRequest);
             case "unclaimedDraftCreateEmbeddedWithTemplate":
                 var embeddedWithTemplateRequest =
                     JsonConvert.DeserializeObject<UnclaimedDraftCreateEmbeddedWithTemplateRequest>(data.ToString()) ??
                     new UnclaimedDraftCreateEmbeddedWithTemplateRequest();
-                if (file != null)
+                if (files != null)
                 {
-                    embeddedWithTemplateRequest.File = file;
+                    embeddedWithTemplateRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
             case "unclaimedDraftEditAndResend":
@@ -438,7 +438,7 @@ class Requester
 
     private Stream? GetFile(string name)
     {
-        var filename = files?[name]?.ToString();
+        var filesname = files?[name]?.ToString();
         return filename == null ? null : new StreamReader(FILE_UPLOADS_DIR + $"/{filename}").BaseStream;
     }
 

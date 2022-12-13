@@ -461,7 +461,7 @@ class Requester
         HelloSign::SignatureRequestCreateEmbeddedRequest.to_s
       ) || HelloSign::SignatureRequestCreateEmbeddedRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.signature_request_create_embedded_with_http_info(
         obj,
@@ -477,7 +477,7 @@ class Requester
         HelloSign::SignatureRequestCreateEmbeddedWithTemplateRequest.to_s
       ) || HelloSign::SignatureRequestCreateEmbeddedWithTemplateRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.signature_request_create_embedded_with_template_with_http_info(
         obj,
@@ -556,7 +556,7 @@ class Requester
         HelloSign::SignatureRequestSendRequest.to_s
       ) || HelloSign::SignatureRequestSendRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.signature_request_send_with_http_info(
         obj,
@@ -572,7 +572,7 @@ class Requester
         HelloSign::SignatureRequestSendWithTemplateRequest.to_s
       ) || HelloSign::SignatureRequestSendWithTemplateRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.signature_request_send_with_template_with_http_info(
         obj,
@@ -701,7 +701,7 @@ class Requester
         HelloSign::TemplateCreateEmbeddedDraftRequest.to_s
       ) || HelloSign::TemplateCreateEmbeddedDraftRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.template_create_embedded_draft_with_http_info(
         obj,
@@ -771,7 +771,7 @@ class Requester
         HelloSign::TemplateUpdateFilesRequest.to_s
       ) || HelloSign::TemplateUpdateFilesRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.template_update_files_with_http_info(
         self.parameters['template_id'],
@@ -793,7 +793,7 @@ class Requester
         HelloSign::UnclaimedDraftCreateRequest.to_s
       ) || HelloSign::UnclaimedDraftCreateRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_create_with_http_info(
         obj,
@@ -809,7 +809,7 @@ class Requester
         HelloSign::UnclaimedDraftCreateEmbeddedRequest.to_s
       ) || HelloSign::UnclaimedDraftCreateEmbeddedRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_create_embedded_with_http_info(
         obj,
@@ -825,7 +825,7 @@ class Requester
         HelloSign::UnclaimedDraftCreateEmbeddedWithTemplateRequest.to_s
       ) || HelloSign::UnclaimedDraftCreateEmbeddedWithTemplateRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_create_embedded_with_template_with_http_info(
         obj,
@@ -841,7 +841,7 @@ class Requester
         HelloSign::UnclaimedDraftEditAndResendRequest.to_s
       ) || HelloSign::UnclaimedDraftEditAndResendRequest.new
 
-      obj.file = self.get_files('file')
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_edit_and_resend_with_http_info(
         self.parameters['signature_request_id'],

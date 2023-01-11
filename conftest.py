@@ -1,9 +1,19 @@
 import pytest
 import sys
 import os
-# scriptdir = os.path.dirname(os.path.realpath(__file__))
-# utilsdir = f'{scriptdir}/utils/'
-# sys.path.insert(0, utilsdir)
+
+import json
+import base64
+
+scriptdir = os.path.dirname(os.path.realpath(__file__))
+utilsdir = f'{scriptdir}/tests/utils/'
+print(f"utils dir {utilsdir}")
+sys.path.insert(0, utilsdir)
+import helpers_hsapi
+
+import requests
+from string import Template, ascii_lowercase, digits
+
 
 @pytest.fixture(scope='module')
 def container_bin():
@@ -42,6 +52,7 @@ def auth_type():
 def auth_key():
     # The API key or OAuth bearer token to use for the request
     api_key = os.environ['API_KEY']
+    print(f" Conftest API key {api_key}")
     return api_key
 
 @pytest.fixture(scope='module')
@@ -50,6 +61,24 @@ def server():
     server = os.environ['SERVER']
     print(f"Server : {server}")
     return server
+
+@pytest.fixture(scope='module')
+def get_clientid():
+    HS_API_APP = 'Automation APP'
+    res = helpers_hsapi.get_list_api_apps(auth_type,auth_key,server, page_size=30)
+    res_json = json.loads(res.text)
+    print(f"get list apps {res_json}")
+    assert res.status_code == 200
+    for app_num in range(len(res_json['api_apps'])):
+        if res_json['api_apps'][app_num]['name'] == HS_API_APP:
+            # Get the client_id
+            print(f"App Name found ::  {res_json['api_apps'][app_num]['name']}")
+            client_id = res_json['api_apps'][app_num]['client_id']
+            print(f"Client ID :: {client_id}")
+            return client_id
+
+
+
 
 
 

@@ -14,13 +14,15 @@ import helpers_hsapi
 root_dir = os.path.abspath(os.curdir)
 print(f"root dir {root_dir}")
 
+def test_post_unclaimed_draft_create_embedded(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server,get_clientid):
+    unclaimed_draft_create_embedded_filename = f'{root_dir}/test_fixtures/unclaimed_draft/unclaimedDraftCreateEmbedded.json'
+    with open(unclaimed_draft_create_embedded_filename) as json_file:
+        json_decoded = json.load(json_file)
 
-unclaimed_draft_create_embedded_filename = f'{root_dir}/test_fixtures/unclaimed_draft/unclaimedDraftCreateEmbedded.json'
-with open(unclaimed_draft_create_embedded_filename, "r") as fs:
-    unclaimed_draft_create_embedded_data = fs.read()
+    json_decoded["data"]["client_id"] = get_clientid
 
-def test_post_unclaimed_draft_create_embedded(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
-    response = helpers_hsapi.run(unclaimed_draft_create_embedded_data, container_bin, sdk_language, uploads_dir, auth_type,
+    json_decoded = json.dumps(json_decoded)
+    response = helpers_hsapi.run(json_decoded, container_bin, sdk_language, uploads_dir, auth_type,
                                  auth_key, server)
 
     print(f"\n\nResponse : test_post_unclaimed_draft_create_embedded {response.body}")
@@ -29,9 +31,6 @@ def test_post_unclaimed_draft_create_embedded(container_bin, sdk_language, uploa
 
 
 
-unclaimed_draft_create_embedded_filename = f'{root_dir}/test_fixtures/unclaimed_draft/unclaimedDraftCreateEmbeddedSelfSign.json'
-with open(unclaimed_draft_create_embedded_filename, "r") as fs:
-    unclaimed_draft_create_embedded__data = fs.read()
 
 def test_post_unclaimed_draft_create_embedded_selfsign(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server,get_clientid):
     '''
@@ -45,19 +44,16 @@ def test_post_unclaimed_draft_create_embedded_selfsign(container_bin, sdk_langua
     :return:
     In JSON - type = "send_document"
     '''
-
+    unclaimed_draft_create_embedded_filename = f'{root_dir}/test_fixtures/unclaimed_draft/unclaimedDraftCreateEmbeddedSelfSign.json'
     with open(unclaimed_draft_create_embedded_filename) as json_file:
         json_decoded = json.load(json_file)
 
-    json_decoded['client_id'] = get_clientid
+    json_decoded["data"]["client_id"] = get_clientid
 
-    with open(unclaimed_draft_create_embedded_filename, 'w') as json_file:
-        json.dump(json_decoded, json_file)
+    json_decoded = json.dumps(json_decoded)
 
-    with open(unclaimed_draft_create_embedded_filename, "r") as fs:
-        unclaimed_draft_create_embedded__data = fs.read()
-    response = helpers_hsapi.run(unclaimed_draft_create_embedded__data, container_bin, sdk_language, uploads_dir, auth_type,
-                                 auth_key, server,get_clientid)
+    response = helpers_hsapi.run(json_decoded, container_bin, sdk_language, uploads_dir, auth_type,
+                                 auth_key, server)
 
     print(f"\n\nResponse : test_post_unclaimed_draft_create_embedded {response.body}")
     assert response.status_code == 200

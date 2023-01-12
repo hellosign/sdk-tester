@@ -1,1 +1,48 @@
-{"operationId": "unclaimedDraftCreateEmbedded", "data": {"allow_decline": true, "allow_reassign": true, "type": "send_document", "cc_email_addresses": ["hs-api-qa+sdk+cc1@hellosign.com", "hs-api-qa+sdk+cc2@hellosign.com"], "custom_fields": [{"name": "Cost", "value": "$20,000", "editor": "0", "required": true}], "field_options": {"date_format": "MM / DD / YYYY"}, "hide_text_tags": false, "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.", "metadata": {"field1": "value1"}, "requester_email_address": "hs-api-qa+sdk+requester@hellosign.com", "signing_options": {"draw": true, "type": true, "upload": true, "phone": false, "default_type": "draw"}, "subject": "The NDA we talked about", "test_mode": true, "use_text_tags": false, "skip_me_now": false}, "files": {"file": ["pdf-sample.pdf", "pdf-sample-2.pdf"]}, "parameters": {}, "client_id": "4443b51c0b42b95db849ce0256821c6f"}
+{
+    "operationId": "unclaimedDraftCreateEmbedded",
+    "data": {
+        "allow_decline": true,
+        "allow_reassign": true,
+        "type": "send_document",
+        "cc_email_addresses": [
+            "hs-api-qa+sdk+cc1@hellosign.com",
+            "hs-api-qa+sdk+cc2@hellosign.com"
+        ],
+        "custom_fields": [
+            {
+                "name": "Cost",
+                "value": "$20,000",
+                "editor": "0",
+                "required": true
+            }
+        ],
+        "field_options": {
+            "date_format": "MM / DD / YYYY"
+        },
+        "hide_text_tags": false,
+        "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.",
+        "metadata": {
+            "field1": "value1"
+        },
+
+      "requester_email_address": "hs-api-qa+sdk+requester@hellosign.com",
+        "signing_options": {
+            "draw": true,
+            "type": true,
+            "upload": true,
+            "phone": false,
+            "default_type": "draw"
+        },
+        "subject": "The NDA we talked about",
+        "test_mode": true,
+        "use_text_tags": false,
+        "skip_me_now" : false
+    },
+    "files": {
+        "file": [
+            "pdf-sample.pdf",
+            "pdf-sample-2.pdf"
+        ]
+    },
+    "parameters": {}
+}

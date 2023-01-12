@@ -15,9 +15,8 @@ class ApiResponse(NamedTuple):
 
 
 def run(json_dump,container_bin,sdk_language,uploads_dir,auth_type,auth_key,server):
-    # json_dump = json.dumps(payload)
-    print(f"typeof {type(json_dump)}")
-    print(f"json_dump {json_dump}")
+    #print(f"typeof {type(json_dump)}")
+    print(f"json_dump : \n {json_dump}")
     base64_json = base64.b64encode(json_dump.encode('utf-8'))
     base64_json_string = base64_json.decode('utf-8')
     #print(f"base64_json {base64_json_string}")
@@ -30,14 +29,14 @@ def run(json_dump,container_bin,sdk_language,uploads_dir,auth_type,auth_key,serv
             f'--uploads_dir={uploads_dir}',
             f'--server={server}',
             f'--json={base64_json_string}'
-            # f'--json={get_clientid}'
         ]
     response = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
     )
-
+    print(f"Response  : {response}")
+    print(f"Response code : {response.returncode}")
     if response.returncode:
         raise RuntimeError(
                 "Error running container:\n" +
@@ -86,6 +85,5 @@ def get_list_api_apps(auth_type, auth_key, server, page_size=30):
     res = requests.get(url, headers=headers)
 
     print(f"\n Response : get_api_app: {res.status_code}")
-
 
     return res

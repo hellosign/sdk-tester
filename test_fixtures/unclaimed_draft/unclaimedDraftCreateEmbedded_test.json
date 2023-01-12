@@ -8,7 +8,6 @@
     "data": {
         "allow_decline": true,
         "allow_reassign": true,
-        "client_id" : "4443b51c0b42b95db849ce0256821c6f",
         "attachments": [
             {
                 "name": "Attachment1",

@@ -26,7 +26,7 @@ def test_signature_request_send(container_bin, sdk_language, uploads_dir, auth_t
     :param get_clientid:
     :return:
     """
-    signatureRequestSend_filename = f'{root_dir}/test_fixtures/signatureRequestSend-example_01.json'
+    signatureRequestSend_filename = f'{root_dir}/test_fixtures/signature_request/signatureRequestSend-example_01.json'
     with open(signatureRequestSend_filename) as json_file:
         json_decoded = json.load(json_file)
 
@@ -46,7 +46,7 @@ def test_signature_request_send(container_bin, sdk_language, uploads_dir, auth_t
 
 
 def test_signature_request_create_embedded(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server,get_clientid):
-    signatureRequestCreateEmbedded_filename = f'{root_dir}/test_fixtures/signatureRequestCreateEmbedded.json'
+    signatureRequestCreateEmbedded_filename = f'{root_dir}/test_fixtures/signature_request/signatureRequestCreateEmbedded.json'
     with open(signatureRequestCreateEmbedded_filename) as json_file:
         json_decoded = json.load(json_file)
 

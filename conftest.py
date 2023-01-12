@@ -42,24 +42,21 @@ def uploads_dir():
     print(f"File Upload directory : {uploads_dir}")
     return uploads_dir
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def auth_type():
     # One of "apikey" or "oauth"
     api_auth = 'apikey'
     return api_auth
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def auth_key():
     # The API key or OAuth bearer token to use for the request
-    api_key = os.environ['API_KEY']
-    print(f" Conftest API key {api_key}")
-    return api_key
-
-@pytest.fixture(scope='module')
+    auth_key = os.environ['API_KEY']
+    return auth_key
+@pytest.fixture
 def server():
     # Change server, ie dev/qa/staging/prod
     server = os.environ['SERVER']
-    print(f"Server : {server}")
     return server
 
 @pytest.fixture(scope='module')
@@ -67,15 +64,19 @@ def get_clientid():
     HS_API_APP = 'Automation APP'
     res = helpers_hsapi.get_list_api_apps(auth_type,auth_key,server, page_size=30)
     res_json = json.loads(res.text)
-    print(f"get list apps {res_json}")
+    print(f"\nget list apps {res_json}")
     assert res.status_code == 200
-    for app_num in range(len(res_json['api_apps'])):
-        if res_json['api_apps'][app_num]['name'] == HS_API_APP:
-            # Get the client_id
-            print(f"App Name found ::  {res_json['api_apps'][app_num]['name']}")
-            client_id = res_json['api_apps'][app_num]['client_id']
-            print(f"Client ID :: {client_id}")
-            return client_id
+    if len(res_json['api_apps']) > 0:
+        client_id = res_json['api_apps'][0]['client_id']
+        print(f"\nClient ID :: {client_id}")
+        return client_id
+    # for app_num in range(len(res_json['api_apps'])):
+    #     if res_json['api_apps'][app_num]['name'] == HS_API_APP:
+    #         # Get the client_id
+    #         print(f"App Name found ::  {res_json['api_apps'][app_num]['name']}")
+    #         client_id = res_json['api_apps'][app_num]['client_id']
+    #         print(f"Client ID :: {client_id}")
+    #         return client_id
 
 
 

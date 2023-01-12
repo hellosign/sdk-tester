@@ -65,7 +65,7 @@ def base64encoding(api_key):
     return decoded
 
 
-def get_list_api_apps(auth_type, auth_key, server, page_size=30):
+def get_list_api_apps(page_size=30):
     """ List the API apps """
     server = os.environ['SERVER']
     print(f"server: {server}")

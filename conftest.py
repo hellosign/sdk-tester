@@ -61,8 +61,8 @@ def server():
 
 @pytest.fixture(scope='module')
 def get_clientid():
-    HS_API_APP = 'Automation APP'
-    res = helpers_hsapi.get_list_api_apps(auth_type,auth_key,server, page_size=30)
+    #HS_API_APP = 'Automation APP'
+    res = helpers_hsapi.get_list_api_apps(page_size=30)
     res_json = json.loads(res.text)
     print(f"\nget list apps {res_json}")
     assert res.status_code == 200

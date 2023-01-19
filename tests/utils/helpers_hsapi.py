@@ -68,11 +68,11 @@ def base64encoding(api_key):
 def get_list_api_apps(page_size=30):
     """ List the API apps """
     server = os.environ['SERVER']
-    print(f"server: {server}")
+    #print(f"server: {server}")
     auth_key = os.environ['API_KEY']
     auth_key = str(auth_key) + ':'
     apikey = base64encoding(auth_key)
-    print(f"API Key: {apikey}")
+    #print(f"API Key: {apikey}")
     url = f'https://{server}/v3/api_app/list?page_size={page_size}'
     headers = {
         'Authorization': f'Basic {apikey}',

@@ -82,6 +82,11 @@ To run individual tests from a file.
 pytest -svra tests/test_signature_request.py::test_signature_request_send
 ```
 
+To run tests in individual environment in QA env 
+To run on staging pass SERVER = api.staging-hellosign.com and appropriate API_KEY
+```bash
+LANGUAGE=python API_KEY=<API_KEY>  SERVER=api.qa-hellosign.com  pytest -svra tests/test_template.py::test_get_template
+```
 
 # Flags
 

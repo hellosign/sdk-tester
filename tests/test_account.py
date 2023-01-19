@@ -11,7 +11,7 @@ root_dir = os.path.abspath(os.curdir)
 print(f"root dir {root_dir}")
 import json
 
-accountCreate_filename = f'{root_dir}/test_fixtures/accountCreate-example_01.json'
+accountCreate_filename = f'{root_dir}/test_fixtures/accounts/accountCreate-example_01.json'
 with open(accountCreate_filename, "r") as fs:
     accountCreate_data = fs.read()
 

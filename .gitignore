@@ -9,3 +9,8 @@ data_php/vendor
 data_python/venv
 
 data_ruby/Gemfile.lock
+.idea
+**/__pycache__
+**/*.log
+**/*.pyc
+tests/__pycache__/*

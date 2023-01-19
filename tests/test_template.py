@@ -21,6 +21,8 @@ def test_get_template(container_bin,sdk_language,uploads_dir,auth_type,auth_key,
         templateid = shared_records.qa_bulk_send_template_id
     elif server == 'api.staging-hellosign.com':
         templateid = shared_records.staging_bulk_send_template_id
+    elif server == 'api.hellosign.com':
+        templateid = shared_records.prod_template_id
 
     #Append client_id into JSON.
     #json_decoded["data"]["client_id"] = get_clientid

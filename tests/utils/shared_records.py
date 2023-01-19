@@ -1,6 +1,5 @@
-import sys
-# template id
-#staging hs-api-qa@hellosign.com
-template_id = "42f1a4cf5f20884129d3aa88276a1dd5ed3cdb53"
-# QA
-template_id = ''
+
+# Template name - BulkSend Automation Test - hs-api-qa@hellosign.com
+staging_bulk_send_template_id = 'e16d14f75e8b1a1812278eab8461ba0326112b49'
+qa_bulk_send_template_id = '6e344e08072cf2693f2fd8c5aa57ed4baea1fd0c'
+

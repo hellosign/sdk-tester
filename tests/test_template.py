@@ -16,11 +16,16 @@ def test_get_template(container_bin,sdk_language,uploads_dir,auth_type,auth_key,
     getTemplate_filename = f'{root_dir}/test_fixtures/template/getTemplate.json'
     with open(getTemplate_filename) as json_file:
         json_decoded = json.load(json_file)
+    templateid =''
+    if server == 'api.qa-hellosign.com':
+        templateid = shared_records.qa_bulk_send_template_id
+    elif server == 'api.staging-hellosign.com':
+        templateid = shared_records.staging_bulk_send_template_id
 
     #Append client_id into JSON.
     #json_decoded["data"]["client_id"] = get_clientid
-    print(f"template id {shared_records.template_id}")
-    json_decoded["parameters"]["template_id"] = shared_records.template_id
+    #print(f"template id {shared_records.template_id}")
+    json_decoded["parameters"]["template_id"] = templateid
     # This step is to covert the JSON into duoble quotes. ptherwise we get error `Expecting property name enclosed in double quotes`
     json_decoded = json.dumps(json_decoded)
     print(f"json decoded {json_decoded}")

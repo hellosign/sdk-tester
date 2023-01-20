@@ -82,33 +82,21 @@ class Requester
                throw new Exception($"Invalid operationId: {_operationId}");
     }
 
-    private static T Init<T>(JObject data)
-    {
-        var obj = JsonConvert.DeserializeObject<T>(data.ToString());
-
-        if (obj == null)
-        {
-            throw new Exception("Unable to deserialize object");
-        }
-
-        return obj;
-    }
-
     private IApiResponse? AccountApi()
     {
         var api = new AccountApi(GetConfiguration());
         switch (_operationId)
         {
             case "accountCreate":
-                var createRequest = Init<AccountCreateRequest>(_data);
+                var createRequest = AccountCreateRequest.Init(_data.ToString());
                 return api.AccountCreateWithHttpInfo(createRequest);
             case "accountGet":
                 return api.AccountGetWithHttpInfo(_parameters?["account_id"]?.ToString(), _parameters?["email_address"]?.ToString());
             case "accountUpdate":
-                var updateRequest = Init<AccountUpdateRequest>(_data);
+                var updateRequest = AccountUpdateRequest.Init(_data.ToString());
                 return api.AccountUpdateWithHttpInfo(updateRequest);
             case "accountVerify":
-                var verifyRequest = Init<AccountVerifyRequest>(_data);
+                var verifyRequest = AccountVerifyRequest.Init(_data.ToString());
                 return api.AccountVerifyWithHttpInfo(verifyRequest);
         }
 
@@ -123,7 +111,7 @@ class Requester
         switch (_operationId)
         {
             case "apiAppCreate":
-                var createRequest = Init<ApiAppCreateRequest>(_data);
+                var createRequest = ApiAppCreateRequest.Init(_data.ToString());
                 if (customLogoFile != null)
                 {
                     createRequest.CustomLogoFile = customLogoFile;
@@ -137,9 +125,9 @@ class Requester
                 return api.ApiAppListWithHttpInfo(
                     int.Parse(GetParamValue("page", "1")),
                     int.Parse(GetParamValue("page_size", "20"))
-                    );
+                );
             case "apiAppUpdate":
-                var updateRequest = Init<ApiAppUpdateRequest>(_data);
+                var updateRequest = ApiAppUpdateRequest.Init(_data.ToString());
                 if (customLogoFile != null)
                 {
                     updateRequest.CustomLogoFile = customLogoFile;
@@ -172,7 +160,7 @@ class Requester
         var api = new EmbeddedApi(GetConfiguration());
         switch (_operationId) {
             case "embeddedEditUrl":
-                var editUrlRequest = Init<EmbeddedEditUrlRequest>(_data);
+                var editUrlRequest = EmbeddedEditUrlRequest.Init(_data.ToString());
                 return api.EmbeddedEditUrlWithHttpInfo(GetParamValue("template_id"), editUrlRequest);
             case "embeddedSignUrl":
                 return api.EmbeddedSignUrlWithHttpInfo(GetParamValue("embeddedSignUrl"));
@@ -185,10 +173,10 @@ class Requester
         var api = new OAuthApi(GetConfiguration());
         switch (_operationId) {
             case "oauthTokenGenerate":
-                var generateRequest = Init<OAuthTokenGenerateRequest>(_data);
+                var generateRequest = OAuthTokenGenerateRequest.Init(_data.ToString());
                 return api.OauthTokenGenerateWithHttpInfo(generateRequest);
             case "oauthTokenRefresh":
-                var refreshRequest = Init<OAuthTokenRefreshRequest>(_data);
+                var refreshRequest = OAuthTokenRefreshRequest.Init(_data.ToString());
                 return api.OauthTokenRefreshWithHttpInfo(refreshRequest);
         }
         return null;
@@ -199,7 +187,7 @@ class Requester
         var api = new ReportApi(GetConfiguration());
         switch (_operationId) {
             case "reportCreate":
-                var createRequest = Init<ReportCreateRequest>(_data);
+                var createRequest = ReportCreateRequest.Init(_data.ToString());
                 return api.ReportCreateWithHttpInfo(createRequest);
         }
         return null;
@@ -213,7 +201,7 @@ class Requester
         switch (_operationId)
         {
             case "signatureRequestBulkCreateEmbeddedWithTemplate":
-                var templateRequest = Init<SignatureRequestBulkCreateEmbeddedWithTemplateRequest>(_data);
+                var templateRequest = SignatureRequestBulkCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
                 if (signerFile != null)
                 {
                     templateRequest.SignerFile = signerFile;
@@ -221,7 +209,7 @@ class Requester
 
                 return api.SignatureRequestBulkCreateEmbeddedWithTemplateWithHttpInfo(templateRequest);
             case "signatureRequestBulkSendWithTemplate":
-                var withTemplateRequest = Init<SignatureRequestBulkSendWithTemplateRequest>(_data);
+                var withTemplateRequest = SignatureRequestBulkSendWithTemplateRequest.Init(_data.ToString());
                 if (signerFile != null)
                 {
                     withTemplateRequest.SignerFile = signerFile;
@@ -231,7 +219,7 @@ class Requester
             case "signatureRequestCancel":
                 return api.SignatureRequestCancelWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestCreateEmbedded":
-                var embeddedRequest = Init<SignatureRequestCreateEmbeddedRequest>(_data);
+                var embeddedRequest = SignatureRequestCreateEmbeddedRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     embeddedRequest.Files = files;
@@ -239,7 +227,7 @@ class Requester
 
                 return api.SignatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
-                var embeddedWithTemplateRequest = Init<SignatureRequestCreateEmbeddedWithTemplateRequest>(_data);
+                var embeddedWithTemplateRequest = SignatureRequestCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     embeddedWithTemplateRequest.Files = files;
@@ -261,26 +249,26 @@ class Requester
             case "signatureRequestReleaseHold":
                 return api.SignatureRequestReleaseHoldWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestRemind":
-                var remindRequest = Init<SignatureRequestRemindRequest>(_data);
+                var remindRequest = SignatureRequestRemindRequest.Init(_data.ToString());
                 return api.SignatureRequestRemindWithHttpInfo(GetParamValue("signature_request_id"), remindRequest);
             case "signatureRequestRemove":
                 return api.SignatureRequestRemoveWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestSend":
-                var sendRequest = Init<SignatureRequestSendRequest>(_data);
+                var sendRequest = SignatureRequestSendRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     sendRequest.Files = files;
                 }
                 return api.SignatureRequestSendWithHttpInfo(sendRequest);
             case "signatureRequestSendWithTemplate":
-                var sendWithTemplateRequest = Init<SignatureRequestSendWithTemplateRequest>(_data);
+                var sendWithTemplateRequest = SignatureRequestSendWithTemplateRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     sendWithTemplateRequest.Files = files;
                 }
                 return api.SignatureRequestSendWithTemplateWithHttpInfo(sendWithTemplateRequest);
             case "signatureRequestUpdate":
-                var updateRequest = Init<SignatureRequestUpdateRequest>(_data);
+                var updateRequest = SignatureRequestUpdateRequest.Init(_data.ToString());
                 return api.SignatureRequestUpdateWithHttpInfo(GetParamValue("signature_request_id"), updateRequest);
         }
 
@@ -292,20 +280,20 @@ class Requester
         var api = new TeamApi(GetConfiguration());
         switch (_operationId) {
             case "teamAddMember":
-                var addMemberRequest = Init<TeamAddMemberRequest>(_data);
+                var addMemberRequest = TeamAddMemberRequest.Init(_data.ToString());
                 return api.TeamAddMemberWithHttpInfo(addMemberRequest, GetParamValue("team_id"));
             case "teamCreate":
-                var createRequest = Init<TeamCreateRequest>(_data);
+                var createRequest = TeamCreateRequest.Init(_data.ToString());
                 return api.TeamCreateWithHttpInfo(createRequest);
             case "teamDelete":
                 return api.TeamDeleteWithHttpInfo();
             case "teamGet":
                 return api.TeamGetWithHttpInfo();
             case "teamRemoveMember":
-                var removeMemberRequest = Init<TeamRemoveMemberRequest>(_data);
+                var removeMemberRequest = TeamRemoveMemberRequest.Init(_data.ToString());
                 return api.TeamRemoveMemberWithHttpInfo(removeMemberRequest);
             case "teamUpdate":
-                var updateRequest = Init<TeamUpdateRequest>(_data);
+                var updateRequest = TeamUpdateRequest.Init(_data.ToString());
                 return api.TeamUpdateWithHttpInfo(updateRequest);
         }
         return null;
@@ -318,10 +306,10 @@ class Requester
 
         switch (_operationId) {
             case "templateAddUser":
-                var addUserRequest = Init<TemplateAddUserRequest>(_data);
+                var addUserRequest = TemplateAddUserRequest.Init(_data.ToString());
                 return api.TemplateAddUserWithHttpInfo(GetParamValue("template_id"), addUserRequest);
             case "templateCreateEmbeddedDraft":
-                var embeddedDraftRequest = Init<TemplateCreateEmbeddedDraftRequest>(_data);
+                var embeddedDraftRequest = TemplateCreateEmbeddedDraftRequest.Init(_data.ToString());
                 return api.TemplateCreateEmbeddedDraftWithHttpInfo(embeddedDraftRequest);
             case "templateDelete":
                 return api.TemplateDeleteWithHttpInfo(GetParamValue("template_id"));
@@ -335,14 +323,14 @@ class Requester
                 return api.TemplateListWithHttpInfo(
                     GetParamValue("account_id"),
                     int.Parse(GetParamValue("page", "1")),
-                        int.Parse(GetParamValue("page_size","20")),
+                    int.Parse(GetParamValue("page_size","20")),
                     GetParamValue("query")
                 );
             case "templateRemoveUser":
-                var removeUserRequest = Init<TemplateRemoveUserRequest>(_data);
+                var removeUserRequest = TemplateRemoveUserRequest.Init(_data.ToString());
                 return api.TemplateRemoveUserWithHttpInfo(GetParamValue("template_id"), removeUserRequest);
             case "templateUpdateFiles":
-                var updateFilesRequest = Init<TemplateUpdateFilesRequest>(_data);
+                var updateFilesRequest = TemplateUpdateFilesRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     updateFilesRequest.Files = files;
@@ -359,28 +347,28 @@ class Requester
 
         switch (_operationId) {
             case "unclaimedDraftCreate":
-                var createRequest = Init<UnclaimedDraftCreateRequest>(_data);
+                var createRequest = UnclaimedDraftCreateRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     createRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateWithHttpInfo(createRequest);
             case "unclaimedDraftCreateEmbedded":
-                var createEmbeddedRequest = Init<UnclaimedDraftCreateEmbeddedRequest>(_data);
+                var createEmbeddedRequest = UnclaimedDraftCreateEmbeddedRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     createEmbeddedRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateEmbeddedWithHttpInfo(createEmbeddedRequest);
             case "unclaimedDraftCreateEmbeddedWithTemplate":
-                var embeddedWithTemplateRequest = Init<UnclaimedDraftCreateEmbeddedWithTemplateRequest>(_data);
+                var embeddedWithTemplateRequest = UnclaimedDraftCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
                 if (files != null)
                 {
                     embeddedWithTemplateRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
             case "unclaimedDraftEditAndResend":
-                var resendRequest = Init<UnclaimedDraftEditAndResendRequest>(_data);
+                var resendRequest = UnclaimedDraftEditAndResendRequest.Init(_data.ToString());
                 return api.UnclaimedDraftEditAndResendWithHttpInfo(GetParamValue("signature_request_id"), resendRequest);
         }
         return null;

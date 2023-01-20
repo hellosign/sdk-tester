@@ -1,7 +1,7 @@
 {
     "operationId": "unclaimedDraftCreateEmbedded",
      "files": {
-        "file": [
+        "files": [
             "pdf-sample.pdf"
         ]
     },

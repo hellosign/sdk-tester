@@ -1,5 +1,5 @@
 import fs from 'fs';
-import * as HelloSignSDK from 'hellosign-sdk';
+import * as DropboxSign from '@dropbox/sign';
 
 interface JsonDataI {
     operationId: string,
@@ -15,8 +15,8 @@ interface ApiI {
     defaultHeaders: { [key: string]: string } | (() => { [key: string]: string }),
 }
 
-type ApiResponseT = Promise<HelloSignSDK.returnTypeT<any>>
-    | Promise<HelloSignSDK.returnTypeI>;
+type ApiResponseT = Promise<DropboxSign.returnTypeT<any>>
+    | Promise<DropboxSign.returnTypeI>;
 
 class Requester
 {
@@ -67,7 +67,7 @@ class Requester
 
             process.exit(0);
         }).catch(e => {
-            if (e instanceof HelloSignSDK.HttpError) {
+            if (e instanceof DropboxSign.HttpError) {
                 console.log(JSON.stringify({
                     body: e.response.data,
                     status_code: e.statusCode,
@@ -183,7 +183,7 @@ class Requester
         throw new Error(`Invalid operationId: ${this.operationId}`)
     }
 
-    private getFile(name: string): HelloSignSDK.RequestFile | undefined
+    private getFile(name: string): DropboxSign.RequestFile | undefined
     {
         if (this.files.hasOwnProperty(name)) {
             return fs.createReadStream(
@@ -194,10 +194,10 @@ class Requester
         return undefined;
     }
 
-    private getFiles(name: string): HelloSignSDK.RequestFile[] | undefined
+    private getFiles(name: string): DropboxSign.RequestFile[] | undefined
     {
         if (this.files.hasOwnProperty(name)) {
-            let files: HelloSignSDK.RequestFile[] = [];
+            let files: DropboxSign.RequestFile[] = [];
 
             for (let file of this.files[name]) {
                 files.push(fs.createReadStream(
@@ -213,14 +213,10 @@ class Requester
 
     private accountApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.AccountApi());
+        const api = this.getApi(new DropboxSign.AccountApi());
 
         if (this.operationId === 'accountCreate') {
-            let obj: HelloSignSDK.AccountCreateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'AccountCreateRequest',
-            );
+            const obj = DropboxSign.AccountCreateRequest.init(this.data);
 
             return api.accountCreate(
                 obj,
@@ -235,11 +231,7 @@ class Requester
         }
 
         if (this.operationId === 'accountUpdate') {
-            let obj: HelloSignSDK.AccountUpdateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'AccountUpdateRequest',
-            );
+            const obj = DropboxSign.AccountUpdateRequest.init(this.data);
 
             return api.accountUpdate(
                 obj,
@@ -247,11 +239,7 @@ class Requester
         }
 
         if (this.operationId === 'accountVerify') {
-            let obj: HelloSignSDK.AccountVerifyRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'AccountVerifyRequest',
-            );
+            const obj = DropboxSign.AccountVerifyRequest.init(this.data);
 
             return api.accountVerify(
                 obj,
@@ -263,15 +251,10 @@ class Requester
 
     private apiAppApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.ApiAppApi());
+        const api = this.getApi(new DropboxSign.ApiAppApi());
 
         if (this.operationId === 'apiAppCreate') {
-            let obj: HelloSignSDK.ApiAppCreateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'ApiAppCreateRequest',
-            );
-
+            const obj = DropboxSign.ApiAppCreateRequest.init(this.data);
             obj.customLogoFile = this.getFile('custom_logo_file');
 
             return api.apiAppCreate(
@@ -299,12 +282,7 @@ class Requester
         }
 
         if (this.operationId === 'apiAppUpdate') {
-            let obj: HelloSignSDK.ApiAppUpdateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'ApiAppUpdateRequest',
-            );
-
+            const obj = DropboxSign.ApiAppUpdateRequest.init(this.data);
             obj.customLogoFile = this.getFile('custom_logo_file');
 
             return api.apiAppUpdate(
@@ -318,7 +296,7 @@ class Requester
 
     private bulkSendJobApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.BulkSendJobApi());
+        const api = this.getApi(new DropboxSign.BulkSendJobApi());
 
         if (this.operationId === 'bulkSendJobGet') {
             return api.bulkSendJobGet(
@@ -338,14 +316,10 @@ class Requester
 
     private embeddedApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.EmbeddedApi());
+        const api = this.getApi(new DropboxSign.EmbeddedApi());
 
         if (this.operationId === 'embeddedEditUrl') {
-            let obj: HelloSignSDK.EmbeddedEditUrlRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'EmbeddedEditUrlRequest',
-            );
+            const obj = DropboxSign.EmbeddedEditUrlRequest.init(this.data);
 
             return api.embeddedEditUrl(
                 this.parameters['template_id'],
@@ -364,14 +338,10 @@ class Requester
 
     private oauthApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.OAuthApi());
+        const api = this.getApi(new DropboxSign.OAuthApi());
 
         if (this.operationId === 'oauthTokenGenerate') {
-            let obj: HelloSignSDK.OAuthTokenGenerateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'OAuthTokenGenerateRequest',
-            );
+            const obj = DropboxSign.OAuthTokenGenerateRequest.init(this.data);
 
             return api.oauthTokenGenerate(
                 obj,
@@ -379,11 +349,7 @@ class Requester
         }
 
         if (this.operationId === 'oauthTokenRefresh') {
-            let obj: HelloSignSDK.OAuthTokenRefreshRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'OAuthTokenRefreshRequest',
-            );
+            const obj = DropboxSign.OAuthTokenRefreshRequest.init(this.data);
 
             return api.oauthTokenRefresh(
                 obj,
@@ -395,14 +361,10 @@ class Requester
 
     private reportApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.ReportApi());
+        const api = this.getApi(new DropboxSign.ReportApi());
 
         if (this.operationId === 'reportCreate') {
-            let obj: HelloSignSDK.ReportCreateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'ReportCreateRequest',
-            );
+            const obj = DropboxSign.ReportCreateRequest.init(this.data);
 
             return api.reportCreate(
                 obj,
@@ -414,15 +376,10 @@ class Requester
 
     private signatureRequestApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.SignatureRequestApi());
+        const api = this.getApi(new DropboxSign.SignatureRequestApi());
 
         if (this.operationId === 'signatureRequestBulkCreateEmbeddedWithTemplate') {
-            let obj: HelloSignSDK.SignatureRequestBulkCreateEmbeddedWithTemplateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestBulkCreateEmbeddedWithTemplateRequest',
-            );
-
+            const obj = DropboxSign.SignatureRequestBulkCreateEmbeddedWithTemplateRequest.init(this.data);
             obj.signerFile = this.getFile('signer_file');
 
             return api.signatureRequestBulkCreateEmbeddedWithTemplate(
@@ -431,12 +388,7 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestBulkSendWithTemplate') {
-            let obj: HelloSignSDK.SignatureRequestBulkSendWithTemplateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestBulkSendWithTemplateRequest',
-            );
-
+            const obj = DropboxSign.SignatureRequestBulkSendWithTemplateRequest.init(this.data);
             obj.signerFile = this.getFile('signer_file');
 
             return api.signatureRequestBulkSendWithTemplate(
@@ -451,13 +403,8 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestCreateEmbedded') {
-            let obj: HelloSignSDK.SignatureRequestCreateEmbeddedRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestCreateEmbeddedRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.SignatureRequestCreateEmbeddedRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestCreateEmbedded(
                 obj,
@@ -465,13 +412,8 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestCreateEmbeddedWithTemplate') {
-            let obj: HelloSignSDK.SignatureRequestCreateEmbeddedWithTemplateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestCreateEmbeddedWithTemplateRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.SignatureRequestCreateEmbeddedWithTemplateRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestCreateEmbeddedWithTemplate(
                 obj,
@@ -506,11 +448,7 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestRemind') {
-            let obj: HelloSignSDK.SignatureRequestRemindRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestRemindRequest',
-            );
+            const obj = DropboxSign.SignatureRequestRemindRequest.init(this.data);
 
             return api.signatureRequestRemind(
                 this.parameters['signature_request_id'],
@@ -525,13 +463,8 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestSend') {
-            let obj: HelloSignSDK.SignatureRequestSendRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestSendRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.SignatureRequestSendRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestSend(
                 obj,
@@ -539,13 +472,8 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestSendWithTemplate') {
-            let obj: HelloSignSDK.SignatureRequestSendWithTemplateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestSendWithTemplateRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.SignatureRequestSendWithTemplateRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.signatureRequestSendWithTemplate(
                 obj,
@@ -553,11 +481,7 @@ class Requester
         }
 
         if (this.operationId === 'signatureRequestUpdate') {
-            let obj: HelloSignSDK.SignatureRequestUpdateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'SignatureRequestUpdateRequest',
-            );
+            const obj = DropboxSign.SignatureRequestUpdateRequest.init(this.data);
 
             return api.signatureRequestUpdate(
                 this.parameters['signature_request_id'],
@@ -570,14 +494,10 @@ class Requester
 
     private teamApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.TeamApi());
+        const api = this.getApi(new DropboxSign.TeamApi());
 
         if (this.operationId === 'teamAddMember') {
-            let obj: HelloSignSDK.TeamAddMemberRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TeamAddMemberRequest',
-            );
+            const obj = DropboxSign.TeamAddMemberRequest.init(this.data);
 
             return api.teamAddMember(
                 obj,
@@ -586,11 +506,7 @@ class Requester
         }
 
         if (this.operationId === 'teamCreate') {
-            let obj: HelloSignSDK.TeamCreateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TeamCreateRequest',
-            );
+            const obj = DropboxSign.TeamCreateRequest.init(this.data);
 
             return api.teamCreate(
                 obj,
@@ -606,11 +522,7 @@ class Requester
         }
 
         if (this.operationId === 'teamRemoveMember') {
-            let obj: HelloSignSDK.TeamRemoveMemberRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TeamRemoveMemberRequest',
-            );
+            const obj = DropboxSign.TeamRemoveMemberRequest.init(this.data);
 
             return api.teamRemoveMember(
                 obj,
@@ -618,11 +530,7 @@ class Requester
         }
 
         if (this.operationId === 'teamUpdate') {
-            let obj: HelloSignSDK.TeamUpdateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TeamUpdateRequest',
-            );
+            const obj = DropboxSign.TeamUpdateRequest.init(this.data);
 
             return api.teamUpdate(
                 obj,
@@ -634,14 +542,10 @@ class Requester
 
     private templateApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.TemplateApi());
+        const api = this.getApi(new DropboxSign.TemplateApi());
 
         if (this.operationId === 'templateAddUser') {
-            let obj: HelloSignSDK.TemplateAddUserRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TemplateAddUserRequest',
-            );
+            const obj = DropboxSign.TemplateAddUserRequest.init(this.data);
 
             return api.templateAddUser(
                 this.parameters['template_id'],
@@ -650,13 +554,8 @@ class Requester
         }
 
         if (this.operationId === 'templateCreateEmbeddedDraft') {
-            let obj: HelloSignSDK.TemplateCreateEmbeddedDraftRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TemplateCreateEmbeddedDraftRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.TemplateCreateEmbeddedDraftRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.templateCreateEmbeddedDraft(
                 obj,
@@ -691,11 +590,7 @@ class Requester
         }
 
         if (this.operationId === 'templateRemoveUser') {
-            let obj: HelloSignSDK.TemplateRemoveUserRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TemplateRemoveUserRequest',
-            );
+            const obj = DropboxSign.TemplateRemoveUserRequest.init(this.data);
 
             return api.templateRemoveUser(
                 this.parameters['template_id'],
@@ -704,13 +599,8 @@ class Requester
         }
 
         if (this.operationId === 'templateUpdateFiles') {
-            let obj: HelloSignSDK.TemplateUpdateFilesRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'TemplateUpdateFilesRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.TemplateUpdateFilesRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.templateUpdateFiles(
                 this.parameters['template_id'],
@@ -723,16 +613,11 @@ class Requester
 
     private unclaimedDraftApi(): ApiResponseT | null
     {
-        const api = this.getApi(new HelloSignSDK.UnclaimedDraftApi());
+        const api = this.getApi(new DropboxSign.UnclaimedDraftApi());
 
         if (this.operationId === 'unclaimedDraftCreate') {
-            let obj: HelloSignSDK.UnclaimedDraftCreateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'UnclaimedDraftCreateRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.UnclaimedDraftCreateRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.unclaimedDraftCreate(
                 obj,
@@ -740,13 +625,8 @@ class Requester
         }
 
         if (this.operationId === 'unclaimedDraftCreateEmbedded') {
-            let obj: HelloSignSDK.UnclaimedDraftCreateEmbeddedRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'UnclaimedDraftCreateEmbeddedRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.UnclaimedDraftCreateEmbeddedRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.unclaimedDraftCreateEmbedded(
                 obj,
@@ -754,13 +634,8 @@ class Requester
         }
 
         if (this.operationId === 'unclaimedDraftCreateEmbeddedWithTemplate') {
-            let obj: HelloSignSDK.UnclaimedDraftCreateEmbeddedWithTemplateRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'UnclaimedDraftCreateEmbeddedWithTemplateRequest',
-            );
-
-            obj.file = this.getFiles('file');
+            const obj = DropboxSign.UnclaimedDraftCreateEmbeddedWithTemplateRequest.init(this.data);
+            obj.files = this.getFiles('files');
 
             return api.unclaimedDraftCreateEmbedded(
                 obj,
@@ -768,11 +643,7 @@ class Requester
         }
 
         if (this.operationId === 'unclaimedDraftEditAndResend') {
-            let obj: HelloSignSDK.UnclaimedDraftEditAndResendRequest;
-            obj = HelloSignSDK.ObjectSerializer.deserialize(
-                this.data,
-                'UnclaimedDraftEditAndResendRequest',
-            );
+            const obj = DropboxSign.UnclaimedDraftEditAndResendRequest.init(this.data);
 
             return api.unclaimedDraftEditAndResend(
                 this.parameters['signature_request_id'],

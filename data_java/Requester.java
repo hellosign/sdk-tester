@@ -1,13 +1,13 @@
-package com.hellosign.sdk;
+package com.dropbox.sign_sandbox;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.hellosign.openapi.*;
-import com.hellosign.openapi.api.*;
-import com.hellosign.openapi.auth.HttpBasicAuth;
-import com.hellosign.openapi.auth.HttpBearerAuth;
-import com.hellosign.openapi.model.*;
+import com.dropbox.sign.*;
+import com.dropbox.sign.api.*;
+import com.dropbox.sign.auth.HttpBasicAuth;
+import com.dropbox.sign.auth.HttpBearerAuth;
+import com.dropbox.sign.model.*;
 
 import java.io.File;
 import java.util.*;
@@ -37,7 +37,7 @@ public class Requester {
     public void run() throws Exception {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         try {
-            ApiResponse apiResponse = callFromOperationId();
+            ApiResponse<?> apiResponse = callFromOperationId();
             Map<String, Object> output = Map.of(
                     "body", apiResponse.getData(),
                     "status_code", apiResponse.getStatusCode(),
@@ -62,7 +62,7 @@ public class Requester {
         parameters = jsonNode.get("parameters");
     }
 
-    private ApiResponse callFromOperationId() throws Exception{
+    private ApiResponse<?> callFromOperationId() throws Exception{
         return Stream.of(
                 accountApi(),
                 apiAppApi(),
@@ -77,22 +77,22 @@ public class Requester {
         ).filter(Objects::nonNull).findFirst().orElseThrow(() -> new Exception("Invalid operationId: " + operationId));
     }
 
-    private ApiResponse unclaimedDraftApi() throws Exception {
+    private ApiResponse<?> unclaimedDraftApi() throws Exception {
         UnclaimedDraftApi api = new UnclaimedDraftApi(getApiClient());
         switch (operationId) {
             case "unclaimedDraftCreate":
                 UnclaimedDraftCreateRequest createRequest = objectMapper.readValue(data.toString(), UnclaimedDraftCreateRequest.class);
-                createRequest.setFile(getFiles("file"));
+                createRequest.setFiles(getFiles("files"));
                 return api.unclaimedDraftCreateWithHttpInfo(createRequest);
             case "unclaimedDraftCreateEmbedded":
                 UnclaimedDraftCreateEmbeddedRequest createEmbeddedRequest =
                         objectMapper.readValue(data.toString(), UnclaimedDraftCreateEmbeddedRequest.class);
-                createEmbeddedRequest.setFile(getFiles("file"));
+                createEmbeddedRequest.setFiles(getFiles("files"));
                 return api.unclaimedDraftCreateEmbeddedWithHttpInfo(createEmbeddedRequest);
             case "unclaimedDraftCreateEmbeddedWithTemplate":
                 UnclaimedDraftCreateEmbeddedWithTemplateRequest embeddedWithTemplateRequest =
                         objectMapper.readValue(data.toString(), UnclaimedDraftCreateEmbeddedWithTemplateRequest.class);
-                embeddedWithTemplateRequest.setFile(getFiles("file"));
+                embeddedWithTemplateRequest.setFiles(getFiles("files"));
                 return api.unclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
             case "unclaimedDraftEditAndResend":
                 UnclaimedDraftEditAndResendRequest resendRequest =
@@ -102,7 +102,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse templateApi() throws Exception {
+    private ApiResponse<?> templateApi() throws Exception {
         TemplateApi api = new TemplateApi(getApiClient());
         switch (operationId) {
             case "templateAddUser":
@@ -132,13 +132,13 @@ public class Requester {
                 return api.templateRemoveUserWithHttpInfo(parameters.get("template_id").asText(), removeUserRequest);
             case "templateUpdateFiles":
                 TemplateUpdateFilesRequest updateFilesRequest = objectMapper.readValue(data.toString(), TemplateUpdateFilesRequest.class);
-                updateFilesRequest.setFile(getFiles("file"));
+                updateFilesRequest.setFiles(getFiles("files"));
                 return api.templateUpdateFilesWithHttpInfo(parameters.get("template_id").asText(), updateFilesRequest);
         }
         return null;
     }
 
-    private ApiResponse teamApi() throws Exception {
+    private ApiResponse<?> teamApi() throws Exception {
         TeamApi api = new TeamApi(getApiClient());
         switch (operationId) {
             case "teamAddMember":
@@ -161,7 +161,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse signatureRequestApi() throws Exception {
+    private ApiResponse<?> signatureRequestApi() throws Exception {
         SignatureRequestApi api = new SignatureRequestApi(getApiClient());
         switch (operationId) {
             case "signatureRequestBulkCreateEmbeddedWithTemplate":
@@ -178,12 +178,12 @@ public class Requester {
                 return api.signatureRequestCancelWithHttpInfo(parameters.get("signature_request_id").asText());
             case "signatureRequestCreateEmbedded":
                 SignatureRequestCreateEmbeddedRequest embeddedRequest = objectMapper.readValue(data.toString(), SignatureRequestCreateEmbeddedRequest.class);
-                embeddedRequest.setFile(getFiles("file"));
+                embeddedRequest.setFiles(getFiles("files"));
                 return api.signatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
                 SignatureRequestCreateEmbeddedWithTemplateRequest embeddedWithTemplateRequest =
                         objectMapper.readValue(data.toString(), SignatureRequestCreateEmbeddedWithTemplateRequest.class);
-                embeddedWithTemplateRequest.setFile(getFiles("file"));
+                embeddedWithTemplateRequest.setFiles(getFiles("files"));
                 return api.signatureRequestCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
             case "signatureRequestFilesAsFileUrl":
                 return api.signatureRequestFilesAsFileUrlWithHttpInfo(
@@ -207,12 +207,12 @@ public class Requester {
                 return api.signatureRequestRemoveWithHttpInfo(parameters.get("signature_request_id").asText());
             case "signatureRequestSend":
                 SignatureRequestSendRequest sendRequest = objectMapper.readValue(data.toString(), SignatureRequestSendRequest.class);
-                sendRequest.setFile(getFiles("file"));
+                sendRequest.setFiles(getFiles("files"));
                 return api.signatureRequestSendWithHttpInfo(sendRequest);
             case "signatureRequestSendWithTemplate":
                 SignatureRequestSendWithTemplateRequest sendWithTemplateRequest =
                         objectMapper.readValue(data.toString(), SignatureRequestSendWithTemplateRequest.class);
-                sendWithTemplateRequest.setFile(getFiles("file"));
+                sendWithTemplateRequest.setFiles(getFiles("files"));
                 return api.signatureRequestSendWithTemplateWithHttpInfo(sendWithTemplateRequest);
             case "signatureRequestUpdate":
                 SignatureRequestUpdateRequest updateRequest = objectMapper.readValue(data.toString(), SignatureRequestUpdateRequest.class);
@@ -222,7 +222,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse reportApi() throws Exception {
+    private ApiResponse<?> reportApi() throws Exception {
         ReportApi api = new ReportApi(getApiClient());
         switch (operationId) {
             case "reportCreate":
@@ -232,7 +232,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse oauthApi() throws Exception {
+    private ApiResponse<?> oauthApi() throws Exception {
         OAuthApi api = new OAuthApi(getApiClient());
         switch (operationId) {
             case "oauthTokenGenerate":
@@ -245,7 +245,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse embeddedApi() throws Exception {
+    private ApiResponse<?> embeddedApi() throws Exception {
         EmbeddedApi api = new EmbeddedApi(getApiClient());
         switch (operationId) {
             case "embeddedEditUrl":
@@ -257,7 +257,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse bulkSendJobApi() throws Exception {
+    private ApiResponse<?> bulkSendJobApi() throws Exception {
         BulkSendJobApi api = new BulkSendJobApi(getApiClient());
         switch (operationId) {
             case "bulkSendJobGet":
@@ -270,7 +270,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse apiAppApi() throws Exception {
+    private ApiResponse<?> apiAppApi() throws Exception {
         ApiAppApi api = new ApiAppApi(getApiClient());
         switch (operationId) {
             case "apiAppCreate":
@@ -293,7 +293,7 @@ public class Requester {
         return null;
     }
 
-    private ApiResponse accountApi() throws Exception {
+    private ApiResponse<?> accountApi() throws Exception {
         AccountApi api = new AccountApi(getApiClient());
         switch (operationId) {
             case "accountCreate":

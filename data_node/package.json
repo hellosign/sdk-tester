@@ -5,7 +5,7 @@
     "start": "node ./dist/requester.js"
   },
   "dependencies": {
-    "hellosign-sdk": "github:HelloFax/hellosign-nodejs-sdk#openapi"
+    "@dropbox/sign": "github:hellosign/dropbox-sign-node#main"
   },
   "devDependencies": {
     "@types/node": "^17.0.10",

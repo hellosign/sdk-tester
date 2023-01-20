@@ -1,5 +1,5 @@
 FROM jtreminio/php-cli:7.4
-LABEL maintainer="HelloSign API Team <apisupport@hellosign.com>"
+LABEL maintainer="Dropbox Sign API Team <apisupport@hellosign.com>"
 
 USER root
 

@@ -109,90 +109,91 @@ def test_signature_request_create_embedded(tester: ApiTester):
     print(f"sdk langauage {sdk_language}")
     print(f"url {server}")
     json_data = {
-                    "operationId":"signatureRequestCreateEmbedded",
-                    "data": {
-                    "allow_decline": True,
-                    "allow_reassign": True,
-                    "attachments": [
-                        {
-                            "name": "Attachment1",
-                            "signer_index": 1,
-                            "instructions": "Upload your Driver's License",
-                            "required": True
-                        }
-                    ],
-                    "cc_email_addresses": [
-                        "hs-api-qa+sdk+cc1@hellosign.com",
-                        "hs-api-qa+sdk+cc2@hellosign.com"
-                    ],
-                    "client_id": "efdbab0dd86acda1aaa3d56ea3ded8cf",
-                    "custom_fields": [
-                        {
-                            "name": "Cost",
-                            "value": "$20,000",
-                            "editor": "0",
-                            "required": True
-                        }
-                    ],
-                    "field_options": {
-                        "date_format": "MM / DD / YYYY"
-                    },
-                    "form_fields_per_document": [
-                        {
-                            "document_index": 0,
-                            "api_id": "uniqueIdHere_1",
-                            "name": "",
-                            "type": "text",
-                            "x": 112,
-                            "y": 328,
-                            "width": 100,
-                            "height": 16,
-                            "required": True,
-                            "signer": "0",
-                            "page": 1,
-                            "validation_type": "numbers_only",
-                        }
-                    ],
-                    "hide_text_tags": False,
-                    "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.",
-                    "metadata": {
-                        "field1": "value1"
-                    },
-                    "signers": [
-                        {
-                            "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
-                            "name": "Jack",
-                            "order": 0
-                        },
-                        {
-                            "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
-                            "name": "Jill",
-                            "order": 1
-                        }
-                    ],
-                    "signing_options": {
-                        "draw": True,
-                        "type": True,
-                        "upload": True,
-                        "phone": False,
-                        "default_type": "draw"
-                    },
-                    "subject": "The NDA we talked about",
-                    "test_mode": True,
-                    "title": "NDA with Acme Co.",
-                    "use_text_tags": False
-                 },
-                 "files": {
-                     "file": [
-                       "pdf-sample.pdf"
-                     ]
-                 },
-                 "parameters": {}
-            }
+        "operationId": "signatureRequestCreateEmbedded",
+        "data": {
+            "allow_decline": True,
+            "allow_reassign": True,
+            "attachments": [
+                {
+                    "name": "Attachment1",
+                    "signer_index": 1,
+                    "instructions": "Upload your Driver's License",
+                    "required": True
+                }
+            ],
+            "cc_email_addresses": [
+                "hs-api-qa+sdk+cc1@hellosign.com",
+                "hs-api-qa+sdk+cc2@hellosign.com"
+            ],
+            "client_id": "efdbab0dd86acda1aaa3d56ea3ded8cf",
+            "custom_fields": [
+                {
+                    "name": "Cost",
+                    "value": "$20,000",
+                    "editor": "0",
+                    "required": True
+                }
+            ],
+            "field_options": {
+                "date_format": "MM / DD / YYYY"
+            },
+            "form_fields_per_document": [
+                {
+                    "document_index": 0,
+                    "api_id": "uniqueIdHere_1",
+                    "name": "",
+                    "type": "text",
+                    "x": 112,
+                    "y": 328,
+                    "width": 100,
+                    "height": 16,
+                    "required": True,
+                    "signer": "0",
+                    "page": 1,
+                    "validation_type": "numbers_only",
+                }
+            ],
+            "hide_text_tags": False,
+            "message": "Please sign this NDA and then we can discuss more. Let me know if you have any questions.",
+            "metadata": {
+                "field1": "value1"
+            },
+            "signers": [
+                {
+                    "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
+                    "name": "Jack",
+                    "order": 0
+                },
+                {
+                    "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
+                    "name": "Jill",
+                    "order": 1
+                }
+            ],
+            "signing_options": {
+                "draw": True,
+                "type": True,
+                "upload": True,
+                "phone": False,
+                "default_type": "draw"
+            },
+            "subject": "The NDA we talked about",
+            "test_mode": True,
+            "title": "NDA with Acme Co.",
+            "use_text_tags": False
+        },
+        "files": {
+             "files": [
+               "pdf-sample.pdf"
+             ]
+        },
+        "parameters": {}
+    }
 
     response = tester.run(json_data)
     print(f"\n\nResponse : test_signature_request_create_embedded {response.body}")
     assert response.status_code == 200
+
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -226,4 +227,3 @@ if __name__ == '__main__':
     test_signature_request_create_embedded(tester)
     test_create_account_success(tester)
     test_create_account_failure(tester)
-

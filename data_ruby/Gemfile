@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'hellosign-ruby-sdk',
-  git: 'https://github.com/HelloFax/hellosign-ruby-sdk.git',
-  branch: 'openapi'
+gem 'dropbox-sign',
+  git: 'https://github.com/hellosign/dropbox-sign-ruby.git',
+  branch: 'main'

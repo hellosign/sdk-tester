@@ -1,9 +1,8 @@
 import base64
 import json
 import os
-from metadict import MetaDict
 
-from hellosign_sdk import ApiClient, Configuration, ApiException, apis, models
+from dropbox_sign import ApiClient, Configuration, ApiException, apis, models as m
 
 
 class Requester(object):
@@ -137,13 +136,6 @@ class Requester(object):
 
         return formatted
 
-    def _serialize(self, response_type):
-        return self._api_client.deserialize(
-            response=MetaDict({'data': json.dumps(self._data)}),
-            response_type=[response_type],
-            _check_type=True,
-        )
-
     def _get_file(self, name: str):
         if name in self._files and len(self._files[name]):
             f = open(f'{self.FILE_UPLOADS_DIR}/{self._files[name]}', 'rb')
@@ -163,7 +155,7 @@ class Requester(object):
         api = apis.AccountApi(self._api_client)
 
         if self._operation_id == 'accountCreate':
-            obj = self._serialize(models.AccountCreateRequest)
+            obj = m.AccountCreateResponse.init(self._data)
 
             return api.account_create(
                 obj,
@@ -178,7 +170,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'accountUpdate':
-            obj = self._serialize(models.AccountUpdateRequest)
+            obj = m.AccountUpdateRequest.init(self._data)
 
             return api.account_update(
                 obj,
@@ -186,7 +178,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'accountVerify':
-            obj = self._serialize(models.AccountVerifyRequest)
+            obj = m.AccountVerifyRequest.init(self._data)
 
             return api.account_verify(
                 obj,
@@ -197,8 +189,7 @@ class Requester(object):
         api = apis.ApiAppApi(self._api_client)
 
         if self._operation_id == 'apiAppCreate':
-            obj = self._serialize(models.ApiAppCreateRequest)
-
+            obj = m.ApiAppCreateRequest.init(self._data)
             obj['custom_logo_file'] = self._get_file('custom_logo_file')
 
             return api.api_app_create(
@@ -226,8 +217,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'apiAppUpdate':
-            obj = self._serialize(models.ApiAppUpdateRequest)
-
+            obj = m.ApiAppUpdateRequest.init(self._data)
             obj['custom_logo_file'] = self._get_file('custom_logo_file')
 
             return api.api_app_update(
@@ -255,7 +245,7 @@ class Requester(object):
         api = apis.EmbeddedApi(self._api_client)
 
         if self._operation_id == 'embeddedEditUrl':
-            obj = self._serialize(models.EmbeddedEditUrlRequest)
+            obj = m.EmbeddedEditUrlRequest.init(self._data)
 
             return api.embedded_edit_url(
                 self._parameters.get('template_id'),
@@ -273,7 +263,7 @@ class Requester(object):
         api = apis.OAuthApi(self._api_client)
 
         if self._operation_id == 'oauthTokenGenerate':
-            obj = self._serialize(models.OAuthTokenGenerateRequest)
+            obj = m.OAuthTokenGenerateRequest.init(self._data)
 
             return api.oauth_token_generate(
                 obj,
@@ -281,7 +271,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'oauthTokenRefresh':
-            obj = self._serialize(models.OAuthTokenRefreshRequest)
+            obj = m.OAuthTokenRefreshRequest.init(self._data)
 
             return api.oauth_token_refresh(
                 obj,
@@ -292,7 +282,7 @@ class Requester(object):
         api = apis.ReportApi(self._api_client)
 
         if self._operation_id == 'reportCreate':
-            obj = self._serialize(models.ReportCreateRequest)
+            obj = m.ReportCreateRequest.init(self._data)
 
             return api.report_create(
                 obj,
@@ -303,8 +293,7 @@ class Requester(object):
         api = apis.SignatureRequestApi(self._api_client)
 
         if self._operation_id == 'signatureRequestBulkCreateEmbeddedWithTemplate':
-            obj = self._serialize(models.SignatureRequestBulkCreateEmbeddedWithTemplateRequest)
-
+            obj = m.SignatureRequestBulkCreateEmbeddedWithTemplateRequest.init(self._data)
             obj['signer_file'] = self._get_file('signer_file')
 
             return api.signature_request_bulk_create_embedded_with_template(
@@ -313,8 +302,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestBulkSendWithTemplate':
-            obj = self._serialize(models.SignatureRequestBulkSendWithTemplateRequest)
-
+            obj = m.SignatureRequestBulkSendWithTemplateRequest.init(self._data)
             obj['signer_file'] = self._get_file('signer_file')
 
             return api.signature_request_bulk_send_with_template(
@@ -329,9 +317,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestCreateEmbedded':
-            obj = self._serialize(models.SignatureRequestCreateEmbeddedRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.SignatureRequestCreateEmbeddedRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_create_embedded(
                 obj,
@@ -339,9 +326,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestCreateEmbeddedWithTemplate':
-            obj = self._serialize(models.SignatureRequestCreateEmbeddedWithTemplateRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.SignatureRequestCreateEmbeddedWithTemplateRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_create_embedded_with_template(
                 obj,
@@ -376,7 +362,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestRemind':
-            obj = self._serialize(models.SignatureRequestRemindRequest)
+            obj = m.SignatureRequestRemindRequest.init(self._data)
 
             return api.signature_request_remind(
                 self._parameters.get('signature_request_id'),
@@ -391,9 +377,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestSend':
-            obj = self._serialize(models.SignatureRequestSendRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.SignatureRequestSendRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_send(
                 obj,
@@ -401,9 +386,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestSendWithTemplate':
-            obj = self._serialize(models.SignatureRequestSendWithTemplateRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.SignatureRequestSendWithTemplateRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.signature_request_send_with_template(
                 obj,
@@ -411,7 +395,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'signatureRequestUpdate':
-            obj = self._serialize(models.SignatureRequestUpdateRequest)
+            obj = m.SignatureRequestUpdateRequest.init(self._data)
 
             return api.signature_request_update(
                 self._parameters.get('signature_request_id'),
@@ -423,7 +407,7 @@ class Requester(object):
         api = apis.TeamApi(self._api_client)
 
         if self._operation_id == 'teamAddMember':
-            obj = self._serialize(models.TeamAddMemberRequest)
+            obj = m.TeamAddMemberRequest.init(self._data)
 
             return api.team_add_member(
                 obj,
@@ -432,7 +416,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'teamCreate':
-            obj = self._serialize(models.TeamCreateRequest)
+            obj = m.TeamCreateRequest.init(self._data)
 
             return api.team_create(
                 obj,
@@ -450,7 +434,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'teamRemoveMember':
-            obj = self._serialize(models.TeamRemoveMemberRequest)
+            obj = m.TeamRemoveMemberRequest.init(self._data)
 
             return api.team_update(
                 obj,
@@ -458,7 +442,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'teamUpdate':
-            obj = self._serialize(models.TeamUpdateRequest)
+            obj = m.TeamUpdateRequest.init(self._data)
 
             return api.team_update(
                 obj,
@@ -469,7 +453,7 @@ class Requester(object):
         api = apis.TemplateApi(self._api_client)
 
         if self._operation_id == 'templateAddUser':
-            obj = self._serialize(models.TemplateAddUserRequest)
+            obj = m.TemplateAddUserRequest.init(self._data)
 
             return api.template_add_user(
                 self._parameters.get('template_id', None),
@@ -478,9 +462,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'templateCreateEmbeddedDraft':
-            obj = self._serialize(models.TemplateCreateEmbeddedDraftRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.TemplateCreateEmbeddedDraftRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.template_create_embedded_draft(
                 obj,
@@ -515,7 +498,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'templateRemoveUser':
-            obj = self._serialize(models.TemplateRemoveUserRequest)
+            obj = m.TemplateRemoveUserRequest.init(self._data)
 
             return api.template_remove_user(
                 self._parameters.get('template_id'),
@@ -524,9 +507,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'templateUpdateFiles':
-            obj = self._serialize(models.TemplateUpdateFilesRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.TemplateUpdateFilesRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.template_update_files(
                 self._parameters.get('template_id'),
@@ -538,9 +520,8 @@ class Requester(object):
         api = apis.UnclaimedDraftApi(self._api_client)
 
         if self._operation_id == 'unclaimedDraftCreate':
-            obj = self._serialize(models.UnclaimedDraftCreateRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.UnclaimedDraftCreateRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.unclaimed_draft_create(
                 obj,
@@ -548,9 +529,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'unclaimedDraftCreateEmbedded':
-            obj = self._serialize(models.UnclaimedDraftCreateEmbeddedRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.UnclaimedDraftCreateEmbeddedRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.unclaimed_draft_create_embedded(
                 obj,
@@ -558,9 +538,8 @@ class Requester(object):
             )
 
         if self._operation_id == 'unclaimedDraftCreateEmbeddedWithTemplate':
-            obj = self._serialize(models.UnclaimedDraftCreateEmbeddedWithTemplateRequest)
-
-            obj['file'] = self._get_files('file')
+            obj = m.UnclaimedDraftCreateEmbeddedWithTemplateRequest.init(self._data)
+            obj['files'] = self._get_files('files')
 
             return api.unclaimed_draft_create_embedded_with_template(
                 obj,
@@ -568,7 +547,7 @@ class Requester(object):
             )
 
         if self._operation_id == 'unclaimedDraftEditAndResend':
-            obj = self._serialize(models.UnclaimedDraftEditAndResendRequest)
+            obj = m.UnclaimedDraftEditAndResendRequest.init(self._data)
 
             return api.unclaimed_draft_edit_and_resend(
                 self._parameters.get('signature_request_id'),

@@ -202,7 +202,7 @@ if __name__ == '__main__':
     # Grab the following from config file, environment, or somewhere else
     #
 
-    # One of "node", "php", "python", "ruby", "csharp", "java"
+    # One of "node", "php", "python", "ruby", "dotnet", "java"
     sdk_language = os.environ['LANGUAGE']
     # Uploads directory, containing PDFs you may want to upload to the API
     uploads_dir = f'{dir_path}/../file_uploads'

@@ -22,8 +22,8 @@ go by running:
 or build each individually by passing the SDK as parameter:
 
 ```bash
-# csharp
-./build csharp
+# dotnet
+./build dotnet
 # java
 ./build java
 # Node
@@ -44,7 +44,7 @@ You run any container using the `./run` script and passing the SDK as parameter:
 $ ./run php
 
 Uses the selected Dropbox Sign SDK to make a request to the Dropbox Sign API
---sdk             one of "csharp", "java", "node", "php", "python", "ruby"
+--sdk             one of "dotnet", "java", "node", "php", "python", "ruby"
                     (required)
 --auth_type       one of "apikey", "oauth"
                     (required)
@@ -92,7 +92,7 @@ LANGUAGE=python API_KEY=<API_KEY>  SERVER=api.qa-hellosign.com  pytest -svra tes
 
 ## `--sdk` SDK (required)
 
-One of `csharp`, `java`, `node`, `php`, `python`, `ruby`.
+One of `dotnet`, `java`, `node`, `php`, `python`, `ruby`.
 
 ## `--auth_type` Auth Type (required)
 

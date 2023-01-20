@@ -7,10 +7,10 @@ RUN mkdir /file_uploads && \
     mkdir /test_fixtures && \
     mkdir /tests && \
     mkdir /app && \
-    mkdir -p /app/src/main/java/com/dropbox/sign/sdk/
+    mkdir -p /app/src/main/java/com/dropbox/sign/sdk_tester/
 
 COPY ./pom.xml /app/pom.xml
-COPY ./Requester.java /app/src/main/java/com/dropbox/sign/sdk/Requester.java
+COPY ./Requester.java /app/src/main/java/com/dropbox/sign/sdk_tester/Requester.java
 COPY ./run-dev /app/run-dev
 
 RUN cd /app && \

@@ -1,4 +1,4 @@
-package com.dropbox.sign_sandbox;
+package com.dropbox.sign.sdk_tester;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

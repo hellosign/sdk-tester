@@ -155,7 +155,7 @@ class Requester(object):
         api = apis.AccountApi(self._api_client)
 
         if self._operation_id == 'accountCreate':
-            obj = m.AccountCreateResponse.init(self._data)
+            obj = m.AccountCreateRequest.init(self._data)
 
             return api.account_create(
                 obj,

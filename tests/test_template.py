@@ -18,9 +18,9 @@ def test_get_template(container_bin,sdk_language,uploads_dir,auth_type,auth_key,
         json_decoded = json.load(json_file)
     templateid =''
     if server == 'api.qa-hellosign.com':
-        templateid = shared_records.qa_bulk_send_template_id
+        templateid = shared_records.qa_template_id
     elif server == 'api.staging-hellosign.com':
-        templateid = shared_records.staging_bulk_send_template_id
+        templateid = shared_records.staging_template_id
     elif server == 'api.hellosign.com':
         templateid = shared_records.prod_template_id
 

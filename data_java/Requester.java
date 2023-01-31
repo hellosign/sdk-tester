@@ -1,4 +1,4 @@
-package com.dropbox.sign_sandbox;
+package com.dropbox.sign.sdk_tester;
 
 import com.dropbox.sign.ApiClient;
 import com.dropbox.sign.ApiException;

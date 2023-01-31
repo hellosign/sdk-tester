@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 mvn -f /app/pom.xml compile assembly:single
-java -jar /app/target/sdk-tester-java-1.0-SNAPSHOT.jar
+java -jar /app/target/dropbox-sign-sdk_tester-java-1.0-SNAPSHOT.jar

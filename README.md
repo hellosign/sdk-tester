@@ -22,8 +22,8 @@ go by running:
 or build each individually by passing the SDK as parameter:
 
 ```bash
-# csharp
-./build csharp
+# dotnet
+./build dotnet
 # java
 ./build java
 # Node
@@ -43,8 +43,8 @@ You run any container using the `./run` script and passing the SDK as parameter:
 ```bash
 $ ./run php
 
-Uses the selected HelloSign OpenAPI SDK to make a request to the HelloSign API
---sdk             one of "csharp", "java", "node", "php", "python", "ruby"
+Uses the selected Dropbox Sign SDK to make a request to the Dropbox Sign API
+--sdk             one of "dotnet", "java", "node", "php", "python", "ruby"
                     (required)
 --auth_type       one of "apikey", "oauth"
                     (required)
@@ -92,7 +92,7 @@ LANGUAGE=python API_KEY=<API_KEY>  SERVER=api.qa-hellosign.com  pytest -svra tes
 
 ## `--sdk` SDK (required)
 
-One of `csharp`, `java`, `node`, `php`, `python`, `ruby`.
+One of `dotnet`, `java`, `node`, `php`, `python`, `ruby`.
 
 ## `--auth_type` Auth Type (required)
 
@@ -168,7 +168,7 @@ paths:
       tags:
         - Account
       summary: 'Create Account'
-      description: 'Creates a new HelloSign Account that is associated with the specified `email_address`.'
+      description: 'Creates a new Dropbox Sign Account that is associated with the specified `email_address`.'
       operationId: accountCreate
       requestBody:
         required: true
@@ -287,7 +287,7 @@ If the endpoint supports multiple files you must pass a nested object.
     "title": "NDA with Acme Co."
   },
   "files": {
-    "file": [
+    "files": [
       "pdf-sample.pdf",
       "pdf-sample-2.pdf"
     ]
@@ -341,7 +341,7 @@ This is an example of a _successful_ API response:
         "access-control-allow-origin": "*",
         "access-control-allow-headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept",
         "access-control-allow-methods": "GET, POST, OPTIONS",
-        "user-agent": "HelloSign API",
+        "user-agent": "Dropbox Sign API",
         "vary": "Accept-Encoding",
         "strict-transport-security": "max-age=15768000",
         "p3p": "CP=\"NOP3PPOLICY\"",
@@ -379,7 +379,7 @@ This is an example of a _unsuccessful_ API response:
         "access-control-allow-origin": "*",
         "access-control-allow-headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept, Request-URL, Referrer-Policy, Referer, Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-Fetch-Site, User-Agent, X-User-Agent",
         "access-control-allow-methods": "GET, POST, OPTIONS, PUT, DELETE",
-        "user_agent": "HelloSign API",
+        "user_agent": "Dropbox Sign API",
         "p3p": "CP=\"NOP3PPOLICY\""
     }
 }
@@ -416,7 +416,7 @@ The following are some examples with all required flags.
 Unless otherwise noted:
 
 ```
-Copyright (c) 2022 Dropbox, Inc.
+Copyright (c) 2023 Dropbox, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -2,7 +2,7 @@
 
 set -e
 DIR=$(cd `dirname $0` && pwd)
-AVAILABLE_SDKS=("csharp java node php python ruby")
+AVAILABLE_SDKS=("csharp dotnet java node php python ruby")
 SELECTED_SDK=$1
 
 main() {
@@ -22,8 +22,12 @@ main() {
       build_container python
       build_container ruby
       build_container java
-      build_container csharp
+      build_container dotnet
       exit 0
+  fi
+
+  if [[ ${SELECTED_SDK} == "csharp" ]]; then
+    SELECTED_SDK="dotnet"
   fi
 
   if [[ ! " ${AVAILABLE_SDKS[*]} " =~ " ${SELECTED_SDK} " ]]; then
@@ -46,7 +50,7 @@ To create containers for all the SDKs:
 To create a container for a single SDK:
     ./build [SDK]
 
-SDK can be one of "csharp", "java", "node", "php", "python", "ruby"
+SDK can be one of "dotnet", "java", "node", "php", "python", "ruby"
 
 EOF
 }
@@ -55,7 +59,7 @@ function build_container()
 {
     SELECTED_SDK=$1
 
-    IMG_NAME="hellosign/hellosign-${SELECTED_SDK}-sdk"
+    IMG_NAME="dropbox/sign-${SELECTED_SDK}"
     printf "Building the ${SELECTED_SDK} container\n\n"
     docker image build \
         --no-cache \

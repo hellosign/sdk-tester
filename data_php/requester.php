@@ -1,10 +1,10 @@
 <?php
 
-namespace HelloSignSdkTester;
+namespace Dropox\Sign\Tester;
 
 use Exception;
 use GuzzleHttp;
-use HelloSignSDK;
+use Dropbox\Sign as DropboxSign;
 use SplFileObject;
 
 ini_set('display_errors', 1);
@@ -60,7 +60,7 @@ class Requester
                     $response[2]
                 ),
             ], JSON_PRETTY_PRINT);
-        } catch (HelloSignSDK\ApiException $e) {
+        } catch (DropboxSign\ApiException $e) {
             echo json_encode([
                 'body'        => json_decode($e->getResponseBody()),
                 'status_code' => json_decode($e->getCode()),
@@ -71,9 +71,9 @@ class Requester
         }
     }
 
-    private function getConfig(): HelloSignSDK\Configuration
+    private function getConfig(): DropboxSign\Configuration
     {
-        $config = HelloSignSDK\Configuration::getDefaultConfiguration();
+        $config = DropboxSign\Configuration::getDefaultConfiguration();
         $config->setHost("https://{$this->apiServer}/v3");
 
         if ($this->authType === 'apikey') {
@@ -177,7 +177,6 @@ class Requester
     }
 
     /**
-     * @param string $name
      * @return SplFileObject[]
      */
     private function getFiles(string $name): array
@@ -195,13 +194,13 @@ class Requester
 
     private function accountApi(): ?array
     {
-        $api = new HelloSignSDK\Api\AccountApi(
+        $api = new DropboxSign\Api\AccountApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'accountCreate') {
-            $obj = HelloSignSDK\Model\AccountCreateRequest::fromArray(
+            $obj = DropboxSign\Model\AccountCreateRequest::init(
                 $this->data,
             );
 
@@ -218,7 +217,7 @@ class Requester
         }
 
         if ($this->operationId === 'accountUpdate') {
-            $obj = HelloSignSDK\Model\AccountUpdateRequest::fromArray(
+            $obj = DropboxSign\Model\AccountUpdateRequest::init(
                 $this->data,
             );
 
@@ -228,7 +227,7 @@ class Requester
         }
 
         if ($this->operationId === 'accountVerify') {
-            $obj = HelloSignSDK\Model\AccountVerifyRequest::fromArray(
+            $obj = DropboxSign\Model\AccountVerifyRequest::init(
                 $this->data,
             );
 
@@ -242,16 +241,15 @@ class Requester
 
     private function apiAppApi(): ?array
     {
-        $api = new HelloSignSDK\Api\ApiAppApi(
+        $api = new DropboxSign\Api\ApiAppApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'apiAppCreate') {
-            $obj = HelloSignSDK\Model\ApiAppCreateRequest::fromArray(
+            $obj = DropboxSign\Model\ApiAppCreateRequest::init(
                 $this->data,
             );
-
             $obj->setCustomLogoFile($this->getFile('custom_logo_file'));
 
             return $api->apiAppCreateWithHttpInfo(
@@ -279,10 +277,9 @@ class Requester
         }
 
         if ($this->operationId === 'apiAppUpdate') {
-            $obj = HelloSignSDK\Model\ApiAppUpdateRequest::fromArray(
+            $obj = DropboxSign\Model\ApiAppUpdateRequest::init(
                 $this->data,
             );
-
             $obj->setCustomLogoFile($this->getFile('custom_logo_file'));
 
             return $api->apiAppUpdateWithHttpInfo(
@@ -296,7 +293,7 @@ class Requester
 
     private function bulkSendJobApi(): ?array
     {
-        $api = new HelloSignSDK\Api\BulkSendJobApi(
+        $api = new DropboxSign\Api\BulkSendJobApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
@@ -319,13 +316,13 @@ class Requester
 
     private function embeddedApi(): ?array
     {
-        $api = new HelloSignSDK\Api\EmbeddedApi(
+        $api = new DropboxSign\Api\EmbeddedApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'embeddedEditUrl') {
-            $obj = HelloSignSDK\Model\EmbeddedEditUrlRequest::fromArray(
+            $obj = DropboxSign\Model\EmbeddedEditUrlRequest::init(
                 $this->data,
             );
 
@@ -346,13 +343,13 @@ class Requester
 
     private function oauthApi(): ?array
     {
-        $api = new HelloSignSDK\Api\OAuthApi(
+        $api = new DropboxSign\Api\OAuthApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'oauthTokenGenerate') {
-            $obj = HelloSignSDK\Model\OAuthTokenGenerateRequest::fromArray(
+            $obj = DropboxSign\Model\OAuthTokenGenerateRequest::init(
                 $this->data,
             );
 
@@ -362,7 +359,7 @@ class Requester
         }
 
         if ($this->operationId === 'oauthTokenRefresh') {
-            $obj = HelloSignSDK\Model\OAuthTokenRefreshRequest::fromArray(
+            $obj = DropboxSign\Model\OAuthTokenRefreshRequest::init(
                 $this->data,
             );
 
@@ -376,13 +373,13 @@ class Requester
 
     private function reportApi(): ?array
     {
-        $api = new HelloSignSDK\Api\ReportApi(
+        $api = new DropboxSign\Api\ReportApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'reportCreate') {
-            $obj = HelloSignSDK\Model\ReportCreateRequest::fromArray(
+            $obj = DropboxSign\Model\ReportCreateRequest::init(
                 $this->data,
             );
 
@@ -396,13 +393,13 @@ class Requester
 
     private function signatureRequestApi(): ?array
     {
-        $api = new HelloSignSDK\Api\SignatureRequestApi(
+        $api = new DropboxSign\Api\SignatureRequestApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'signatureRequestBulkCreateEmbeddedWithTemplate') {
-            $obj = HelloSignSDK\Model\SignatureRequestBulkCreateEmbeddedWithTemplateRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestBulkCreateEmbeddedWithTemplateRequest::init(
                 $this->data,
             );
 
@@ -414,7 +411,7 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestBulkSendWithTemplate') {
-            $obj = HelloSignSDK\Model\SignatureRequestBulkSendWithTemplateRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestBulkSendWithTemplateRequest::init(
                 $this->data,
             );
 
@@ -432,11 +429,10 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestCreateEmbedded') {
-            $obj = HelloSignSDK\Model\SignatureRequestCreateEmbeddedRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestCreateEmbeddedRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestCreateEmbeddedWithHttpInfo(
                 $obj,
@@ -444,11 +440,10 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestCreateEmbeddedWithTemplate') {
-            $obj = HelloSignSDK\Model\SignatureRequestCreateEmbeddedWithTemplateRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestCreateEmbeddedWithTemplateRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestCreateEmbeddedWithTemplateWithHttpInfo(
                 $obj,
@@ -483,7 +478,7 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestRemind') {
-            $obj = HelloSignSDK\Model\SignatureRequestRemindRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestRemindRequest::init(
                 $this->data,
             );
 
@@ -500,11 +495,10 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestSend') {
-            $obj = HelloSignSDK\Model\SignatureRequestSendRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestSendRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestSendWithHttpInfo(
                 $obj,
@@ -512,11 +506,10 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestSendWithTemplate') {
-            $obj = HelloSignSDK\Model\SignatureRequestSendWithTemplateRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestSendWithTemplateRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->signatureRequestSendWithTemplateWithHttpInfo(
                 $obj,
@@ -524,7 +517,7 @@ class Requester
         }
 
         if ($this->operationId === 'signatureRequestUpdate') {
-            $obj = HelloSignSDK\Model\SignatureRequestUpdateRequest::fromArray(
+            $obj = DropboxSign\Model\SignatureRequestUpdateRequest::init(
                 $this->data,
             );
 
@@ -539,13 +532,13 @@ class Requester
 
     private function teamApi(): ?array
     {
-        $api = new HelloSignSDK\Api\TeamApi(
+        $api = new DropboxSign\Api\TeamApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'teamAddMember') {
-            $obj = HelloSignSDK\Model\TeamAddMemberRequest::fromArray(
+            $obj = DropboxSign\Model\TeamAddMemberRequest::init(
                 $this->data,
             );
 
@@ -556,7 +549,7 @@ class Requester
         }
 
         if ($this->operationId === 'teamCreate') {
-            $obj = HelloSignSDK\Model\TeamCreateRequest::fromArray(
+            $obj = DropboxSign\Model\TeamCreateRequest::init(
                 $this->data,
             );
 
@@ -574,7 +567,7 @@ class Requester
         }
 
         if ($this->operationId === 'teamRemoveMember') {
-            $obj = HelloSignSDK\Model\TeamRemoveMemberRequest::fromArray(
+            $obj = DropboxSign\Model\TeamRemoveMemberRequest::init(
                 $this->data,
             );
 
@@ -584,7 +577,7 @@ class Requester
         }
 
         if ($this->operationId === 'teamUpdate') {
-            $obj = HelloSignSDK\Model\TeamUpdateRequest::fromArray(
+            $obj = DropboxSign\Model\TeamUpdateRequest::init(
                 $this->data,
             );
 
@@ -598,13 +591,13 @@ class Requester
 
     private function templateApi(): ?array
     {
-        $api = new HelloSignSDK\Api\TemplateApi(
+        $api = new DropboxSign\Api\TemplateApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'templateAddUser') {
-            $obj = HelloSignSDK\Model\TemplateAddUserRequest::fromArray(
+            $obj = DropboxSign\Model\TemplateAddUserRequest::init(
                 $this->data,
             );
 
@@ -615,11 +608,10 @@ class Requester
         }
 
         if ($this->operationId === 'templateCreateEmbeddedDraft') {
-            $obj = HelloSignSDK\Model\TemplateCreateEmbeddedDraftRequest::fromArray(
+            $obj = DropboxSign\Model\TemplateCreateEmbeddedDraftRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->templateCreateEmbeddedDraftWithHttpInfo(
                 $obj,
@@ -654,7 +646,7 @@ class Requester
         }
 
         if ($this->operationId === 'templateRemoveUser') {
-            $obj = HelloSignSDK\Model\TemplateRemoveUserRequest::fromArray(
+            $obj = DropboxSign\Model\TemplateRemoveUserRequest::init(
                 $this->data,
             );
 
@@ -665,11 +657,10 @@ class Requester
         }
 
         if ($this->operationId === 'templateUpdateFiles') {
-            $obj = HelloSignSDK\Model\TemplateUpdateFilesRequest::fromArray(
+            $obj = DropboxSign\Model\TemplateUpdateFilesRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->templateUpdateFilesWithHttpInfo(
                 $this->parameters['template_id'],
@@ -682,17 +673,16 @@ class Requester
 
     private function unclaimedDraftApi(): ?array
     {
-        $api = new HelloSignSDK\Api\UnclaimedDraftApi(
+        $api = new DropboxSign\Api\UnclaimedDraftApi(
             $this->getConfig(),
             new GuzzleHttp\Client(),
         );
 
         if ($this->operationId === 'unclaimedDraftCreate') {
-            $obj = HelloSignSDK\Model\UnclaimedDraftCreateRequest::fromArray(
+            $obj = DropboxSign\Model\UnclaimedDraftCreateRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->unclaimedDraftCreateWithHttpInfo(
                 $obj,
@@ -700,11 +690,10 @@ class Requester
         }
 
         if ($this->operationId === 'unclaimedDraftCreateEmbedded') {
-            $obj = HelloSignSDK\Model\UnclaimedDraftCreateEmbeddedRequest::fromArray(
+            $obj = DropboxSign\Model\UnclaimedDraftCreateEmbeddedRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->unclaimedDraftCreateEmbeddedWithHttpInfo(
                 $obj,
@@ -712,11 +701,10 @@ class Requester
         }
 
         if ($this->operationId === 'unclaimedDraftCreateEmbeddedWithTemplate') {
-            $obj = HelloSignSDK\Model\UnclaimedDraftCreateEmbeddedWithTemplateRequest::fromArray(
+            $obj = DropboxSign\Model\UnclaimedDraftCreateEmbeddedWithTemplateRequest::init(
                 $this->data,
             );
-
-            $obj->setFile($this->getFiles('file'));
+            $obj->setFiles($this->getFiles('files'));
 
             return $api->unclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(
                 $obj,
@@ -724,7 +712,7 @@ class Requester
         }
 
         if ($this->operationId === 'unclaimedDraftEditAndResend') {
-            $obj = HelloSignSDK\Model\UnclaimedDraftEditAndResendRequest::fromArray(
+            $obj = DropboxSign\Model\UnclaimedDraftEditAndResendRequest::init(
                 $this->data,
             );
 

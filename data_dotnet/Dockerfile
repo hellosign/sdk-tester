@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0
-LABEL maintainer="HelloSign API Team <apisupport@hellosign.com>"
+LABEL maintainer="Dropbox Sign API Team <apisupport@hellosign.com>"
 
 USER root
 
@@ -11,13 +11,12 @@ RUN mkdir /file_uploads && \
 COPY ./Program.cs /app/Program.cs
 
 RUN cd /app && \
-    git clone https://github.com/hellosign/hellosign-dotnet-sdk.git && \
-    cd hellosign-dotnet-sdk/ && \
-    git checkout openapi && \
-    git submodule update --init --recursive --remote && \
+    git clone https://github.com/hellosign/dropbox-sign-dotnet.git && \
+    cd dropbox-sign-dotnet/ && \
+    git checkout main && \
     dotnet new console -o sdk-tester && \
     mv /app/Program.cs sdk-tester && \
-    dotnet add sdk-tester/sdk-tester.csproj reference src/HelloSign/HelloSign.csproj && \
+    dotnet add sdk-tester/sdk-tester.csproj reference src/Dropbox.Sign/Dropbox.Sign.csproj && \
     dotnet build
 
 

@@ -1,5 +1,5 @@
 FROM python:3.10-buster
-LABEL maintainer="HelloSign API Team <apisupport@hellosign.com>"
+LABEL maintainer="Dropbox Sign API Team <apisupport@hellosign.com>"
 
 USER root
 

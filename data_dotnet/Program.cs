@@ -1,33 +1,29 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using HelloSign.Api;
-using HelloSign.Client;
-using HelloSign.Model;
-using JsonSerializer = System.Text.Json.JsonSerializer;
-
+using Dropbox.Sign.Api;
+using Dropbox.Sign.Client;
+using Dropbox.Sign.Model;
 
 class Requester
 {
-    private string apiServer;
-    private string authType;
-    private string authKey;
-    private JObject data = new();
-    private bool devMode;
-    private JObject? files;
-    private string? operationId;
-    private JObject? parameters;
+    private string _apiServer;
+    private string _authType;
+    private string _authKey;
+    private JObject _data = new();
+    private bool _devMode;
+    private JObject? _files;
+    private string? _operationId;
+    private JObject? _parameters;
 
     private readonly string FILE_UPLOADS_DIR = "/file_uploads";
 
     public Requester(string authType, string authKey, string apiServer, string jsonData, bool devMode)
     {
-        this.authType = authType.ToLower();
-        this.authKey = authKey;
-        this.apiServer = apiServer;
-        this.devMode = devMode;
+        this._authType = authType.ToLower();
+        this._authKey = authKey;
+        this._apiServer = apiServer;
+        this._devMode = devMode;
         ReadJsonData(jsonData);
     }
 
@@ -61,14 +57,14 @@ class Requester
     {
         var json = Encoding.UTF8.GetString(Convert.FromBase64String(base64Json));
         var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
-        operationId =  dictionary["operationId"] as string;
+        _operationId =  dictionary["operationId"] as string;
         dictionary.TryGetValue("data", out var dataObj );
         dictionary.TryGetValue("files", out var filesObj);
         dictionary.TryGetValue("parameters", out var parametersObj);
 
-        data = dataObj as JObject ?? new JObject();
-        files = filesObj as JObject;
-        parameters = parametersObj as JObject;
+        _data = dataObj as JObject ?? new JObject();
+        _files = filesObj as JObject;
+        _parameters = parametersObj as JObject;
     }
 
     private IApiResponse CallFromOperationId()
@@ -83,25 +79,24 @@ class Requester
                TeamApi() ??
                TemplateApi() ??
                UnclaimedDraftApi() ??
-               throw new Exception($"Invalid operationId: {operationId}");
-
+               throw new Exception($"Invalid operationId: {_operationId}");
     }
 
     private IApiResponse? AccountApi()
     {
         var api = new AccountApi(GetConfiguration());
-        switch (operationId)
+        switch (_operationId)
         {
             case "accountCreate":
-                var createRequest = JsonConvert.DeserializeObject<AccountCreateRequest>(data.ToString()) ?? new AccountCreateRequest();
+                var createRequest = AccountCreateRequest.Init(_data.ToString());
                 return api.AccountCreateWithHttpInfo(createRequest);
             case "accountGet":
-                return api.AccountGetWithHttpInfo(parameters?["account_id"]?.ToString(), parameters?["email_address"]?.ToString());
+                return api.AccountGetWithHttpInfo(_parameters?["account_id"]?.ToString(), _parameters?["email_address"]?.ToString());
             case "accountUpdate":
-                var updateRequest = JsonConvert.DeserializeObject<AccountUpdateRequest>(data.ToString()) ?? new AccountUpdateRequest();
+                var updateRequest = AccountUpdateRequest.Init(_data.ToString());
                 return api.AccountUpdateWithHttpInfo(updateRequest);
             case "accountVerify":
-                var verifyRequest = JsonConvert.DeserializeObject<AccountVerifyRequest>(data.ToString()) ?? new AccountVerifyRequest();
+                var verifyRequest = AccountVerifyRequest.Init(_data.ToString());
                 return api.AccountVerifyWithHttpInfo(verifyRequest);
         }
 
@@ -113,10 +108,10 @@ class Requester
         var api = new ApiAppApi(GetConfiguration());
         var customLogoFile = GetFile("custom_logo_file");
 
-        switch (operationId)
+        switch (_operationId)
         {
             case "apiAppCreate":
-                var createRequest = JsonConvert.DeserializeObject<ApiAppCreateRequest>(data.ToString()) ?? new ApiAppCreateRequest();
+                var createRequest = ApiAppCreateRequest.Init(_data.ToString());
                 if (customLogoFile != null)
                 {
                     createRequest.CustomLogoFile = customLogoFile;
@@ -130,9 +125,9 @@ class Requester
                 return api.ApiAppListWithHttpInfo(
                     int.Parse(GetParamValue("page", "1")),
                     int.Parse(GetParamValue("page_size", "20"))
-                    );
+                );
             case "apiAppUpdate":
-                var updateRequest = JsonConvert.DeserializeObject<ApiAppUpdateRequest>(data.ToString()) ?? new ApiAppUpdateRequest();
+                var updateRequest = ApiAppUpdateRequest.Init(_data.ToString());
                 if (customLogoFile != null)
                 {
                     updateRequest.CustomLogoFile = customLogoFile;
@@ -147,7 +142,7 @@ class Requester
     private IApiResponse? BulkSendJobApi()
     {
         var api = new BulkSendJobApi(GetConfiguration());
-        switch (operationId)
+        switch (_operationId)
         {
             case "bulkSendJobGet":
                 return api.BulkSendJobGetWithHttpInfo(GetParamValue("bulk_send_job_id"));
@@ -163,9 +158,9 @@ class Requester
     private IApiResponse? EmbeddedApi()
     {
         var api = new EmbeddedApi(GetConfiguration());
-        switch (operationId) {
+        switch (_operationId) {
             case "embeddedEditUrl":
-                var editUrlRequest = JsonConvert.DeserializeObject<EmbeddedEditUrlRequest>(data.ToString()) ?? new EmbeddedEditUrlRequest();
+                var editUrlRequest = EmbeddedEditUrlRequest.Init(_data.ToString());
                 return api.EmbeddedEditUrlWithHttpInfo(GetParamValue("template_id"), editUrlRequest);
             case "embeddedSignUrl":
                 return api.EmbeddedSignUrlWithHttpInfo(GetParamValue("embeddedSignUrl"));
@@ -176,12 +171,12 @@ class Requester
     private IApiResponse? OauthApi()
     {
         var api = new OAuthApi(GetConfiguration());
-        switch (operationId) {
+        switch (_operationId) {
             case "oauthTokenGenerate":
-                var generateRequest = JsonConvert.DeserializeObject<OAuthTokenGenerateRequest>(data.ToString()) ?? new OAuthTokenGenerateRequest();
+                var generateRequest = OAuthTokenGenerateRequest.Init(_data.ToString());
                 return api.OauthTokenGenerateWithHttpInfo(generateRequest);
             case "oauthTokenRefresh":
-                var refreshRequest = JsonConvert.DeserializeObject<OAuthTokenRefreshRequest>(data.ToString()) ?? new OAuthTokenRefreshRequest();
+                var refreshRequest = OAuthTokenRefreshRequest.Init(_data.ToString());
                 return api.OauthTokenRefreshWithHttpInfo(refreshRequest);
         }
         return null;
@@ -190,9 +185,9 @@ class Requester
     private IApiResponse? ReportApi()
     {
         var api = new ReportApi(GetConfiguration());
-        switch (operationId) {
+        switch (_operationId) {
             case "reportCreate":
-                var createRequest = JsonConvert.DeserializeObject<ReportCreateRequest>(data.ToString()) ?? new ReportCreateRequest();
+                var createRequest = ReportCreateRequest.Init(_data.ToString());
                 return api.ReportCreateWithHttpInfo(createRequest);
         }
         return null;
@@ -201,13 +196,12 @@ class Requester
     private IApiResponse? SignatureRequestApi()
     {
         var api = new SignatureRequestApi(GetConfiguration());
-        var file = GetFiles("file");
+        var files = GetFiles("files");
         var signerFile = GetFile("signer_file");
-        switch (operationId)
+        switch (_operationId)
         {
             case "signatureRequestBulkCreateEmbeddedWithTemplate":
-                var templateRequest = JsonConvert.DeserializeObject<SignatureRequestBulkCreateEmbeddedWithTemplateRequest>(data.ToString()) ??
-                                                                            new SignatureRequestBulkCreateEmbeddedWithTemplateRequest();
+                var templateRequest = SignatureRequestBulkCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
                 if (signerFile != null)
                 {
                     templateRequest.SignerFile = signerFile;
@@ -215,9 +209,7 @@ class Requester
 
                 return api.SignatureRequestBulkCreateEmbeddedWithTemplateWithHttpInfo(templateRequest);
             case "signatureRequestBulkSendWithTemplate":
-                var withTemplateRequest =
-                    JsonConvert.DeserializeObject<SignatureRequestBulkSendWithTemplateRequest>(data.ToString()) ??
-                    new SignatureRequestBulkSendWithTemplateRequest();
+                var withTemplateRequest = SignatureRequestBulkSendWithTemplateRequest.Init(_data.ToString());
                 if (signerFile != null)
                 {
                     withTemplateRequest.SignerFile = signerFile;
@@ -227,20 +219,18 @@ class Requester
             case "signatureRequestCancel":
                 return api.SignatureRequestCancelWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestCreateEmbedded":
-                var embeddedRequest = JsonConvert.DeserializeObject<SignatureRequestCreateEmbeddedRequest>(data.ToString()) ??
-                                                            new SignatureRequestCreateEmbeddedRequest();
-                if (file != null)
+                var embeddedRequest = SignatureRequestCreateEmbeddedRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    embeddedRequest.File = file;
+                    embeddedRequest.Files = files;
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
-                var embeddedWithTemplateRequest = JsonConvert.DeserializeObject<SignatureRequestCreateEmbeddedWithTemplateRequest>(data.ToString()) ??
-                                      new SignatureRequestCreateEmbeddedWithTemplateRequest();
-                if (file != null)
+                var embeddedWithTemplateRequest = SignatureRequestCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    embeddedWithTemplateRequest.File = file;
+                    embeddedWithTemplateRequest.Files = files;
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
@@ -259,29 +249,26 @@ class Requester
             case "signatureRequestReleaseHold":
                 return api.SignatureRequestReleaseHoldWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestRemind":
-                var remindRequest =
-                    JsonConvert.DeserializeObject<SignatureRequestRemindRequest>(data.ToString()) ??
-                    new SignatureRequestRemindRequest();
+                var remindRequest = SignatureRequestRemindRequest.Init(_data.ToString());
                 return api.SignatureRequestRemindWithHttpInfo(GetParamValue("signature_request_id"), remindRequest);
             case "signatureRequestRemove":
                 return api.SignatureRequestRemoveWithHttpInfo(GetParamValue("signature_request_id"));
             case "signatureRequestSend":
-                var sendRequest = JsonConvert.DeserializeObject<SignatureRequestSendRequest>(data.ToString()) ?? new SignatureRequestSendRequest();
-                if (file != null)
+                var sendRequest = SignatureRequestSendRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    sendRequest.File = file;
+                    sendRequest.Files = files;
                 }
                 return api.SignatureRequestSendWithHttpInfo(sendRequest);
             case "signatureRequestSendWithTemplate":
-                var sendWithTemplateRequest = JsonConvert.DeserializeObject<SignatureRequestSendWithTemplateRequest>(data.ToString()) ??
-                                                              new SignatureRequestSendWithTemplateRequest();
-                if (file != null)
+                var sendWithTemplateRequest = SignatureRequestSendWithTemplateRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    sendWithTemplateRequest.File = file;
+                    sendWithTemplateRequest.Files = files;
                 }
                 return api.SignatureRequestSendWithTemplateWithHttpInfo(sendWithTemplateRequest);
             case "signatureRequestUpdate":
-                var updateRequest = JsonConvert.DeserializeObject<SignatureRequestUpdateRequest>(data.ToString()) ?? new SignatureRequestUpdateRequest();
+                var updateRequest = SignatureRequestUpdateRequest.Init(_data.ToString());
                 return api.SignatureRequestUpdateWithHttpInfo(GetParamValue("signature_request_id"), updateRequest);
         }
 
@@ -291,27 +278,22 @@ class Requester
     private IApiResponse? TeamApi()
     {
         var api = new TeamApi(GetConfiguration());
-        switch (operationId) {
+        switch (_operationId) {
             case "teamAddMember":
-                var addMemberRequest =
-                    JsonConvert.DeserializeObject<TeamAddMemberRequest>(data.ToString()) ?? new TeamAddMemberRequest();
+                var addMemberRequest = TeamAddMemberRequest.Init(_data.ToString());
                 return api.TeamAddMemberWithHttpInfo(addMemberRequest, GetParamValue("team_id"));
             case "teamCreate":
-                var createRequest = JsonConvert.DeserializeObject<TeamCreateRequest>(data.ToString()) ??
-                                    new TeamCreateRequest();
+                var createRequest = TeamCreateRequest.Init(_data.ToString());
                 return api.TeamCreateWithHttpInfo(createRequest);
             case "teamDelete":
                 return api.TeamDeleteWithHttpInfo();
             case "teamGet":
                 return api.TeamGetWithHttpInfo();
             case "teamRemoveMember":
-                var removeMemberRequest =
-                    JsonConvert.DeserializeObject<TeamRemoveMemberRequest>(data.ToString()) ??
-                    new TeamRemoveMemberRequest();
+                var removeMemberRequest = TeamRemoveMemberRequest.Init(_data.ToString());
                 return api.TeamRemoveMemberWithHttpInfo(removeMemberRequest);
             case "teamUpdate":
-                var updateRequest = JsonConvert.DeserializeObject<TeamUpdateRequest>(data.ToString()) ??
-                                    new TeamUpdateRequest();
+                var updateRequest = TeamUpdateRequest.Init(_data.ToString());
                 return api.TeamUpdateWithHttpInfo(updateRequest);
         }
         return null;
@@ -320,18 +302,14 @@ class Requester
     private IApiResponse? TemplateApi()
     {
         var api = new TemplateApi(GetConfiguration());
-        var file = GetFiles("file");
+        var files = GetFiles("files");
 
-        switch (operationId) {
+        switch (_operationId) {
             case "templateAddUser":
-                var addUserRequest =
-                    JsonConvert.DeserializeObject<TemplateAddUserRequest>(data.ToString()) ??
-                    new TemplateAddUserRequest();
+                var addUserRequest = TemplateAddUserRequest.Init(_data.ToString());
                 return api.TemplateAddUserWithHttpInfo(GetParamValue("template_id"), addUserRequest);
             case "templateCreateEmbeddedDraft":
-                var embeddedDraftRequest
-                        = JsonConvert.DeserializeObject<TemplateCreateEmbeddedDraftRequest>(data.ToString()) ??
-                          new TemplateCreateEmbeddedDraftRequest();
+                var embeddedDraftRequest = TemplateCreateEmbeddedDraftRequest.Init(_data.ToString());
                 return api.TemplateCreateEmbeddedDraftWithHttpInfo(embeddedDraftRequest);
             case "templateDelete":
                 return api.TemplateDeleteWithHttpInfo(GetParamValue("template_id"));
@@ -345,21 +323,17 @@ class Requester
                 return api.TemplateListWithHttpInfo(
                     GetParamValue("account_id"),
                     int.Parse(GetParamValue("page", "1")),
-                        int.Parse(GetParamValue("page_size","20")),
+                    int.Parse(GetParamValue("page_size","20")),
                     GetParamValue("query")
                 );
             case "templateRemoveUser":
-                var removeUserRequest =
-                    JsonConvert.DeserializeObject<TemplateRemoveUserRequest>(data.ToString()) ??
-                    new TemplateRemoveUserRequest();
+                var removeUserRequest = TemplateRemoveUserRequest.Init(_data.ToString());
                 return api.TemplateRemoveUserWithHttpInfo(GetParamValue("template_id"), removeUserRequest);
             case "templateUpdateFiles":
-                var updateFilesRequest =
-                    JsonConvert.DeserializeObject<TemplateUpdateFilesRequest>(data.ToString()) ??
-                    new TemplateUpdateFilesRequest();
-                if (file != null)
+                var updateFilesRequest = TemplateUpdateFilesRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    updateFilesRequest.File = file;
+                    updateFilesRequest.Files = files;
                 }
                 return api.TemplateUpdateFilesWithHttpInfo(GetParamValue("template_id"), updateFilesRequest);
         }
@@ -369,40 +343,32 @@ class Requester
     private IApiResponse? UnclaimedDraftApi()
     {
         var api = new UnclaimedDraftApi(GetConfiguration());
-        var file = GetFiles("file");
+        var files = GetFiles("files");
 
-        switch (operationId) {
+        switch (_operationId) {
             case "unclaimedDraftCreate":
-                var createRequest =
-                    JsonConvert.DeserializeObject<UnclaimedDraftCreateRequest>(data.ToString()) ??
-                    new UnclaimedDraftCreateRequest();
-                if (file != null)
+                var createRequest = UnclaimedDraftCreateRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    createRequest.File = file;
+                    createRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateWithHttpInfo(createRequest);
             case "unclaimedDraftCreateEmbedded":
-                var createEmbeddedRequest =
-                    JsonConvert.DeserializeObject<UnclaimedDraftCreateEmbeddedRequest>(data.ToString()) ??
-                    new UnclaimedDraftCreateEmbeddedRequest();
-                if (file != null)
+                var createEmbeddedRequest = UnclaimedDraftCreateEmbeddedRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    createEmbeddedRequest.File = file;
+                    createEmbeddedRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateEmbeddedWithHttpInfo(createEmbeddedRequest);
             case "unclaimedDraftCreateEmbeddedWithTemplate":
-                var embeddedWithTemplateRequest =
-                    JsonConvert.DeserializeObject<UnclaimedDraftCreateEmbeddedWithTemplateRequest>(data.ToString()) ??
-                    new UnclaimedDraftCreateEmbeddedWithTemplateRequest();
-                if (file != null)
+                var embeddedWithTemplateRequest = UnclaimedDraftCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
+                if (files != null)
                 {
-                    embeddedWithTemplateRequest.File = file;
+                    embeddedWithTemplateRequest.Files = files;
                 }
                 return api.UnclaimedDraftCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
             case "unclaimedDraftEditAndResend":
-                var resendRequest =
-                    JsonConvert.DeserializeObject<UnclaimedDraftEditAndResendRequest>(data.ToString()) ??
-                    new UnclaimedDraftEditAndResendRequest();
+                var resendRequest = UnclaimedDraftEditAndResendRequest.Init(_data.ToString());
                 return api.UnclaimedDraftEditAndResendWithHttpInfo(GetParamValue("signature_request_id"), resendRequest);
         }
         return null;
@@ -411,23 +377,23 @@ class Requester
     private Configuration GetConfiguration()
     {
         var config = new Configuration();
-        if (!string.IsNullOrEmpty(apiServer))
+        if (!string.IsNullOrEmpty(_apiServer))
         {
-            config.BasePath = "https://" + apiServer + "/v3";
+            config.BasePath = "https://" + _apiServer + "/v3";
         }
 
-        if (devMode)
+        if (_devMode)
         {
             config.DefaultHeaders.Add(new KeyValuePair<string, string>("Cookie", "XDEBUG_SESSION=xdebug"));
         }
 
-        switch (authType)
+        switch (_authType)
         {
             case "apikey":
-                config.Username = authKey;
+                config.Username = _authKey;
                 break;
             case "oauth":
-                config.AccessToken = authKey;
+                config.AccessToken = _authKey;
                 break;
             default:
                 throw new Exception("Invalid auth type. Must be \"apikey\" or \"oauth\"");
@@ -438,19 +404,19 @@ class Requester
 
     private Stream? GetFile(string name)
     {
-        var filename = files?[name]?.ToString();
+        var filename = _files?[name]?.ToString();
         return filename == null ? null : new StreamReader(FILE_UPLOADS_DIR + $"/{filename}").BaseStream;
     }
 
     private List<Stream>? GetFiles(string name)
     {
-        var jToken = files?[name];
+        var jToken = _files?[name];
         return jToken?.Select(filename => new StreamReader(FILE_UPLOADS_DIR + $"/{filename}").BaseStream).ToList();
     }
 
     private string GetParamValue(string parameterName, string defaultValue = "")
     {
-        return parameters?[parameterName]?.ToString() ?? defaultValue;
+        return _parameters?[parameterName]?.ToString() ?? defaultValue;
     }
 
     static void Main(string[] args)
@@ -469,4 +435,3 @@ class Requester
         requester.Run();
     }
 }
-

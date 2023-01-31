@@ -1,6 +1,6 @@
 require 'base64'
 require 'json'
-require 'hellosign-ruby-sdk'
+require 'dropbox-sign'
 
 class Requester
   FILE_UPLOADS_DIR = __dir__ + '/../file_uploads'
@@ -49,7 +49,7 @@ class Requester
       }
 
       puts JSON.pretty_generate(response)
-    rescue HelloSign::ApiError => e
+    rescue Dropbox::Sign::ApiError => e
       response = {
         body: e.response_body.to_body,
         status_code: e.code,
@@ -63,7 +63,7 @@ class Requester
   private
 
   def get_client
-    config = HelloSign::Configuration.new
+    config = Dropbox::Sign::Configuration.new
     config.host = self.api_server
 
     if self.auth_type === 'apikey'
@@ -80,7 +80,7 @@ class Requester
       self.header_params = {"Cookie" => 'XDEBUG_SESSION=xdebug'}
     end
 
-    HelloSign::ApiClient.new(config)
+    Dropbox::Sign::ApiClient.new(config)
   end
 
   def read_json_data(base64_json)
@@ -184,13 +184,10 @@ class Requester
 
   def account_api
     api_client = self.get_client
-    api = HelloSign::AccountApi.new(api_client)
+    api = Dropbox::Sign::AccountApi.new(api_client)
 
     if self.operation_id === 'accountCreate'
-      obj = api_client.convert_to_type(
-        self.data,
-        HelloSign::AccountCreateRequest.to_s
-      ) || HelloSign::AccountCreateRequest.new
+      obj = Dropbox::Sign::AccountCreateRequest.init(self.data)
 
       return api.account_create_with_http_info(
         obj,
@@ -211,10 +208,7 @@ class Requester
     end
 
     if self.operation_id === 'accountUpdate'
-      obj = api_client.convert_to_type(
-        self.data,
-        HelloSign::AccountUpdateRequest.to_s
-      ) || HelloSign::AccountUpdateRequest.new
+      obj = Dropbox::Sign::AccountUpdateRequest.init(self.data)
 
       return api.account_update_with_http_info(
         obj,
@@ -225,10 +219,7 @@ class Requester
     end
 
     if self.operation_id === 'accountVerify'
-      obj = api_client.convert_to_type(
-        self.data,
-        HelloSign::AccountVerifyRequest.to_s
-      ) || HelloSign::AccountVerifyRequest.new
+      obj = Dropbox::Sign::AccountVerifyRequest.init(self.data)
 
       return api.account_verify_with_http_info(
         obj,
@@ -241,14 +232,10 @@ class Requester
 
   def api_app_api
     api_client = self.get_client
-    api = HelloSign::ApiAppApi.new(api_client)
+    api = Dropbox::Sign::ApiAppApi.new(api_client)
 
     if self.operation_id === 'apiAppCreate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::ApiAppCreateRequest.to_s
-      ) || HelloSign::ApiAppCreateRequest.new
-
+      obj = Dropbox::Sign::ApiAppCreateRequest.init(self.data)
       obj.custom_logo_file = self.get_file('custom_logo_file')
 
       return api.api_app_create_with_http_info(
@@ -288,11 +275,7 @@ class Requester
     end
 
     if self.operation_id === 'apiAppUpdate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::ApiAppUpdateRequest.to_s
-      ) || HelloSign::ApiAppUpdateRequest.new
-
+      obj = Dropbox::Sign::ApiAppUpdateRequest.init(self.data)
       obj.custom_logo_file = self.get_file('custom_logo_file')
 
       return api.api_app_update_with_http_info(
@@ -307,7 +290,7 @@ class Requester
 
   def bulk_send_job_api
     api_client = self.get_client
-    api = HelloSign::BulkSendJobApi.new(api_client)
+    api = Dropbox::Sign::BulkSendJobApi.new(api_client)
 
     if self.operation_id === 'bulkSendJobGet'
       return api.bulk_send_job_get_with_http_info(
@@ -331,13 +314,10 @@ class Requester
 
   def embedded_api
     api_client = self.get_client
-    api = HelloSign::EmbeddedApi.new(api_client)
+    api = Dropbox::Sign::EmbeddedApi.new(api_client)
 
     if self.operation_id === 'embeddedEditUrl'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::EmbeddedEditUrlRequest.to_s
-      ) || HelloSign::EmbeddedEditUrlRequest.new
+      obj = Dropbox::Sign::EmbeddedEditUrlRequest.init(self.data)
 
       return api.embedded_edit_url_with_http_info(
         self.parameters['template_id'],
@@ -360,13 +340,10 @@ class Requester
 
   def oauth_api
     api_client = self.get_client
-    api = HelloSign::OAuthApi.new(api_client)
+    api = Dropbox::Sign::OAuthApi.new(api_client)
 
     if self.operation_id === 'oauthTokenGenerate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::OAuthTokenGenerateRequest.to_s
-      ) || HelloSign::OAuthTokenGenerateRequest.new
+      obj = Dropbox::Sign::OAuthTokenGenerateRequest.init(self.data)
 
       return api.oauth_token_generate_with_http_info(
         obj,
@@ -377,10 +354,7 @@ class Requester
     end
 
     if self.operation_id === 'oauthTokenRefresh'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::OAuthTokenRefreshRequest.to_s
-      ) || HelloSign::OAuthTokenRefreshRequest.new
+      obj = Dropbox::Sign::OAuthTokenRefreshRequest.init(self.data)
 
       return api.oauth_token_refresh_with_http_info(
         obj,
@@ -393,13 +367,10 @@ class Requester
 
   def report_api
     api_client = self.get_client
-    api = HelloSign::ReportApi.new(api_client)
+    api = Dropbox::Sign::ReportApi.new(api_client)
 
     if self.operation_id === 'reportCreate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::ReportCreateRequest.to_s
-      ) || HelloSign::ReportCreateRequest.new
+      obj = Dropbox::Sign::ReportCreateRequest.init(self.data)
 
       return api.report_create_with_http_info(
         obj,
@@ -412,13 +383,10 @@ class Requester
 
   def signature_request_api
     api_client = self.get_client
-    api = HelloSign::SignatureRequestApi.new(api_client)
+    api = Dropbox::Sign::SignatureRequestApi.new(api_client)
 
     if self.operation_id === 'signatureRequestBulkCreateEmbeddedWithTemplate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestBulkCreateEmbeddedWithTemplateRequest.to_s
-      ) || HelloSign::SignatureRequestBulkCreateEmbeddedWithTemplateRequest.new
+      obj = Dropbox::Sign::SignatureRequestBulkCreateEmbeddedWithTemplateRequest.init(self.data)
 
       obj.signer_file = self.get_file('signer_file')
 
@@ -431,10 +399,7 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestBulkSendWithTemplate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestBulkSendWithTemplateRequest.to_s
-      ) || HelloSign::SignatureRequestBulkSendWithTemplateRequest.new
+      obj = Dropbox::Sign::SignatureRequestBulkSendWithTemplateRequest.init(self.data)
 
       obj.signer_file = self.get_file('signer_file')
 
@@ -456,12 +421,8 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestCreateEmbedded'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestCreateEmbeddedRequest.to_s
-      ) || HelloSign::SignatureRequestCreateEmbeddedRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::SignatureRequestCreateEmbeddedRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.signature_request_create_embedded_with_http_info(
         obj,
@@ -472,12 +433,8 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestCreateEmbeddedWithTemplate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestCreateEmbeddedWithTemplateRequest.to_s
-      ) || HelloSign::SignatureRequestCreateEmbeddedWithTemplateRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::SignatureRequestCreateEmbeddedWithTemplateRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.signature_request_create_embedded_with_template_with_http_info(
         obj,
@@ -527,10 +484,7 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestRemind'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestRemindRequest.to_s
-      ) || HelloSign::SignatureRequestRemindRequest.new
+      obj = Dropbox::Sign::SignatureRequestRemindRequest.init(self.data)
 
       return api.signature_request_remind_with_http_info(
         self.parameters['signature_request_id'],
@@ -551,12 +505,8 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestSend'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestSendRequest.to_s
-      ) || HelloSign::SignatureRequestSendRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::SignatureRequestSendRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.signature_request_send_with_http_info(
         obj,
@@ -567,12 +517,8 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestSendWithTemplate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestSendWithTemplateRequest.to_s
-      ) || HelloSign::SignatureRequestSendWithTemplateRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::SignatureRequestSendWithTemplateRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.signature_request_send_with_template_with_http_info(
         obj,
@@ -583,10 +529,7 @@ class Requester
     end
 
     if self.operation_id === 'signatureRequestUpdate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::SignatureRequestUpdateRequest.to_s
-      ) || HelloSign::SignatureRequestUpdateRequest.new
+      obj = Dropbox::Sign::SignatureRequestUpdateRequest.init(self.data)
 
       return api.signature_request_update_with_http_info(
         self.parameters['signature_request_id'],
@@ -600,13 +543,10 @@ class Requester
 
   def team_api
     api_client = self.get_client
-    api = HelloSign::TeamApi.new(api_client)
+    api = Dropbox::Sign::TeamApi.new(api_client)
 
     if self.operation_id === 'teamAddMember'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TeamAddMemberRequest.to_s
-      ) || HelloSign::TeamAddMemberRequest.new
+      obj = Dropbox::Sign::TeamAddMemberRequest.init(self.data)
 
       return api.team_add_member_with_http_info(
         obj,
@@ -618,10 +558,7 @@ class Requester
     end
 
     if self.operation_id === 'teamCreate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TeamCreateRequest.to_s
-      ) || HelloSign::TeamCreateRequest.new
+      obj = Dropbox::Sign::TeamCreateRequest.init(self.data)
 
       return api.team_create_with_http_info(
         obj,
@@ -648,10 +585,7 @@ class Requester
     end
 
     if self.operation_id === 'teamRemoveMember'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TeamRemoveMemberRequest.to_s
-      ) || HelloSign::TeamRemoveMemberRequest.new
+      obj = Dropbox::Sign::TeamRemoveMemberRequest.init(self.data)
 
       return api.team_remove_member_with_http_info(
         obj,
@@ -662,10 +596,7 @@ class Requester
     end
 
     if self.operation_id === 'teamUpdate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TeamUpdateRequest.to_s
-      ) || HelloSign::TeamUpdateRequest.new
+      obj = Dropbox::Sign::TeamUpdateRequest.init(self.data)
 
       return api.team_update_with_http_info(
         obj,
@@ -678,13 +609,10 @@ class Requester
 
   def template_api
     api_client = self.get_client
-    api = HelloSign::TemplateApi.new(api_client)
+    api = Dropbox::Sign::TemplateApi.new(api_client)
 
     if self.operation_id === 'templateAddUser'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TemplateAddUserRequest.to_s
-      ) || HelloSign::TemplateAddUserRequest.new
+      obj = Dropbox::Sign::TemplateAddUserRequest.init(self.data)
 
       return api.template_add_user_with_http_info(
         self.parameters['template_id'],
@@ -696,12 +624,8 @@ class Requester
     end
 
     if self.operation_id === 'templateCreateEmbeddedDraft'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TemplateCreateEmbeddedDraftRequest.to_s
-      ) || HelloSign::TemplateCreateEmbeddedDraftRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::TemplateCreateEmbeddedDraftRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.template_create_embedded_draft_with_http_info(
         obj,
@@ -751,10 +675,7 @@ class Requester
     end
 
     if self.operation_id === 'templateRemoveUser'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TemplateRemoveUserRequest.to_s
-      ) || HelloSign::TemplateRemoveUserRequest.new
+      obj = Dropbox::Sign::TemplateRemoveUserRequest.init(self.data)
 
       return api.template_remove_user_with_http_info(
         self.parameters['template_id'],
@@ -766,12 +687,8 @@ class Requester
     end
 
     if self.operation_id === 'templateUpdateFiles'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::TemplateUpdateFilesRequest.to_s
-      ) || HelloSign::TemplateUpdateFilesRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::TemplateUpdateFilesRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.template_update_files_with_http_info(
         self.parameters['template_id'],
@@ -785,15 +702,11 @@ class Requester
 
   def unclaimed_draft_api
     api_client = self.get_client
-    api = HelloSign::UnclaimedDraftApi.new(api_client)
+    api = Dropbox::Sign::UnclaimedDraftApi.new(api_client)
 
     if self.operation_id === 'unclaimedDraftCreate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::UnclaimedDraftCreateRequest.to_s
-      ) || HelloSign::UnclaimedDraftCreateRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::UnclaimedDraftCreateRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_create_with_http_info(
         obj,
@@ -804,12 +717,8 @@ class Requester
     end
 
     if self.operation_id === 'unclaimedDraftCreateEmbedded'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::UnclaimedDraftCreateEmbeddedRequest.to_s
-      ) || HelloSign::UnclaimedDraftCreateEmbeddedRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::UnclaimedDraftCreateEmbeddedRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_create_embedded_with_http_info(
         obj,
@@ -820,12 +729,8 @@ class Requester
     end
 
     if self.operation_id === 'unclaimedDraftCreateEmbeddedWithTemplate'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::UnclaimedDraftCreateEmbeddedWithTemplateRequest.to_s
-      ) || HelloSign::UnclaimedDraftCreateEmbeddedWithTemplateRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::UnclaimedDraftCreateEmbeddedWithTemplateRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_create_embedded_with_template_with_http_info(
         obj,
@@ -836,12 +741,8 @@ class Requester
     end
 
     if self.operation_id === 'unclaimedDraftEditAndResend'
-      obj = api_client.convert_to_type(
-        self.data.transform_keys(&:to_sym),
-        HelloSign::UnclaimedDraftEditAndResendRequest.to_s
-      ) || HelloSign::UnclaimedDraftEditAndResendRequest.new
-
-      obj.file = self.get_files('file')
+      obj = Dropbox::Sign::UnclaimedDraftEditAndResendRequest.init(self.data)
+      obj.files = self.get_files('files')
 
       return api.unclaimed_draft_edit_and_resend_with_http_info(
         self.parameters['signature_request_id'],

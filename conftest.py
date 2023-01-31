@@ -28,7 +28,7 @@ def container_bin():
     #
 @pytest.fixture(scope='module')
 def sdk_language():
-    # One of "node", "php", "python", "ruby", "csharp", "java"
+    # One of "node", "php", "python", "ruby", "dotnet", "java"
     sdk_language = os.environ['LANGUAGE']
     print(f"SDK Language : {sdk_language}")
     return sdk_language

@@ -37,18 +37,35 @@ class Requester(object):
             response = self._call_from_operation_id()
 
             data = {
-                'body': response[0].to_dict(),
-                'status_code': response[1],
-                'headers': self._get_response_headers(response[2]),
+                'body': response.data.to_dict() if response.data is not None else None,
+                'status_code': response.status_code,
+                'headers': self._get_response_headers(response.headers or {}),
             }
         except ApiException as e:
             data = {
-                'body': e.body.to_dict(),
+                'body': self._exception_body(e),
                 'status_code': e.status,
-                'headers': self._get_response_headers(e.headers),
+                'headers': self._get_response_headers(e.headers or {}),
             }
 
         print(json.dumps(data, indent=4))
+
+    @staticmethod
+    def _exception_body(exc: ApiException):
+        if getattr(exc, 'data', None) is not None and hasattr(exc.data, 'to_dict'):
+            return exc.data.to_dict()
+        body = getattr(exc, 'body', None)
+        if isinstance(body, (bytes, bytearray)):
+            try:
+                body = body.decode('utf-8')
+            except UnicodeDecodeError:
+                return None
+        if isinstance(body, str) and body:
+            try:
+                return json.loads(body)
+            except json.JSONDecodeError:
+                return {'raw': body}
+        return None
 
     def _get_config(self):
         if self._auth_type == 'apikey':
@@ -128,10 +145,14 @@ class Requester(object):
         raise RuntimeError(f'Invalid operationId: {self._operation_id}')
 
     @staticmethod
-    def _get_response_headers(headers: dict):
+    def _get_response_headers(headers):
         formatted = {}
 
-        for key, value in headers.items():
+        if not headers:
+            return formatted
+
+        items = headers.items() if hasattr(headers, 'items') else headers
+        for key, value in items:
             formatted[key.lower()] = value
 
         return formatted
@@ -157,70 +178,54 @@ class Requester(object):
         if self._operation_id == 'accountCreate':
             obj = m.AccountCreateRequest.init(self._data)
 
-            return api.account_create(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.account_create_with_http_info(obj)
 
         if self._operation_id == 'accountGet':
-            return api.account_get(
+            return api.account_get_with_http_info(
                 account_id=self._parameters.get('account_id', None),
                 email_address=self._parameters.get('email_address', None),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'accountUpdate':
             obj = m.AccountUpdateRequest.init(self._data)
 
-            return api.account_update(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.account_update_with_http_info(obj)
 
         if self._operation_id == 'accountVerify':
             obj = m.AccountVerifyRequest.init(self._data)
 
-            return api.account_verify(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.account_verify_with_http_info(obj)
 
     def _api_app_api(self):
         api = apis.ApiAppApi(self._api_client)
 
         if self._operation_id == 'apiAppCreate':
             obj = m.ApiAppCreateRequest.init(self._data)
-            obj['custom_logo_file'] = self._get_file('custom_logo_file')
+            obj.custom_logo_file = self._get_file('custom_logo_file')
 
-            return api.api_app_create(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.api_app_create_with_http_info(obj)
 
         if self._operation_id == 'apiAppDelete':
-            return api.api_app_delete(
+            return api.api_app_delete_with_http_info(
                 self._parameters.get('client_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'apiAppGet':
-            return api.api_app_get(
+            return api.api_app_get_with_http_info(
                 self._parameters.get('client_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'apiAppList':
-            return api.api_app_list(
+            return api.api_app_list_with_http_info(
                 page=self._parameters.get('page', 1),
                 page_size=self._parameters.get('page_size', 20),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'apiAppUpdate':
             obj = m.ApiAppUpdateRequest.init(self._data)
-            obj['custom_logo_file'] = self._get_file('custom_logo_file')
+            obj.custom_logo_file = self._get_file('custom_logo_file')
 
-            return api.api_app_update(
+            return api.api_app_update_with_http_info(
                 self._parameters.get('client_id'),
                 obj,
             )
@@ -229,16 +234,14 @@ class Requester(object):
         api = apis.BulkSendJobApi(self._api_client)
 
         if self._operation_id == 'bulkSendJobGet':
-            return api.bulk_send_job_get(
+            return api.bulk_send_job_get_with_http_info(
                 self._parameters.get('bulk_send_job_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'bulkSendJobList':
-            return api.bulk_send_job_list(
+            return api.bulk_send_job_list_with_http_info(
                 page=self._parameters.get('page', 1),
                 page_size=self._parameters.get('page_size', 20),
-                _return_http_data_only=False
             )
 
     def _embedded_api(self):
@@ -247,16 +250,14 @@ class Requester(object):
         if self._operation_id == 'embeddedEditUrl':
             obj = m.EmbeddedEditUrlRequest.init(self._data)
 
-            return api.embedded_edit_url(
+            return api.embedded_edit_url_with_http_info(
                 self._parameters.get('template_id'),
                 obj,
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'embeddedSignUrl':
-            return api.embedded_sign_url(
+            return api.embedded_sign_url_with_http_info(
                 self._parameters.get('signature_id'),
-                _return_http_data_only=False
             )
 
     def _oauth_api(self):
@@ -265,18 +266,12 @@ class Requester(object):
         if self._operation_id == 'oauthTokenGenerate':
             obj = m.OAuthTokenGenerateRequest.init(self._data)
 
-            return api.oauth_token_generate(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.oauth_token_generate_with_http_info(obj)
 
         if self._operation_id == 'oauthTokenRefresh':
             obj = m.OAuthTokenRefreshRequest.init(self._data)
 
-            return api.oauth_token_refresh(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.oauth_token_refresh_with_http_info(obj)
 
     def _report_api(self):
         api = apis.ReportApi(self._api_client)
@@ -284,123 +279,94 @@ class Requester(object):
         if self._operation_id == 'reportCreate':
             obj = m.ReportCreateRequest.init(self._data)
 
-            return api.report_create(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.report_create_with_http_info(obj)
 
     def _signature_request_api(self):
         api = apis.SignatureRequestApi(self._api_client)
 
         if self._operation_id == 'signatureRequestBulkCreateEmbeddedWithTemplate':
             obj = m.SignatureRequestBulkCreateEmbeddedWithTemplateRequest.init(self._data)
-            obj['signer_file'] = self._get_file('signer_file')
+            obj.signer_file = self._get_file('signer_file')
 
-            return api.signature_request_bulk_create_embedded_with_template(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.signature_request_bulk_create_embedded_with_template_with_http_info(obj)
 
         if self._operation_id == 'signatureRequestBulkSendWithTemplate':
             obj = m.SignatureRequestBulkSendWithTemplateRequest.init(self._data)
-            obj['signer_file'] = self._get_file('signer_file')
+            obj.signer_file = self._get_file('signer_file')
 
-            return api.signature_request_bulk_send_with_template(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.signature_request_bulk_send_with_template_with_http_info(obj)
 
         if self._operation_id == 'signatureRequestCancel':
-            return api.signature_request_cancel(
+            return api.signature_request_cancel_with_http_info(
                 self._parameters.get('signature_request_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestCreateEmbedded':
             obj = m.SignatureRequestCreateEmbeddedRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.signature_request_create_embedded(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.signature_request_create_embedded_with_http_info(obj)
 
         if self._operation_id == 'signatureRequestCreateEmbeddedWithTemplate':
             obj = m.SignatureRequestCreateEmbeddedWithTemplateRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.signature_request_create_embedded_with_template(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.signature_request_create_embedded_with_template_with_http_info(obj)
 
         if self._operation_id == 'signatureRequestFilesAsFileUrl':
-            return api.signature_request_files_as_file_url(
+            return api.signature_request_files_as_file_url_with_http_info(
                 self._parameters.get('signature_request_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestGet':
-            return api.signature_request_get(
+            return api.signature_request_get_with_http_info(
                 self._parameters.get('signature_request_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestList':
-            return api.signature_request_list(
+            return api.signature_request_list_with_http_info(
                 account_id=self._parameters.get('account_id', None),
                 page=self._parameters.get('page', 1),
                 page_size=self._parameters.get('page_size', 20),
                 query=self._parameters.get('query', None),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestReleaseHold':
-            return api.signature_request_release_hold(
+            return api.signature_request_release_hold_with_http_info(
                 self._parameters.get('signature_request_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestRemind':
             obj = m.SignatureRequestRemindRequest.init(self._data)
 
-            return api.signature_request_remind(
+            return api.signature_request_remind_with_http_info(
                 self._parameters.get('signature_request_id'),
                 obj,
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestRemove':
-            return api.signature_request_remove(
+            return api.signature_request_remove_with_http_info(
                 self._parameters.get('signature_request_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'signatureRequestSend':
             obj = m.SignatureRequestSendRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.signature_request_send(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.signature_request_send_with_http_info(obj)
 
         if self._operation_id == 'signatureRequestSendWithTemplate':
             obj = m.SignatureRequestSendWithTemplateRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.signature_request_send_with_template(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.signature_request_send_with_template_with_http_info(obj)
 
         if self._operation_id == 'signatureRequestUpdate':
             obj = m.SignatureRequestUpdateRequest.init(self._data)
 
-            return api.signature_request_update(
+            return api.signature_request_update_with_http_info(
                 self._parameters.get('signature_request_id'),
                 obj,
-                _return_http_data_only=False
             )
 
     def _team_api(self):
@@ -409,45 +375,31 @@ class Requester(object):
         if self._operation_id == 'teamAddMember':
             obj = m.TeamAddMemberRequest.init(self._data)
 
-            return api.team_add_member(
+            return api.team_add_member_with_http_info(
                 obj,
                 team_id=self._parameters.get('team_id', None),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'teamCreate':
             obj = m.TeamCreateRequest.init(self._data)
 
-            return api.team_create(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.team_create_with_http_info(obj)
 
         if self._operation_id == 'teamDelete':
-            return api.team_delete(
-                _return_http_data_only=False
-            )
+            return api.team_delete_with_http_info()
 
         if self._operation_id == 'teamGet':
-            return api.team_get(
-                _return_http_data_only=False
-            )
+            return api.team_get_with_http_info()
 
         if self._operation_id == 'teamRemoveMember':
             obj = m.TeamRemoveMemberRequest.init(self._data)
 
-            return api.team_update(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.team_update_with_http_info(obj)
 
         if self._operation_id == 'teamUpdate':
             obj = m.TeamUpdateRequest.init(self._data)
 
-            return api.team_update(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.team_update_with_http_info(obj)
 
     def _template_api(self):
         api = apis.TemplateApi(self._api_client)
@@ -455,65 +407,55 @@ class Requester(object):
         if self._operation_id == 'templateAddUser':
             obj = m.TemplateAddUserRequest.init(self._data)
 
-            return api.template_add_user(
+            return api.template_add_user_with_http_info(
                 self._parameters.get('template_id', None),
                 obj,
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'templateCreateEmbeddedDraft':
             obj = m.TemplateCreateEmbeddedDraftRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.template_create_embedded_draft(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.template_create_embedded_draft_with_http_info(obj)
 
         if self._operation_id == 'templateDelete':
-            return api.template_delete(
+            return api.template_delete_with_http_info(
                 self._parameters.get('template_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'templateFilesAsFileUrl':
-            return api.template_files_as_file_url(
+            return api.template_files_as_file_url_with_http_info(
                 self._parameters.get('template_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'templateGet':
-            return api.template_get(
+            return api.template_get_with_http_info(
                 self._parameters.get('template_id'),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'templateList':
-            return api.template_list(
+            return api.template_list_with_http_info(
                 account_id=self._parameters.get('account_id', None),
                 page=self._parameters.get('page', 1),
                 page_size=self._parameters.get('page_size', 20),
                 query=self._parameters.get('query', None),
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'templateRemoveUser':
             obj = m.TemplateRemoveUserRequest.init(self._data)
 
-            return api.template_remove_user(
+            return api.template_remove_user_with_http_info(
                 self._parameters.get('template_id'),
                 obj,
-                _return_http_data_only=False
             )
 
         if self._operation_id == 'templateUpdateFiles':
             obj = m.TemplateUpdateFilesRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.template_update_files(
+            return api.template_update_files_with_http_info(
                 self._parameters.get('template_id'),
                 obj,
-                _return_http_data_only=False
             )
 
     def _unclaimed_draft_api(self):
@@ -521,38 +463,28 @@ class Requester(object):
 
         if self._operation_id == 'unclaimedDraftCreate':
             obj = m.UnclaimedDraftCreateRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.unclaimed_draft_create(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.unclaimed_draft_create_with_http_info(obj)
 
         if self._operation_id == 'unclaimedDraftCreateEmbedded':
             obj = m.UnclaimedDraftCreateEmbeddedRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.unclaimed_draft_create_embedded(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.unclaimed_draft_create_embedded_with_http_info(obj)
 
         if self._operation_id == 'unclaimedDraftCreateEmbeddedWithTemplate':
             obj = m.UnclaimedDraftCreateEmbeddedWithTemplateRequest.init(self._data)
-            obj['files'] = self._get_files('files')
+            obj.files = self._get_files('files')
 
-            return api.unclaimed_draft_create_embedded_with_template(
-                obj,
-                _return_http_data_only=False
-            )
+            return api.unclaimed_draft_create_embedded_with_template_with_http_info(obj)
 
         if self._operation_id == 'unclaimedDraftEditAndResend':
             obj = m.UnclaimedDraftEditAndResendRequest.init(self._data)
 
-            return api.unclaimed_draft_edit_and_resend(
+            return api.unclaimed_draft_edit_and_resend_with_http_info(
                 self._parameters.get('signature_request_id'),
                 obj,
-                _return_http_data_only=False
             )
 
 

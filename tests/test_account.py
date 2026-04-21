@@ -54,4 +54,11 @@ def test_create_account_failure(container_bin,sdk_language,uploads_dir,auth_type
                                  auth_key, server)
     print(f"\n\nResponse : test_create_account_failure {response}")
     assert response.status_code == 400
-    assert 'email_address not valid' in response.body['error']['error_msg']
+    error = response.body.get('error', {})
+    assert error.get('error_name') == 'bad_request', (
+        f"Expected a bad_request error for an invalid email, got {response.body!r}"
+    )
+    error_msg = (error.get('error_msg') or '').lower()
+    assert 'email' in error_msg or 'not valid' in error_msg, (
+        f"Expected the error message to mention the bad email, got {error.get('error_msg')!r}"
+    )

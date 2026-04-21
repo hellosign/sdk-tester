@@ -71,7 +71,7 @@ class ApiTester(object):
 
 
 def test_create_account_success(tester: ApiTester):
-    email_address = f'signer{uuid.uuid4()}@hellosign.com'
+    email_address = f'signer{uuid.uuid4()}@example.com'
 
     json_data = {
         "operationId": "accountCreate",
@@ -122,10 +122,10 @@ def test_signature_request_create_embedded(tester: ApiTester):
                 }
             ],
             "cc_email_addresses": [
-                "hs-api-qa+sdk+cc1@hellosign.com",
-                "hs-api-qa+sdk+cc2@hellosign.com"
+                "cc1@example.com",
+                "cc2@example.com"
             ],
-            "client_id": "efdbab0dd86acda1aaa3d56ea3ded8cf",
+            "client_id": "YOUR_CLIENT_ID",
             "custom_fields": [
                 {
                     "name": "Cost",
@@ -160,12 +160,12 @@ def test_signature_request_create_embedded(tester: ApiTester):
             },
             "signers": [
                 {
-                    "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
+                    "email_address": "signer1@example.com",
                     "name": "Jack",
                     "order": 0
                 },
                 {
-                    "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
+                    "email_address": "signer2@example.com",
                     "name": "Jill",
                     "order": 1
                 }

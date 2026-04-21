@@ -17,7 +17,7 @@ with open(accountCreate_filename, "r") as fs:
 
 
 def test_create_account_success(container_bin,sdk_language,uploads_dir,auth_type,auth_key,server):
-    email_address = f'signer+{uuid.uuid4()}@hellosign.com'
+    email_address = f'signer+{uuid.uuid4()}@example.com'
     json_data = {
         "operationId": "accountCreate",
         "parameters": {},

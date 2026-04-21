@@ -1,421 +1,381 @@
-# About
+# sdk-tester
 
-This project aims to allow making an API request using any of our
-supported OpenAPI SDKs.
+Language-agnostic harness that exercises the Dropbox Sign OpenAPI SDKs. Each
+supported SDK lives inside a dedicated Docker image; the `./run` script feeds
+a normalised JSON payload to the image and returns a normalised JSON response,
+which makes it easy to drive the same scenario through every SDK from a single
+test suite.
 
-# Demo
+Supported SDKs: `dotnet`, `java`, `node`, `php`, `python`, `ruby` (`csharp` is
+accepted as an alias for `dotnet`).
 
-See [./demo](./demo) for a demo
-on how this project may be used in our testing suite.
+See [`./demo`](./demo) for an example of how to embed the harness in your own
+test code.
 
-# How to Use
+## Prerequisites
 
-## Generate Container Images
+- Docker (Docker Desktop, Colima, OrbStack, etc.) running locally.
+- Bash (any version — the scripts no longer rely on Bash 4-only syntax).
+- Python 3 with `pytest` + `requests`, if you want to run the pytest suite:
+  ```bash
+  pip3 install pytest requests
+  ```
 
-Each SDK will have its own container image. You can build all containers in one
-go by running:
+## Building the SDK containers
+
+`./build` produces one Docker image per SDK (`dropbox/sign-<sdk>:latest`).
+
+```text
+./build [options] SDK
+```
+
+Options:
+
+| Flag | Meaning |
+|---|---|
+| `--sdk-ref REF` | Git ref (branch/tag/commit) for SDKs sourced from git (`python`, `ruby`, `node`, `dotnet`). For `java` this is the Maven Central version. For `php` it is the Composer version constraint. |
+| `--local PATH` | Build against a local SDK source directory instead of fetching it from git / a package registry. Mutually exclusive with `all`. |
+| `--help` | Show help and exit. |
+
+`SDK` is one of `dotnet java node php python ruby` or `all` (or `csharp` as an
+alias for `dotnet`). Examples:
 
 ```bash
-./build all
+./build all                          # build every SDK from defaults
+./build python                       # build just python
+./build --sdk-ref=v1.4.0 node        # pin node to a specific upstream ref
+./build --sdk-ref=2.5.0  java        # pin java to a specific Maven version
+./build --local ../dropbox-sign-python python   # build against a local SDK
 ```
 
-or build each individually by passing the SDK as parameter:
+### Where each SDK comes from
 
-```bash
-# dotnet
-./build dotnet
-# java
-./build java
-# Node
-./build node
-# PHP
-./build php
-# Python
-./build python
-# Ruby
-./build ruby
+| SDK | Default source | Definition file |
+|---|---|---|
+| python | `github.com/hellosign/dropbox-sign-python @ main` | `data_python/requirements.txt` |
+| ruby | `github.com/hellosign/dropbox-sign-ruby @ main` | `data_ruby/Gemfile` |
+| node | `github:hellosign/dropbox-sign-node#main` | `data_node/package.json` |
+| dotnet | `github.com/hellosign/dropbox-sign-dotnet @ main` (cloned inside the image) | `data_dotnet/Dockerfile` |
+| php | Packagist `dropbox/sign ^1.0.0` | `data_php/composer.json` |
+| java | Maven Central `com.dropbox.sign:dropbox-sign:2.5.0` | `data_java/pom.xml` |
+
+`--sdk-ref` rewrites the relevant descriptor in a staged build context (under
+`.build-ctx/<sdk>/`, git-ignored) so the originals in `data_<sdk>/` are never
+touched. `--local` does the same plus copies your local SDK into the context
+at `./sdk-src/` and rewrites the descriptor to reference `/sdk-src` inside the
+container (for Java it `mvn install`s the local SDK into the image-local Maven
+repo and pins the tester's `pom.xml` to the version in the local `pom.xml`).
+
+### How `./build` runs the SDK
+
+`./build` always runs with `--no-cache`. If your local SDK tree has a large
+`node_modules/`, `vendor/`, `target/`, `build/`, `dist/`, `bin/`, `obj/`,
+`venv/`, `.venv/`, `__pycache__/`, or `*.egg-info/` folder, it is excluded from
+the copy so the build context stays small.
+
+## Running a single request with `./run`
+
+```text
+./run [options]
 ```
 
-## Run Tool
-
-You run any container using the `./run` script and passing the SDK as parameter:
-
-```bash
-$ ./run php
-
-Uses the selected Dropbox Sign SDK to make a request to the Dropbox Sign API
---sdk             one of "dotnet", "java", "node", "php", "python", "ruby"
-                    (required)
---auth_type       one of "apikey", "oauth"
-                    (required)
---auth_key        auth key
-                    If --auth_type=apikey, pass API Key
-                    If --auth_type=oauth, pass OAuth Bearer Token
-                    (required)
---json            valid JSON file containing all request data
-                    OR base64-encoded JSON string
-                    (required)
---server          API server to use, must be like "api.hellosign.com".
-                    (defaults to api.hellosign.com)
---uploads_dir     directory where files that can be uploaded to the API live.
-                    (defaults to /Users/jtreminio/www/hellosign/openapi/sdk-tester/file_uploads)
---dev_mode        run container in dev mode
-                    (optional, default false)
---help            display this help and exit
-```
-
-The command to run each script is identical to each other, and they all require
-the same flags to function correctly.
-
-## Run test using Pytest
-install pytest using below command
-```bash
-pip3 install pytest
-```
-To run all the tests under the tests/ folder
-```bash
- pytest -svra  tests/ 
-```
-
-To run individual tests from a file. 
-```bash
-pytest -svra tests/test_signature_request.py::test_signature_request_send
-```
-
-To run tests in individual environment in QA env 
-To run on staging pass SERVER = api.staging-hellosign.com and appropriate API_KEY
-```bash
-LANGUAGE=python API_KEY=<API_KEY>  SERVER=api.qa-hellosign.com  pytest -svra tests/test_template.py::test_get_template
-```
-
-# Flags
-
-## `--sdk` SDK (required)
-
-One of `dotnet`, `java`, `node`, `php`, `python`, `ruby`.
-
-## `--auth_type` Auth Type (required)
-
-Currently we support API key `apikey` or OAuth bearer token `oauth`
-
-## `--auth_key` Auth Key (required)
-
-If auth type (`--auth_type`) is `apikey` this will be the API Key.
-
-If auth type (`--auth_type`) is `oauth` this will be the OAuth bearer token.
-
-## `--json` JSON Payload (required)
-
-A local file containing the JSON data sent in the request to the API, OR
-a base64-encoded string containing the JSON data sent in the request to the API.
-
-See the [JSON Data](#json-data) section for more information.
-
-## `--server` Server (optional)
-
-What server to make the API request to. For example, `api.hellosign.com`.
-
-## `--uploads_dir` Uploads Directory (optional)
-
-Local directory containing any files you would want to upload in the API request.
-
-Defaults to [./file_uploads](./file_uploads).
-
-## `--dev_mode` Dev Mode
-
-Runs the container in dev mode. Simply calling `--dev_mode` enabled Dev mode,
-there is  no need to pass a value to it. It is disabled by default.
-
-Dev mode adds a cookie `XDEBUG_SESSION=xdebug` to the request that allows
-debugging the API backend.
-
-It also loads the local `requester.*` file into the container, overwriting the
-file that was baked into the image during the build step.
-
-Dev mode is extremely useful when you want to debug the request via the API
-backend, or want to make changes to the `requester.*` file locally and test them
-out without needing to rebuild the container image.
-
-Using Dev mode you can also change request data (sent to the API) by editing the
-[data.json](./data.json) file that is generated after running a build script.
-Changes to this file are ignored by git.
-
-# JSON Data
-
-Whether using a local file or a base64-encoded string for the JSON payload
-it must match the following shape:
-
-```
-{
-    "operationId": <string> (required),
-    "data": <object>,
-    "parameters": <object>,
-    "files": <object>
-}
-```
-
-## `operationId` (Required)
-
-This is a string that must match one of the `operationId` values within the
-[OpenAPI spec's `paths` object](https://github.com/hellosign/hellosign-openapi/blob/oas-release/openapi.yaml).
-
-In the example below, the `operationId` value is `accountCreate`:
-
-```yaml
-paths:
-  /account/create:
-    post:
-      tags:
-        - Account
-      summary: 'Create Account'
-      description: 'Creates a new Dropbox Sign Account that is associated with the specified `email_address`.'
-      operationId: accountCreate
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountCreateRequest'
-            examples:
-              default_example:
-                $ref: '#/components/examples/AccountCreateRequestDefaultExample'
-              oauth:
-                $ref: '#/components/examples/AccountCreateRequestOAuthExample'
-```
-
-## `data`
-
-The data to be sent to the API in the body of the request. Must be an object.
-
-## `parameters`
-
-If the API endpoint you want to use has query parameters, you must define them here.
-
-For example, `GET /account` has a `account_id` query parameter.
-
-## `files`
-
-If the API endpoint you want to use allows uploading files, you must define them here.
-
-The file you want to use _must_ be found in the [`file_uploads`](./file_uploads) directory!
-
-If the endpoint supports multiple files you must pass a nested object.
-
-## JSON Examples
-
-### `accountGet` (with parameters)
-
-```json
-{
-  "operationId": "accountGet",
-  "parameters": {
-    "account_id": "5d38f3a287c072a2ac741191c5c055936a56b933"
-  },
-  "data": {},
-  "files": {}
-}
-```
-
-### `apiAppCreate` (single file upload)
-
-```json
-{
-  "operationId": "apiAppCreate",
-  "parameters": {},
-  "data": {
-    "name": "My Production App",
-    "callback_url": "https://example.com/callback",
-    "domains": [
-      "example.com"
-    ],
-    "oauth": {
-      "callback_url": "https://example.com/oauth",
-      "scopes": [
-        "basic_account_info",
-        "request_signature"
-      ]
-    },
-    "options": {
-      "can_insert_everywhere": true
-    },
-    "white_labeling_options": {
-      "header_background_color": "#1A1A1A",
-      "legal_version": "terms1",
-      "link_color": "#00B3E6",
-      "page_background_color": "#F7F8F9",
-      "primary_button_color": "#00b3e6",
-      "primary_button_color_hover": "#00B3E6",
-      "primary_button_text_color": "#ffffff",
-      "primary_button_text_color_hover": "#FFFFFF",
-      "secondary_button_color": "#FFFFFF",
-      "secondary_button_color_hover": "#FFFFFF",
-      "secondary_button_text_color": "#00B3E6",
-      "secondary_button_text_color_hover": "#00B3E6",
-      "text_color1": "#808080",
-      "text_color2": "#FFFFFF"
-    }
-  },
-  "files": {
-    "custom_logo_file": "pdf-sample.pdf"
-  }
-}
-```
-
-### `signatureRequestSend` (multiple file uploads)
-
-```json
-{
-  "operationId": "signatureRequestSend",
-  "parameters": {},
-  "data": {
-    "cc_email_addresses": [
-      "lawyer@hellosign.com",
-      "lawyer@example.com"
-    ],
-    "message": "Please sign this NDA and then we can discuss more. Let me know if you\nhave any questions.",
-    "signers": [
-      {
-        "email_address": "s1@example.com",
-        "name": "Signer 1",
-        "order": 0,
-        "sms_phone_number": "+14155550100",
-        "sms_phone_number_type": "delivery"
-      }
-    ],
-    "subject": "The NDA we talked about",
-    "test_mode": true,
-    "title": "NDA with Acme Co."
-  },
-  "files": {
-    "files": [
-      "pdf-sample.pdf",
-      "pdf-sample-2.pdf"
-    ]
-  }
-}
-```
-
-# Response Examples
-
-All responses will match the following shape, whether the response was
-successful or resulted in an error:
-
-```
-{
-    "body": <object>,
-    "status_code": <integer>,
-    "headers": <object>
-}
-```
-
-## Response Success Example
-
-This is an example of a _successful_ API response:
-
-```json
-{
-    "body": {
-        "account": {
-            "account_id": "0f7cfef800c571173e5fec744bce8b27c3f30569",
-            "email_address": "signer2@hellosign.com",
-            "is_locked": false,
-            "is_paid_hs": false,
-            "is_paid_hf": false,
-            "quotas": {
-                "api_signature_requests_left": 0,
-                "documents_left": 3,
-                "templates_left": 0
-            },
-            "locale": "en-US"
-        }
-    },
-    "status_code": 200,
-    "headers": {
-        "date": "Tue, 26 Jul 2022 15:16:17 GMT",
-        "server": "Apache",
-        "x-powered-by": "PHP\/7.4.28",
-        "x-robots-tag": "noindex",
-        "x-ratelimit-limit": "10000",
-        "x-ratelimit-limit-remaining": "9999",
-        "x-ratelimit-reset": "1658848577",
-        "access-control-allow-origin": "*",
-        "access-control-allow-headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept",
-        "access-control-allow-methods": "GET, POST, OPTIONS",
-        "user-agent": "Dropbox Sign API",
-        "vary": "Accept-Encoding",
-        "strict-transport-security": "max-age=15768000",
-        "p3p": "CP=\"NOP3PPOLICY\"",
-        "content-length": "360",
-        "connection": "close",
-        "content-type": "application\/json"
-    }
-}
-```
-
-Note that header names are all lowercased!
-
-## Response Error Example
-
-This is an example of a _unsuccessful_ API response:
-
-```json
-{
-    "body": {
-        "error": {
-            "error_msg": "Unauthorized api key",
-            "error_name": "unauthorized"
-        }
-    },
-    "status_code": 401,
-    "headers": {
-        "date": "Tue, 26 Jul 2022 15:23:38 GMT",
-        "content-type": "application\/json",
-        "content-length": "74",
-        "connection": "keep-alive",
-        "server": "Apache",
-        "strict-transport-security": "max-age=31536000",
-        "vary": "Origin",
-        "x-robots-tag": "noindex",
-        "access-control-allow-origin": "*",
-        "access-control-allow-headers": "Authorization, Origin, X-Requested-With, Content-Type, Accept, Request-URL, Referrer-Policy, Referer, Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-Fetch-Site, User-Agent, X-User-Agent",
-        "access-control-allow-methods": "GET, POST, OPTIONS, PUT, DELETE",
-        "user_agent": "Dropbox Sign API",
-        "p3p": "CP=\"NOP3PPOLICY\""
-    }
-}
-```
-
-Note that header names are all lowercased!
-
-# Run Examples
-
-The following are some examples with all required flags.
-
-## Example Using Local JSON File
+| Flag | Required | Description |
+|---|---|---|
+| `--sdk=<sdk>` | yes | `dotnet`, `java`, `node`, `php`, `python`, `ruby` (or `csharp`). |
+| `--auth_type=<type>` | yes | `apikey` or `oauth`. |
+| `--auth_key=<value>` | yes | API key (for `apikey`) or OAuth bearer token (for `oauth`). |
+| `--json=<path or b64>` | yes | Either a path to a JSON file or a base64-encoded JSON string. |
+| `--server=<host>` | no | API host (no scheme). Defaults to `api.hellosign.com`. |
+| `--uploads_dir=<path>` | no | Directory mounted at `/file_uploads`. Defaults to `./file_uploads`. |
+| `--dev_mode` | no | Mount the local `data_<sdk>/requester.*` over the one baked into the image (see note below). |
+| `--help` | no | Show help and exit. |
+
+`./run` mounts `--uploads_dir` at `/file_uploads` in the container; any file
+names used under `files` in your JSON payload must live in that directory.
+
+### Run examples
+
+Using a JSON file:
 
 ```bash
 ./run \
     --sdk=php \
     --auth_type=apikey \
-    --auth_key=4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
-    --json="${PWD}/test_fixtures/accountCreate-example_01.json"
+    --auth_key=$HS_API_KEY \
+    --json="${PWD}/test_fixtures/accounts/accountCreate-example_01.json"
 ```
 
-## Example Using Base64-Encoded JSON String
+Using a base64-encoded JSON string:
 
 ```bash
 ./run \
     --sdk=node \
     --auth_type=apikey \
-    --auth_key=4e0a8a8bd9fea228a1de515a43a75ded2e495471b830069cc8e1821c13c31ce4 \
-    --json="ewogICJvcGVyYXRpb25JZCI6ICJhY2NvdW50Q3JlYXRlIiwKICAicGFyYW1ldGVycyI6IHt9LAogICJkYXRhIjogewogICAgImVtYWlsX2FkZHJlc3MiOiAic2lnbmVyMUBoZWxsb3NpZ24uY29tIgogIH0sCiAgImZpbGVzIjoge30KfQo="
+    --auth_key=$HS_API_KEY \
+    --json="$(printf '{"operationId":"accountCreate","parameters":{},"data":{"email_address":"test_user@example.com"},"files":{}}' | base64)"
 ```
 
-# License
+> Prefer environment variables over pasting secrets on the command line; values
+> on the command line are visible in your shell history and in `ps` output.
+
+### `--dev_mode`
+
+`--dev_mode` mounts the local `data_<sdk>/requester.*` script over the one
+baked into the image so you can iterate on the per-SDK requester code without
+rebuilding. It does **not** remount the SDK itself — to iterate on the SDK
+source, rebuild the image with `--local`:
+
+```bash
+./build --local ../dropbox-sign-python python
+```
+
+Dev mode also enables the `XDEBUG_SESSION=xdebug` cookie on outbound requests,
+which is handy when debugging the API backend. Edits to the repo-root
+[`data.json`](./data.json) (git-ignored) are picked up by dev mode.
+
+## Running the pytest suite
+
+`conftest.py` exposes fixtures the tests under `tests/` consume
+(`container_bin`, `sdk_language`, `uploads_dir`, `auth_type`, `auth_key`,
+`server`). The first one is a parametrized fixture that lets a single `pytest`
+invocation fan out across multiple SDKs.
+
+### Required environment variables
+
+| Variable | Required | Meaning |
+|---|---|---|
+| `LANGUAGES` | yes* | Comma-separated list of SDKs to exercise, e.g. `python,node`. |
+| `LANGUAGE` | yes* | Single SDK; kept for backwards compatibility. |
+| `API_KEY` | yes | Dropbox Sign API key. |
+| `SERVER` | yes | API host (no scheme), e.g. `api.qa-hellosign.com`. |
+
+\* Either `LANGUAGES` or `LANGUAGE` must be set. Prefer `LANGUAGES` — it turns
+`pytest tests/` into a matrix run across every SDK you list.
+
+Auth type is pinned to `apikey` in `conftest.py`.
+
+### Examples
+
+Run every test against a single SDK:
+
+```bash
+LANGUAGE=python \
+API_KEY=$HS_API_KEY \
+SERVER=api.qa-hellosign.com \
+pytest -svra tests/
+```
+
+Run every test against every SDK (matrix) in one process:
+
+```bash
+LANGUAGES=python,node,php,ruby,java,dotnet \
+API_KEY=$HS_API_KEY \
+SERVER=api.qa-hellosign.com \
+pytest -svra tests/
+```
+
+Tests come out as `test_create_account_success[python]`,
+`test_create_account_success[node]`, etc. Filter a subset with `-k`:
+
+```bash
+LANGUAGES=python,node,php,ruby,java,dotnet \
+API_KEY=$HS_API_KEY \
+SERVER=api.qa-hellosign.com \
+pytest -svra tests/test_account.py -k "python or node"
+```
+
+Run a single test on a single SDK:
+
+```bash
+LANGUAGE=python API_KEY=$HS_API_KEY SERVER=api.qa-hellosign.com \
+pytest -svra tests/test_signature_request.py::test_signature_request_send
+```
+
+Run the matrix with per-SDK reports in parallel processes (`&` + `wait`), one
+pytest per SDK:
+
+```bash
+for lang in python node php ruby java dotnet; do
+    LANGUAGE=$lang API_KEY=$HS_API_KEY SERVER=api.qa-hellosign.com \
+        pytest -svra tests/ --junitxml=reports/${lang}.xml &
+done
+wait
+```
+
+> Tests hit the real API. Keep matrix runs pointed at QA or staging
+> (`api.qa-hellosign.com` / `api.staging-hellosign.com`), not production.
+
+## JSON payload shape
+
+The `--json` file (or base64 blob) passed to `./run` must conform to:
+
+```json
+{
+    "operationId": "<string>",
+    "data": {},
+    "parameters": {},
+    "files": {}
+}
+```
+
+### `operationId` (required)
+
+Must match an `operationId` in the
+[OpenAPI spec's `paths` object](https://github.com/hellosign/hellosign-openapi/blob/oas-release/openapi.yaml).
+For example:
+
+```yaml
+paths:
+  /account/create:
+    post:
+      tags: [Account]
+      summary: 'Create Account'
+      operationId: accountCreate
+```
+
+### `data`
+
+Request body. Must be an object (may be empty).
+
+### `parameters`
+
+Query / path parameters. For example, `GET /account` takes an `account_id`
+query parameter.
+
+### `files`
+
+Files to upload, if the endpoint supports them. Every filename must live in
+`--uploads_dir` (default `./file_uploads`). For endpoints that accept several
+files, use a nested array:
+
+```json
+"files": { "files": ["pdf-sample.pdf", "pdf-sample-2.pdf"] }
+```
+
+### JSON payload examples
+
+Get an account (query parameter, no body):
+
+```json
+{
+    "operationId": "accountGet",
+    "parameters": { "account_id": "test_account_id" },
+    "data": {},
+    "files": {}
+}
+```
+
+Create an API App with a file upload:
+
+```json
+{
+    "operationId": "apiAppCreate",
+    "parameters": {},
+    "data": {
+        "name": "My Production App",
+        "callback_url": "https://example.com/callback",
+        "domains": ["example.com"],
+        "oauth": {
+            "callback_url": "https://example.com/oauth",
+            "scopes": ["basic_account_info", "request_signature"]
+        }
+    },
+    "files": { "custom_logo_file": "pdf-sample.pdf" }
+}
+```
+
+Send a signature request with multiple file uploads:
+
+```json
+{
+    "operationId": "signatureRequestSend",
+    "parameters": {},
+    "data": {
+        "cc_email_addresses": ["test_user@example.com"],
+        "signers": [
+            {
+                "email_address": "test_user@example.com",
+                "name": "Test Signer",
+                "order": 0
+            }
+        ],
+        "subject": "The NDA we talked about",
+        "test_mode": true,
+        "title": "NDA with Acme Co."
+    },
+    "files": { "files": ["pdf-sample.pdf", "pdf-sample-2.pdf"] }
+}
+```
+
+More examples live under [`./test_fixtures`](./test_fixtures).
+
+## Response shape
+
+Every response — success or error — comes back as:
+
+```json
+{
+    "body": {},
+    "status_code": 0,
+    "headers": {}
+}
+```
+
+Header names are always lowercased. A successful response looks like:
+
+```json
+{
+    "body": {
+        "account": {
+            "account_id": "test_account_id",
+            "email_address": "test_user@example.com",
+            "is_locked": false,
+            "is_paid_hs": false,
+            "is_paid_hf": false,
+            "quotas": { "api_signature_requests_left": 0, "documents_left": 3, "templates_left": 0 },
+            "locale": "en-US"
+        }
+    },
+    "status_code": 200,
+    "headers": { "content-type": "application/json" }
+}
+```
+
+An error response looks like:
+
+```json
+{
+    "body": {
+        "error": { "error_msg": "Unauthorized api key", "error_name": "unauthorized" }
+    },
+    "status_code": 401,
+    "headers": { "content-type": "application/json" }
+}
+```
+
+## Troubleshooting
+
+- **`${SELECTED_SDK,,}: bad substitution`** — the scripts used Bash 4 syntax
+  that macOS's system Bash 3.2 does not support. The current `./build` uses
+  portable `tr` instead; pull the latest version if you see this.
+- **Node image build fails on axios `.d.ts`** — TypeScript is too old. The
+  image now uses TypeScript 5.x with `skipLibCheck: true` to insulate against
+  third-party typing churn.
+- **Java image build fails with `com.github.hellosign:dropbox-sign-java:main-SNAPSHOT`
+  not found** — the harness now pulls the published `com.dropbox.sign:dropbox-sign`
+  artifact from Maven Central rather than JitPack. Override with
+  `./build --sdk-ref=<version> java`.
+- **.NET build complains about incompatible target framework** — the upstream
+  SDK targets `net8.0`; the image uses `mcr.microsoft.com/dotnet/sdk:8.0`. If
+  upstream bumps its target, bump the base image in `data_dotnet/Dockerfile`.
+- **`LANGUAGES` / `LANGUAGE` missing** — `conftest.py` now fails loudly rather
+  than defaulting to an arbitrary SDK. Set one of them before running pytest.
+
+## License
 
 Unless otherwise noted:
 
-```
+```text
 Copyright (c) 2023 Dropbox, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");

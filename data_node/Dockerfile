@@ -1,4 +1,4 @@
-FROM node:17
+FROM node:20
 LABEL maintainer="Dropbox Sign API Team <apisupport@hellosign.com>"
 
 USER root

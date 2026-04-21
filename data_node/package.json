@@ -8,8 +8,8 @@
     "@dropbox/sign": "github:hellosign/dropbox-sign-node#main"
   },
   "devDependencies": {
-    "@types/node": "^17.0.10",
-    "ts-node": "^10.4.0",
-    "typescript": "^3.9.5"
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
   }
 }

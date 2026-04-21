@@ -9,8 +9,62 @@ test suite.
 Supported SDKs: `dotnet`, `java`, `node`, `php`, `python`, `ruby` (`csharp` is
 accepted as an alias for `dotnet`).
 
-See [`./demo`](./demo) for an example of how to embed the harness in your own
+See `[./demo](./demo)` for an example of how to embed the harness in your own
 test code.
+
+## Quickstart
+
+```bash
+# 1. Build all SDK images (or just the ones you care about, e.g. ./build python)
+./build all
+
+# 2. Point at production and drop in a Dropbox Sign API key tied to a
+#    test account. Keep tests in test_mode (see "Safety" below).
+export API_KEY="YOUR_DROPBOX_SIGN_API_KEY"
+export SERVER="api.hellosign.com"
+
+# 3. Run the pytest suite against one SDK...
+LANGUAGE=python pytest -svra tests/
+
+# ...or fan the same tests out across every SDK in one go
+LANGUAGES=python,node,php,ruby,java,dotnet pytest -svra tests/
+```
+
+Firing a single request (no pytest) instead:
+
+```bash
+./run \
+    --sdk=python \
+    --auth_type=apikey \
+    --auth_key="$API_KEY" \
+    --server=api.hellosign.com \
+    --json="${PWD}/test_fixtures/accounts/accountCreate-example_01.json"
+```
+
+> **Safety**: the harness talks to the real Dropbox Sign API. Use an API key
+> bound to a dedicated test account, and keep `test_mode: true` in payloads
+> that create signature requests or unclaimed drafts. Rotate the key if it
+> ever lands in shell history, CI logs, or a screenshot.
+
+## Environment variables
+
+The pytest suite and helper utilities read the following variables. `./run`
+itself only takes CLI flags — it does not read env vars.
+
+
+| Variable                          | Scope        | Required | Default | Meaning                                                                                                                                  |
+| --------------------------------- | ------------ | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_KEY`                         | pytest       | yes      | —       | Dropbox Sign API key used for every request issued by the suite.                                                                         |
+| `SERVER`                          | pytest       | yes      | —       | API host (no scheme). Production is `api.hellosign.com`.                                                                                 |
+| `LANGUAGES`                       | pytest       | yes\*    | —       | Comma-separated list of SDKs to exercise, e.g. `python,node`. Turns `pytest tests/` into a matrix run.                                   |
+| `LANGUAGE`                        | pytest       | yes\*    | —       | Single SDK; kept for backwards compatibility. Set exactly one of `LANGUAGES` / `LANGUAGE`.                                               |
+| `TEMPLATE_ID`                     | pytest       | no       | —       | Template id for `test_get_template`. When unset the fixture fetches the first template returned by `/v3/template/list`; skips if empty. |
+| `CLIENT_ID`                       | pytest       | no       | —       | API-App `client_id` for embedded / unclaimed-draft tests. When unset the fixture uses the first app returned by `/v3/api_app/list`.     |
+| `SDK_TESTER_RATE_LIMIT_RETRIES`   | pytest       | no       | `3`     | How many times `helpers_hsapi.run` retries on HTTP 429 before giving up.                                                                 |
+| `SDK_TESTER_RATE_LIMIT_BACKOFF`   | pytest       | no       | `7`     | Fallback backoff in seconds when the API does not return `Retry-After` / `X-Ratelimit-Reset`.                                            |
+
+\* Either `LANGUAGES` or `LANGUAGE` must be set. `conftest.py` fails loudly
+rather than defaulting to an arbitrary SDK.
 
 ## Prerequisites
 
@@ -31,11 +85,13 @@ test code.
 
 Options:
 
-| Flag | Meaning |
-|---|---|
+
+| Flag            | Meaning                                                                                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `--sdk-ref REF` | Git ref (branch/tag/commit) for SDKs sourced from git (`python`, `ruby`, `node`, `dotnet`). For `java` this is the Maven Central version. For `php` it is the Composer version constraint. |
-| `--local PATH` | Build against a local SDK source directory instead of fetching it from git / a package registry. Mutually exclusive with `all`. |
-| `--help` | Show help and exit. |
+| `--local PATH`  | Build against a local SDK source directory instead of fetching it from git / a package registry. Mutually exclusive with `all`.                                                            |
+| `--help`        | Show help and exit.                                                                                                                                                                        |
+
 
 `SDK` is one of `dotnet java node php python ruby` or `all` (or `csharp` as an
 alias for `dotnet`). Examples:
@@ -50,14 +106,16 @@ alias for `dotnet`). Examples:
 
 ### Where each SDK comes from
 
-| SDK | Default source | Definition file |
-|---|---|---|
-| python | `github.com/hellosign/dropbox-sign-python @ main` | `data_python/requirements.txt` |
-| ruby | `github.com/hellosign/dropbox-sign-ruby @ main` | `data_ruby/Gemfile` |
-| node | `github:hellosign/dropbox-sign-node#main` | `data_node/package.json` |
-| dotnet | `github.com/hellosign/dropbox-sign-dotnet @ main` (cloned inside the image) | `data_dotnet/Dockerfile` |
-| php | Packagist `dropbox/sign ^1.0.0` | `data_php/composer.json` |
-| java | Maven Central `com.dropbox.sign:dropbox-sign:2.5.0` | `data_java/pom.xml` |
+
+| SDK    | Default source                                                              | Definition file                |
+| ------ | --------------------------------------------------------------------------- | ------------------------------ |
+| python | `github.com/hellosign/dropbox-sign-python @ main`                           | `data_python/requirements.txt` |
+| ruby   | `github.com/hellosign/dropbox-sign-ruby @ main`                             | `data_ruby/Gemfile`            |
+| node   | `github:hellosign/dropbox-sign-node#main`                                   | `data_node/package.json`       |
+| dotnet | `github.com/hellosign/dropbox-sign-dotnet @ main` (cloned inside the image) | `data_dotnet/Dockerfile`       |
+| php    | Packagist `dropbox/sign ^1.0.0`                                             | `data_php/composer.json`       |
+| java   | Maven Central `com.dropbox.sign:dropbox-sign:2.5.0`                         | `data_java/pom.xml`            |
+
 
 `--sdk-ref` rewrites the relevant descriptor in a staged build context (under
 `.build-ctx/<sdk>/`, git-ignored) so the originals in `data_<sdk>/` are never
@@ -79,16 +137,18 @@ the copy so the build context stays small.
 ./run [options]
 ```
 
-| Flag | Required | Description |
-|---|---|---|
-| `--sdk=<sdk>` | yes | `dotnet`, `java`, `node`, `php`, `python`, `ruby` (or `csharp`). |
-| `--auth_type=<type>` | yes | `apikey` or `oauth`. |
-| `--auth_key=<value>` | yes | API key (for `apikey`) or OAuth bearer token (for `oauth`). |
-| `--json=<path or b64>` | yes | Either a path to a JSON file or a base64-encoded JSON string. |
-| `--server=<host>` | no | API host (no scheme). Defaults to `api.hellosign.com`. |
-| `--uploads_dir=<path>` | no | Directory mounted at `/file_uploads`. Defaults to `./file_uploads`. |
-| `--dev_mode` | no | Mount the local `data_<sdk>/requester.*` over the one baked into the image (see note below). |
-| `--help` | no | Show help and exit. |
+
+| Flag                   | Required | Description                                                                                  |
+| ---------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `--sdk=<sdk>`          | yes      | `dotnet`, `java`, `node`, `php`, `python`, `ruby` (or `csharp`).                             |
+| `--auth_type=<type>`   | yes      | `apikey` or `oauth`.                                                                         |
+| `--auth_key=<value>`   | yes      | API key (for `apikey`) or OAuth bearer token (for `oauth`).                                  |
+| `--json=<path or b64>` | yes      | Either a path to a JSON file or a base64-encoded JSON string.                                |
+| `--server=<host>`      | no       | API host (no scheme). Defaults to `api.hellosign.com`.                                       |
+| `--uploads_dir=<path>` | no       | Directory mounted at `/file_uploads`. Defaults to `./file_uploads`.                          |
+| `--dev_mode`           | no       | Mount the local `data_<sdk>/requester.*` over the one baked into the image (see note below). |
+| `--help`               | no       | Show help and exit.                                                                          |
+
 
 `./run` mounts `--uploads_dir` at `/file_uploads` in the container; any file
 names used under `files` in your JSON payload must live in that directory.
@@ -131,7 +191,7 @@ source, rebuild the image with `--local`:
 
 Dev mode also enables the `XDEBUG_SESSION=xdebug` cookie on outbound requests,
 which is handy when debugging the API backend. Edits to the repo-root
-[`data.json`](./data.json) (git-ignored) are picked up by dev mode.
+`[data.json](./data.json)` (git-ignored) are picked up by dev mode.
 
 ## Running the pytest suite
 
@@ -140,19 +200,9 @@ which is handy when debugging the API backend. Edits to the repo-root
 `server`). The first one is a parametrized fixture that lets a single `pytest`
 invocation fan out across multiple SDKs.
 
-### Required environment variables
-
-| Variable | Required | Meaning |
-|---|---|---|
-| `LANGUAGES` | yes* | Comma-separated list of SDKs to exercise, e.g. `python,node`. |
-| `LANGUAGE` | yes* | Single SDK; kept for backwards compatibility. |
-| `API_KEY` | yes | Dropbox Sign API key. |
-| `SERVER` | yes | API host (no scheme), e.g. `api.qa-hellosign.com`. |
-
-\* Either `LANGUAGES` or `LANGUAGE` must be set. Prefer `LANGUAGES` — it turns
-`pytest tests/` into a matrix run across every SDK you list.
-
-Auth type is pinned to `apikey` in `conftest.py`.
+See [Environment variables](#environment-variables) above for the full list of
+variables the suite understands. Auth type is pinned to `apikey` in
+`conftest.py`.
 
 ### Examples
 
@@ -161,7 +211,7 @@ Run every test against a single SDK:
 ```bash
 LANGUAGE=python \
 API_KEY=$HS_API_KEY \
-SERVER=api.qa-hellosign.com \
+SERVER=api.hellosign.com \
 pytest -svra tests/
 ```
 
@@ -170,7 +220,7 @@ Run every test against every SDK (matrix) in one process:
 ```bash
 LANGUAGES=python,node,php,ruby,java,dotnet \
 API_KEY=$HS_API_KEY \
-SERVER=api.qa-hellosign.com \
+SERVER=api.hellosign.com \
 pytest -svra tests/
 ```
 
@@ -180,14 +230,17 @@ Tests come out as `test_create_account_success[python]`,
 ```bash
 LANGUAGES=python,node,php,ruby,java,dotnet \
 API_KEY=$HS_API_KEY \
-SERVER=api.qa-hellosign.com \
+SERVER=api.hellosign.com \
 pytest -svra tests/test_account.py -k "python or node"
 ```
 
-Run a single test on a single SDK:
+Run a single test on a single SDK, pinning the template it resolves:
 
 ```bash
-LANGUAGE=python API_KEY=$HS_API_KEY SERVER=api.qa-hellosign.com \
+LANGUAGE=python \
+API_KEY=$HS_API_KEY \
+SERVER=api.hellosign.com \
+TEMPLATE_ID=<your_template_id> \
 pytest -svra tests/test_signature_request.py::test_signature_request_send
 ```
 
@@ -196,14 +249,15 @@ pytest per SDK:
 
 ```bash
 for lang in python node php ruby java dotnet; do
-    LANGUAGE=$lang API_KEY=$HS_API_KEY SERVER=api.qa-hellosign.com \
+    LANGUAGE=$lang API_KEY=$HS_API_KEY SERVER=api.hellosign.com \
         pytest -svra tests/ --junitxml=reports/${lang}.xml &
 done
 wait
 ```
 
-> Tests hit the real API. Keep matrix runs pointed at QA or staging
-> (`api.qa-hellosign.com` / `api.staging-hellosign.com`), not production.
+> Tests hit the real API. Use an API key bound to a dedicated test account
+> and keep payloads that create signature requests or unclaimed drafts in
+> `test_mode: true` so real documents are never dispatched.
 
 ## JSON payload shape
 
@@ -307,7 +361,7 @@ Send a signature request with multiple file uploads:
 }
 ```
 
-More examples live under [`./test_fixtures`](./test_fixtures).
+More examples live under `[./test_fixtures](./test_fixtures)`.
 
 ## Response shape
 
@@ -355,21 +409,21 @@ An error response looks like:
 
 ## Troubleshooting
 
-- **`${SELECTED_SDK,,}: bad substitution`** — the scripts used Bash 4 syntax
-  that macOS's system Bash 3.2 does not support. The current `./build` uses
-  portable `tr` instead; pull the latest version if you see this.
+- `**${SELECTED_SDK,,}: bad substitution**` — the scripts used Bash 4 syntax
+that macOS's system Bash 3.2 does not support. The current `./build` uses
+portable `tr` instead; pull the latest version if you see this.
 - **Node image build fails on axios `.d.ts`** — TypeScript is too old. The
-  image now uses TypeScript 5.x with `skipLibCheck: true` to insulate against
-  third-party typing churn.
+image now uses TypeScript 5.x with `skipLibCheck: true` to insulate against
+third-party typing churn.
 - **Java image build fails with `com.github.hellosign:dropbox-sign-java:main-SNAPSHOT`
-  not found** — the harness now pulls the published `com.dropbox.sign:dropbox-sign`
-  artifact from Maven Central rather than JitPack. Override with
-  `./build --sdk-ref=<version> java`.
+not found** — the harness now pulls the published `com.dropbox.sign:dropbox-sign`
+artifact from Maven Central rather than JitPack. Override with
+`./build --sdk-ref=<version> java`.
 - **.NET build complains about incompatible target framework** — the upstream
-  SDK targets `net8.0`; the image uses `mcr.microsoft.com/dotnet/sdk:8.0`. If
-  upstream bumps its target, bump the base image in `data_dotnet/Dockerfile`.
-- **`LANGUAGES` / `LANGUAGE` missing** — `conftest.py` now fails loudly rather
-  than defaulting to an arbitrary SDK. Set one of them before running pytest.
+SDK targets `net8.0`; the image uses `mcr.microsoft.com/dotnet/sdk:8.0`. If
+upstream bumps its target, bump the base image in `data_dotnet/Dockerfile`.
+- `**LANGUAGES` / `LANGUAGE` missing** — `conftest.py` now fails loudly rather
+than defaulting to an arbitrary SDK. Set one of them before running pytest.
 
 ## License
 
@@ -390,3 +444,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+

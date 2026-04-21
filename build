@@ -95,7 +95,10 @@ Usage:
 
 Options:
     --sdk-ref REF    Git ref (branch/tag/commit) for SDKs sourced from git.
-                     For Java it is interpreted as the Maven Central version.
+                     For Java it is interpreted as the Maven Central version;
+                     when omitted, ./build java fetches the latest <release>
+                     from Maven Central and falls back to the version pinned
+                     in data_java/pom.xml if the fetch fails.
                      For PHP it is interpreted as the Composer version constraint.
     --local PATH     Build against a local SDK source directory instead of
                      fetching from git / a package registry. Cannot be combined
@@ -120,8 +123,34 @@ sed_inplace() {
     fi
 }
 
+# Fetch the latest <release> version of com.dropbox.sign:dropbox-sign from
+# Maven Central and print it on stdout. Returns non-zero if the fetch fails
+# or the metadata cannot be parsed; callers should fall back to whatever is
+# pinned in data_java/pom.xml.
+resolve_java_latest() {
+    local metadata_url="https://repo1.maven.org/maven2/com/dropbox/sign/dropbox-sign/maven-metadata.xml"
+    local metadata
+    if ! metadata=$(curl -fsSL --max-time 15 "${metadata_url}" 2>/dev/null); then
+        return 1
+    fi
+    local version
+    version=$(printf '%s' "${metadata}" | python3 -c '
+import re, sys
+text = sys.stdin.read()
+m = re.search(r"<release>([^<]+)</release>", text)
+if not m:
+    m = re.search(r"<latest>([^<]+)</latest>", text)
+sys.stdout.write(m.group(1) if m else "")
+')
+    if [[ -z "${version}" ]]; then
+        return 1
+    fi
+    printf '%s' "${version}"
+}
+
 stage_context() {
     local sdk="$1"
+    local ref="${2:-}"
     local src="${DIR}/data_${sdk}"
     local ctx="${DIR}/.build-ctx/${sdk}"
 
@@ -150,8 +179,8 @@ stage_context() {
             cp -R "${LOCAL_SDK}/." "${ctx}/sdk-src/"
         fi
         apply_local "${sdk}" "${ctx}"
-    elif [[ -n "${SDK_REF}" ]]; then
-        apply_sdk_ref "${sdk}" "${ctx}"
+    elif [[ -n "${ref}" ]]; then
+        apply_sdk_ref "${sdk}" "${ctx}" "${ref}"
     fi
 
     echo "${ctx}"
@@ -160,10 +189,11 @@ stage_context() {
 apply_sdk_ref() {
     local sdk="$1"
     local ctx="$2"
+    local ref="${3:-${SDK_REF}}"
 
     case "${sdk}" in
         python)
-            printf 'git+https://github.com/hellosign/dropbox-sign-python.git@%s\n' "${SDK_REF}" \
+            printf 'git+https://github.com/hellosign/dropbox-sign-python.git@%s\n' "${ref}" \
                 > "${ctx}/requirements.txt"
             ;;
         ruby)
@@ -172,38 +202,48 @@ source 'https://rubygems.org'
 
 gem 'dropbox-sign',
   git: 'https://github.com/hellosign/dropbox-sign-ruby.git',
-  branch: '${SDK_REF}'
+  branch: '${ref}'
 EOF
             ;;
         node)
             sed_inplace \
-                -e "s|github:hellosign/dropbox-sign-node#[^\"]*|github:hellosign/dropbox-sign-node#${SDK_REF}|" \
+                -e "s|github:hellosign/dropbox-sign-node#[^\"]*|github:hellosign/dropbox-sign-node#${ref}|" \
                 "${ctx}/package.json"
             ;;
         dotnet)
             sed_inplace \
-                -e "s|git checkout [^ ]*|git checkout ${SDK_REF}|" \
+                -e "s|git checkout [^ ]*|git checkout ${ref}|" \
                 "${ctx}/Dockerfile"
             ;;
         java)
-            python3 - "${ctx}/pom.xml" "${SDK_REF}" <<'PY'
+            python3 - "${ctx}/pom.xml" "${ref}" <<'PY'
 import re, sys
 path, ref = sys.argv[1], sys.argv[2]
 with open(path) as f:
     xml = f.read()
-xml = re.sub(
-    r'(<groupId>com\.dropbox\.sign</groupId>\s*<artifactId>dropbox-sign</artifactId>\s*<version>)[^<]+(</version>)',
+# Allow whitespace and/or XML comments between <artifactId> and <version>.
+pattern = re.compile(
+    r'(<groupId>com\.dropbox\.sign</groupId>'
+    r'\s*<artifactId>dropbox-sign</artifactId>'
+    r'(?:\s|<!--[\s\S]*?-->)*'
+    r'<version>)[^<]+(</version>)'
+)
+new_xml, count = pattern.subn(
     lambda m: m.group(1) + ref + m.group(2),
     xml,
     count=1,
 )
+if count != 1:
+    sys.exit(
+        f"apply_sdk_ref(java): could not locate the dropbox-sign <version> in {path}"
+    )
 with open(path, 'w') as f:
-    f.write(xml)
+    f.write(new_xml)
 PY
             ;;
         php)
             sed_inplace \
-                -e "s|\"dropbox/sign\": \"[^\"]*\"|\"dropbox/sign\": \"${SDK_REF}\"|" \
+                -e "s|\"dropbox/sign\": \"[^\"]*\"|\"dropbox/sign\": \"${ref}\"|" \
                 "${ctx}/composer.json"
             ;;
     esac
@@ -287,14 +327,23 @@ import re, sys
 path, version = sys.argv[1], sys.argv[2]
 with open(path) as f:
     xml = f.read()
-xml = re.sub(
-    r'(<groupId>com\.dropbox\.sign</groupId>\s*<artifactId>dropbox-sign</artifactId>\s*<version>)[^<]+(</version>)',
+pattern = re.compile(
+    r'(<groupId>com\.dropbox\.sign</groupId>'
+    r'\s*<artifactId>dropbox-sign</artifactId>'
+    r'(?:\s|<!--[\s\S]*?-->)*'
+    r'<version>)[^<]+(</version>)'
+)
+new_xml, count = pattern.subn(
     lambda m: m.group(1) + version + m.group(2),
     xml,
     count=1,
 )
+if count != 1:
+    sys.exit(
+        f"apply_local(java): could not locate the dropbox-sign <version> in {path}"
+    )
 with open(path, 'w') as f:
-    f.write(xml)
+    f.write(new_xml)
 PY
             sed_inplace \
                 -e 's|RUN cd /app && \\|RUN cd /sdk-src \&\& mvn install -DskipTests -q \&\& cd /app \&\&|' \
@@ -336,15 +385,31 @@ PY
 
 build_container() {
     local sdk="$1"
+    local effective_ref="${SDK_REF}"
+    local ref_source="cli"
+
+    if [[ -z "${effective_ref}" && -z "${LOCAL_SDK}" && "${sdk}" == "java" ]]; then
+        if effective_ref=$(resolve_java_latest); then
+            ref_source="maven-central"
+        else
+            effective_ref=""
+            printf "    warning: could not resolve latest Java version from Maven Central; falling back to the version pinned in data_java/pom.xml\n" >&2
+        fi
+    fi
+
     local ctx
-    ctx=$(stage_context "${sdk}")
+    ctx=$(stage_context "${sdk}" "${effective_ref}")
 
     local img="dropbox/sign-${sdk}"
     printf "\n==> Building the %s container\n" "${sdk}"
     if [[ -n "${LOCAL_SDK}" ]]; then
         printf "    using local SDK: %s\n" "${LOCAL_SDK}"
-    elif [[ -n "${SDK_REF}" ]]; then
-        printf "    using SDK ref:   %s\n" "${SDK_REF}"
+    elif [[ -n "${effective_ref}" ]]; then
+        if [[ "${ref_source}" == "maven-central" ]]; then
+            printf "    using SDK ref:   %s (auto-resolved latest from Maven Central)\n" "${effective_ref}"
+        else
+            printf "    using SDK ref:   %s\n" "${effective_ref}"
+        fi
     fi
 
     docker image build \

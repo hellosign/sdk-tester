@@ -17,6 +17,13 @@
         <dependency>
             <groupId>com.dropbox.sign</groupId>
             <artifactId>dropbox-sign</artifactId>
+            <!--
+              Fallback version. `./build java` rewrites this in the staged
+              build context to whatever <release> is currently published
+              in Maven Central, or to the explicit version passed to the
+              build script. This pinned value is only used when Maven
+              Central is unreachable at build time.
+            -->
             <version>2.5.0</version>
         </dependency>
         <dependency>

@@ -88,7 +88,7 @@ Options:
 
 | Flag            | Meaning                                                                                                                                                                                    |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--sdk-ref REF` | Git ref (branch/tag/commit) for SDKs sourced from git (`python`, `ruby`, `node`, `dotnet`). For `java` this is the Maven Central version. For `php` it is the Composer version constraint. |
+| `--sdk-ref REF` | Git ref (branch/tag/commit) for SDKs sourced from git (`python`, `ruby`, `node`, `dotnet`). For `java` this is the Maven Central version (defaults to the latest `<release>` published on Maven Central). For `php` it is the Composer version constraint. |
 | `--local PATH`  | Build against a local SDK source directory instead of fetching it from git / a package registry. Mutually exclusive with `all`.                                                            |
 | `--help`        | Show help and exit.                                                                                                                                                                        |
 
@@ -100,7 +100,7 @@ alias for `dotnet`). Examples:
 ./build all                          # build every SDK from defaults
 ./build python                       # build just python
 ./build --sdk-ref=v1.4.0 node        # pin node to a specific upstream ref
-./build --sdk-ref=2.5.0  java        # pin java to a specific Maven version
+./build --sdk-ref=2.6.0 java         # pin java to a specific Maven Central release
 ./build --local ../dropbox-sign-python python   # build against a local SDK
 ```
 
@@ -114,7 +114,7 @@ alias for `dotnet`). Examples:
 | node   | `github:hellosign/dropbox-sign-node#main`                                   | `data_node/package.json`       |
 | dotnet | `github.com/hellosign/dropbox-sign-dotnet @ main` (cloned inside the image) | `data_dotnet/Dockerfile`       |
 | php    | Packagist `dropbox/sign ^1.0.0`                                             | `data_php/composer.json`       |
-| java   | Maven Central `com.dropbox.sign:dropbox-sign:2.5.0`                         | `data_java/pom.xml`            |
+| java   | Maven Central `com.dropbox.sign:dropbox-sign` (latest `<release>`)          | `data_java/pom.xml`            |
 
 
 `--sdk-ref` rewrites the relevant descriptor in a staged build context (under
@@ -123,6 +123,14 @@ touched. `--local` does the same plus copies your local SDK into the context
 at `./sdk-src/` and rewrites the descriptor to reference `/sdk-src` inside the
 container (for Java it `mvn install`s the local SDK into the image-local Maven
 repo and pins the tester's `pom.xml` to the version in the local `pom.xml`).
+
+For Java, `./build java` with no `--sdk-ref` fetches
+`https://repo1.maven.org/maven2/com/dropbox/sign/dropbox-sign/maven-metadata.xml`
+and pins the staged `pom.xml` to the `<release>` value it reports — so the
+default tracks "latest published Maven Central release" the same way the git
+based SDKs track `main`. If that fetch fails (offline, Maven Central outage)
+the build falls back to the `<version>` baked into `data_java/pom.xml` and
+prints a warning.
 
 ### How `./build` runs the SDK
 
@@ -417,8 +425,14 @@ image now uses TypeScript 5.x with `skipLibCheck: true` to insulate against
 third-party typing churn.
 - **Java image build fails with `com.github.hellosign:dropbox-sign-java:main-SNAPSHOT`
 not found** — the harness now pulls the published `com.dropbox.sign:dropbox-sign`
-artifact from Maven Central rather than JitPack. Override with
-`./build --sdk-ref=<version> java`.
+artifact from Maven Central rather than JitPack. By default `./build java`
+auto-resolves the latest `<release>` from `maven-metadata.xml`; to pin a
+specific version pass `./build --sdk-ref=<version> java`.
+- **Java build prints `could not resolve latest Java version from Maven
+Central`** — the `maven-metadata.xml` fetch failed (offline, DNS, proxy).
+The build falls back to the `<version>` pinned in `data_java/pom.xml`; if
+that is too old, re-run with an explicit `--sdk-ref=<version> java` once the
+network is back.
 - **.NET build complains about incompatible target framework** — the upstream
 SDK targets `net8.0`; the image uses `mcr.microsoft.com/dotnet/sdk:8.0`. If
 upstream bumps its target, bump the base image in `data_dotnet/Dockerfile`.

@@ -418,6 +418,12 @@ class Requester(object):
 
             return api.template_create_embedded_draft_with_http_info(obj)
 
+        if self._operation_id == 'templateCreate':
+            obj = m.TemplateCreateRequest.init(self._data)
+            obj.files = self._get_files('files')
+
+            return api.template_create_with_http_info(obj)
+
         if self._operation_id == 'templateDelete':
             return api.template_delete_with_http_info(
                 self._parameters.get('template_id'),

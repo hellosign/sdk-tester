@@ -607,6 +607,17 @@ class Requester
             );
         }
 
+        if ($this->operationId === 'templateCreate') {
+            $obj = DropboxSign\Model\TemplateCreateRequest::init(
+                $this->data,
+            );
+            $obj->setFiles($this->getFiles('files'));
+
+            return $api->templateCreateWithHttpInfo(
+                $obj,
+            );
+        }
+
         if ($this->operationId === 'templateCreateEmbeddedDraft') {
             $obj = DropboxSign\Model\TemplateCreateEmbeddedDraftRequest::init(
                 $this->data,

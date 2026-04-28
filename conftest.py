@@ -124,53 +124,26 @@ def get_clientid():
     return client_id
 
 
-@pytest.fixture(scope='module')
-def get_template_id():
-    """Resolve a template id to use for ``test_get_template``.
+@pytest.fixture
+def sdk_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    def _run(fixture_or_data, placeholders=None, expected_status=None):
+        if isinstance(fixture_or_data, dict):
+            json_str = json.dumps(fixture_or_data)
+        elif isinstance(fixture_or_data, str) and fixture_or_data.endswith('.json'):
+            json_str = helpers_hsapi.load_fixture(fixture_or_data, placeholders)
+        else:
+            json_str = fixture_or_data
 
-    Resolution order:
-      1. ``TEMPLATE_ID`` env var (explicit override).
-      2. First template returned by ``/v3/template/list`` for the
-         configured API key.
-      3. ``None`` — the test should skip in this case.
-    """
-    override = os.environ.get('TEMPLATE_ID')
-    if override:
-        print(f"\nUsing TEMPLATE_ID override :: {override}")
-        return override
+        response = helpers_hsapi.run(
+            json_str, container_bin, sdk_language, uploads_dir,
+            auth_type, auth_key, server,
+        )
 
-    try:
-        res = helpers_hsapi.get_list_templates(page_size=30)
-    except Exception as exc:  # network / DNS / auth header issues
-        print(f"\nCould not list templates: {exc!r}")
-        return None
+        if expected_status is not None:
+            assert response.status_code == expected_status, (
+                f"Expected {expected_status}, got {response.status_code}: {response.body}"
+            )
 
-    if res.status_code != 200:
-        print(f"\ntemplate/list returned {res.status_code}: {res.text[:500]}")
-        return None
+        return response
 
-    try:
-        res_json = json.loads(res.text)
-    except json.JSONDecodeError:
-        return None
-
-    templates = res_json.get('templates') or []
-    if not templates:
-        return None
-
-    template_id = templates[0].get('template_id')
-    print(f"\nResolved Template ID :: {template_id}")
-    return template_id
-    # for app_num in range(len(res_json['api_apps'])):
-    #     if res_json['api_apps'][app_num]['name'] == HS_API_APP:
-    #         # Get the client_id
-    #         print(f"App Name found ::  {res_json['api_apps'][app_num]['name']}")
-    #         client_id = res_json['api_apps'][app_num]['client_id']
-    #         print(f"Client ID :: {client_id}")
-    #         return client_id
-
-
-
-
-
-
+    return _run

@@ -111,6 +111,10 @@ public class Requester {
             case "templateAddUser":
                 TemplateAddUserRequest addUserRequest = TemplateAddUserRequest.init(data.toString());
                 return api.templateAddUserWithHttpInfo(parameters.get("template_id").asText(), addUserRequest);
+            case "templateCreate":
+                TemplateCreateRequest createRequest = TemplateCreateRequest.init(data.toString());
+                createRequest.setFiles(getFiles("files"));
+                return api.templateCreateWithHttpInfo(createRequest);
             case "templateCreateEmbeddedDraft":
                 TemplateCreateEmbeddedDraftRequest embeddedDraftRequest
                     = TemplateCreateEmbeddedDraftRequest.init(data.toString());

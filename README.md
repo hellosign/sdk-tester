@@ -58,7 +58,6 @@ itself only takes CLI flags — it does not read env vars.
 | `SERVER`                          | pytest       | yes      | —       | API host (no scheme). Production is `api.hellosign.com`.                                                                                 |
 | `LANGUAGES`                       | pytest       | yes\*    | —       | Comma-separated list of SDKs to exercise, e.g. `python,node`. Turns `pytest tests/` into a matrix run.                                   |
 | `LANGUAGE`                        | pytest       | yes\*    | —       | Single SDK; kept for backwards compatibility. Set exactly one of `LANGUAGES` / `LANGUAGE`.                                               |
-| `TEMPLATE_ID`                     | pytest       | no       | —       | Template id for `test_get_template`. When unset the fixture fetches the first template returned by `/v3/template/list`; skips if empty. |
 | `CLIENT_ID`                       | pytest       | no       | —       | API-App `client_id` for embedded / unclaimed-draft tests. When unset the fixture uses the first app returned by `/v3/api_app/list`.     |
 | `SDK_TESTER_RATE_LIMIT_RETRIES`   | pytest       | no       | `3`     | How many times `helpers_hsapi.run` retries on HTTP 429 before giving up.                                                                 |
 | `SDK_TESTER_RATE_LIMIT_BACKOFF`   | pytest       | no       | `7`     | Fallback backoff in seconds when the API does not return `Retry-After` / `X-Ratelimit-Reset`.                                            |
@@ -242,13 +241,12 @@ SERVER=api.hellosign.com \
 pytest -svra tests/test_account.py -k "python or node"
 ```
 
-Run a single test on a single SDK, pinning the template it resolves:
+Run a single test on a single SDK:
 
 ```bash
 LANGUAGE=python \
 API_KEY=$HS_API_KEY \
 SERVER=api.hellosign.com \
-TEMPLATE_ID=<your_template_id> \
 pytest -svra tests/test_signature_request.py::test_signature_request_send
 ```
 

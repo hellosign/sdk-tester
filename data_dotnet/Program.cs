@@ -308,6 +308,13 @@ class Requester
             case "templateAddUser":
                 var addUserRequest = TemplateAddUserRequest.Init(_data.ToString());
                 return api.TemplateAddUserWithHttpInfo(GetParamValue("template_id"), addUserRequest);
+            case "templateCreate":
+                var createRequest = TemplateCreateRequest.Init(_data.ToString());
+                if (files != null)
+                {
+                    createRequest.Files = files;
+                }
+                return api.TemplateCreateWithHttpInfo(createRequest);
             case "templateCreateEmbeddedDraft":
                 var embeddedDraftRequest = TemplateCreateEmbeddedDraftRequest.Init(_data.ToString());
                 return api.TemplateCreateEmbeddedDraftWithHttpInfo(embeddedDraftRequest);

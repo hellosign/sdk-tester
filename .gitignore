@@ -17,3 +17,5 @@ data_ruby/Gemfile.lock
 tests/__pycache__/*
 
 env
+.env.*
+!.env.example

@@ -1,0 +1,131 @@
+# SDK Tester
+
+Language-agnostic test harness for Dropbox Sign OpenAPI SDKs. Each SDK runs inside a Docker container; Python pytest drives the tests uniformly across all languages.
+
+## Project structure
+
+```
+conftest.py              # pytest fixtures: sdk_runner, get_clientid, etc.
+run                      # bash script that invokes SDK containers via docker
+build                    # bash script to build SDK Docker images
+tests/
+  test_*.py              # pytest test files — use sdk_runner fixture
+  utils/
+    helpers_hsapi.py     # load_fixture(), run() (sends requests to containers), API helpers
+test_fixtures/           # JSON request templates with {{placeholder}} tokens
+  account/               # accountCreate, accountGet
+  api_app/               # apiAppCreate
+  embedded/              # embeddedSignUrl
+  signature_request/     # signatureRequestSend, signatureRequestCreateEmbedded
+  template/              # templateCreate, getTemplate, templateDelete
+  unclaimed_draft/       # unclaimedDraftCreateEmbedded, unclaimedDraftCreateEmbeddedSelfSign
+data_dotnet/             # .NET SDK container (Dockerfile + Program.cs)
+data_java/               # Java SDK container (Dockerfile + Requester.java)
+data_node/               # Node SDK container (Dockerfile + requester.ts)
+data_php/                # PHP SDK container (Dockerfile + requester.php)
+data_python/             # Python SDK container (Dockerfile + requester.py)
+data_ruby/               # Ruby SDK container (Dockerfile + requester.rb)
+file_uploads/            # PDF files used as attachments in test requests
+openapi.yaml             # Dropbox Sign API spec — reference for operationIds, parameters, and data schemas
+```
+
+## Supported SDKs
+
+`node`, `php`, `python`, `ruby`, `dotnet`, `java`
+
+## Running tests
+
+```bash
+# Required env vars
+export API_KEY=...
+export SERVER=api.hellosign.com
+export LANGUAGES=python,node   # comma-separated, or LANGUAGE=python for one
+
+# Build containers first
+./build --sdk=python
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run a single test file
+python -m pytest tests/test_account.py -v
+
+# Collect without running (dry-run)
+python -m pytest tests/ -v --co
+```
+
+Optional env vars: `CLIENT_ID`, `SDK_TESTER_RATE_LIMIT_RETRIES` (default 3), `SDK_TESTER_RATE_LIMIT_BACKOFF` (default 7s).
+
+## Writing tests
+
+### Fixture files
+
+JSON files in `test_fixtures/` use `{{placeholder}}` tokens for dynamic values:
+
+```json
+{
+  "operationId": "signatureRequestSend",
+  "data": {
+    "client_id": "{{client_id}}",
+    ...
+  },
+  "files": { "files": ["pdf-sample.pdf"] },
+  "parameters": {}
+}
+```
+
+All fixtures follow the shape: `operationId`, `data`, `files`, `parameters`.
+
+### sdk_runner fixture
+
+Tests use the `sdk_runner` pytest fixture (defined in `conftest.py`) which bundles container_bin, sdk_language, uploads_dir, auth_type, auth_key, and server. It accepts:
+
+- **Fixture path** (str ending in `.json`) + placeholders dict — loads from `test_fixtures/`, replaces `{{tokens}}`
+- **Inline dict** — `json.dumps()` it directly
+- **Raw JSON string** — passes through as-is
+
+```python
+# From fixture with placeholders:
+def test_signature_request_send(sdk_runner, get_clientid):
+    response = sdk_runner(
+        "signature_request/signatureRequestSend.json",
+        {"client_id": get_clientid},
+    )
+    assert response.status_code == 200
+
+# From inline dict:
+def test_create_account(sdk_runner):
+    response = sdk_runner({
+        "operationId": "accountCreate",
+        "data": {"email_address": "test@example.com"},
+        "parameters": {},
+        "files": {},
+    })
+    assert response.status_code == 200
+```
+
+### Key pytest fixtures (conftest.py)
+
+| Fixture | Scope | Description |
+|---------|-------|-------------|
+| `sdk_runner` | function | Callable to load fixture + run against SDK container |
+| `get_clientid` | module | Resolves client_id from `CLIENT_ID` env or API |
+| `sdk_language` | module | Parametrized across languages from `LANGUAGES` env |
+| `container_bin` | module | Path to `./run` script |
+| `uploads_dir` | module | Path to `./file_uploads` |
+| `auth_type` | function | Fixed to `'apikey'` |
+| `auth_key` | function | From `API_KEY` env |
+| `server` | function | From `SERVER` env |
+
+### load_fixture (helpers_hsapi.py)
+
+`load_fixture(fixture_path, placeholders)` — loads a JSON file relative to `test_fixtures/`, replaces `{{placeholder}}` tokens, raises `ValueError` on unfilled placeholders, validates JSON.
+
+## Request/response flow
+
+1. Test calls `sdk_runner()` → `load_fixture()` + `helpers_hsapi.run()`
+2. `run()` base64-encodes the JSON, builds a `./run --sdk=... --json=...` command
+3. `./run` bash script launches a Docker container for the selected SDK
+4. Container requester (e.g. `data_python/requester.py`) decodes JSON, calls the SDK method matching `operationId`
+5. Container outputs JSON to stdout: `{"body": {...}, "status_code": 200, "headers": {...}}`
+6. `run()` parses this into an `ApiResponse` namedtuple, handles 429 retries

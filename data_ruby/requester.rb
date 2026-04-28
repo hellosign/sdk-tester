@@ -623,6 +623,18 @@ class Requester
       )
     end
 
+    if self.operation_id === 'templateCreate'
+      obj = Dropbox::Sign::TemplateCreateRequest.init(self.data)
+      obj.files = self.get_files('files')
+
+      return api.template_create_with_http_info(
+        obj,
+        {
+          header_params: self.header_params,
+        }
+      )
+    end
+
     if self.operation_id === 'templateCreateEmbeddedDraft'
       obj = Dropbox::Sign::TemplateCreateEmbeddedDraftRequest.init(self.data)
       obj.files = self.get_files('files')

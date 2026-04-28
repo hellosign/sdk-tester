@@ -36,7 +36,8 @@
         "subject": "The NDA we talked about",
         "test_mode": true,
         "use_text_tags": false,
-        "skip_me_now" : false
+        "skip_me_now" : false,
+        "client_id": "{{client_id}}"
     },
     "files": {
         "files": [

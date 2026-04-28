@@ -553,6 +553,15 @@ class Requester
             );
         }
 
+        if (this.operationId === 'templateCreate') {
+            const obj = DropboxSign.TemplateCreateRequest.init(this.data);
+            obj.files = this.getFiles('files');
+
+            return api.templateCreate(
+                obj,
+            );
+        }
+
         if (this.operationId === 'templateCreateEmbeddedDraft') {
             const obj = DropboxSign.TemplateCreateEmbeddedDraftRequest.init(this.data);
             obj.files = this.getFiles('files');

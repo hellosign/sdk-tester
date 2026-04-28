@@ -15,6 +15,7 @@ adapters/ruby/Gemfile.lock
 **/*.log
 **/*.pyc
 tests/__pycache__/*
+log
 
 env
 .env.*

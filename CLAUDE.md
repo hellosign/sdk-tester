@@ -19,12 +19,13 @@ test_fixtures/           # JSON request templates with {{placeholder}} tokens
   signature_request/     # signatureRequestSend, signatureRequestCreateEmbedded
   template/              # templateCreate, getTemplate, templateDelete
   unclaimed_draft/       # unclaimedDraftCreateEmbedded, unclaimedDraftCreateEmbeddedSelfSign
-data_dotnet/             # .NET SDK container (Dockerfile + Program.cs)
-data_java/               # Java SDK container (Dockerfile + Requester.java)
-data_node/               # Node SDK container (Dockerfile + requester.ts)
-data_php/                # PHP SDK container (Dockerfile + requester.php)
-data_python/             # Python SDK container (Dockerfile + requester.py)
-data_ruby/               # Ruby SDK container (Dockerfile + requester.rb)
+adapters/
+  dotnet/                # .NET SDK container (Dockerfile + Program.cs)
+  java/                  # Java SDK container (Dockerfile + Requester.java)
+  node/                  # Node SDK container (Dockerfile + requester.ts)
+  php/                   # PHP SDK container (Dockerfile + requester.php)
+  python/                # Python SDK container (Dockerfile + requester.py)
+  ruby/                  # Ruby SDK container (Dockerfile + requester.rb)
 file_uploads/            # PDF files used as attachments in test requests
 openapi.yaml             # Dropbox Sign API spec — reference for operationIds, parameters, and data schemas
 ```
@@ -126,6 +127,6 @@ def test_create_account(sdk_runner):
 1. Test calls `sdk_runner()` → `load_fixture()` + `helpers_hsapi.run()`
 2. `run()` base64-encodes the JSON, builds a `./run --sdk=... --json=...` command
 3. `./run` bash script launches a Docker container for the selected SDK
-4. Container requester (e.g. `data_python/requester.py`) decodes JSON, calls the SDK method matching `operationId`
+4. Container requester (e.g. `adapters/python/requester.py`) decodes JSON, calls the SDK method matching `operationId`
 5. Container outputs JSON to stdout: `{"body": {...}, "status_code": 200, "headers": {...}}`
 6. `run()` parses this into an `ApiResponse` namedtuple, handles 429 retries

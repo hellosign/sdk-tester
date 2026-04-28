@@ -43,7 +43,7 @@ class Requester
       body, status_code, headers = call_from_operation_id
 
       response = {
-        body: body.to_body,
+        body: body.nil? ? nil : body.to_body,
         status_code: status_code,
         headers: get_response_headers(headers),
       }

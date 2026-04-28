@@ -41,18 +41,16 @@ public class Requester {
         ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         try {
             ApiResponse<?> apiResponse = callFromOperationId();
-            Map<String, Object> output = Map.of(
-                "body", apiResponse.getData(),
-                "status_code", apiResponse.getStatusCode(),
-                "headers", apiResponse.getHeaders()
-            );
+            Map<String, Object> output = new HashMap<>();
+            output.put("body", apiResponse.getData());
+            output.put("status_code", apiResponse.getStatusCode());
+            output.put("headers", apiResponse.getHeaders());
             System.out.println(ow.writeValueAsString(output));
         } catch (ApiException e) {
-            Map<String, Object> output = Map.of(
-                "body", e.getErrorResponse(),
-                "status_code", e.getCode(),
-                "headers", e.getResponseHeaders()
-            );
+            Map<String, Object> output = new HashMap<>();
+            output.put("body", e.getErrorResponse());
+            output.put("status_code", e.getCode());
+            output.put("headers", e.getResponseHeaders());
             System.out.println(ow.writeValueAsString(output));
         }
     }

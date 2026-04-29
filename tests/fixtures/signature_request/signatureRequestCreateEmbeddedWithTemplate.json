@@ -1,7 +1,9 @@
 {
   "operationId": "signatureRequestCreateEmbeddedWithTemplate",
   "data": {
-    "template_ids": ["{{template_id}}"],
+    "template_ids": [
+      "{{template_id}}"
+    ],
     "client_id": "{{client_id}}",
     "subject": "Test Embedded Signature Request with Template",
     "message": "Please sign this document",

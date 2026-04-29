@@ -1,7 +1,9 @@
 {
   "operationId": "signatureRequestSendWithTemplate",
   "data": {
-    "template_ids": ["{{template_id}}"],
+    "template_ids": [
+      "{{template_id}}"
+    ],
     "subject": "Test Signature Request with Template",
     "message": "Please sign this document",
     "signers": [

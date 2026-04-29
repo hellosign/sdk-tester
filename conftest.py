@@ -64,7 +64,7 @@ def uploads_dir():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     print(f"dir path {dir_path}")
     # Uploads directory, containing PDFs you may want to upload to the API
-    uploads_dir = f'{dir_path}/file_uploads'
+    uploads_dir = f'{dir_path}/tests/file_uploads'
     print(f"File Upload directory : {uploads_dir}")
     return uploads_dir
 
@@ -124,53 +124,51 @@ def get_clientid():
     return client_id
 
 
-@pytest.fixture(scope='module')
-def get_template_id():
-    """Resolve a template id to use for ``test_get_template``.
+def _resolve_json(fixture_or_data, placeholders):
+    if isinstance(fixture_or_data, dict):
+        return json.dumps(fixture_or_data)
+    elif isinstance(fixture_or_data, str) and fixture_or_data.endswith('.json'):
+        return helpers_hsapi.load_fixture(fixture_or_data, placeholders)
+    return fixture_or_data
 
-    Resolution order:
-      1. ``TEMPLATE_ID`` env var (explicit override).
-      2. First template returned by ``/v3/template/list`` for the
-         configured API key.
-      3. ``None`` — the test should skip in this case.
-    """
-    override = os.environ.get('TEMPLATE_ID')
-    if override:
-        print(f"\nUsing TEMPLATE_ID override :: {override}")
-        return override
+@pytest.fixture
+def sdk_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    def _run(fixture_or_data, placeholders=None, expected_status=None):
+        json_str = _resolve_json(fixture_or_data, placeholders)
 
-    try:
-        res = helpers_hsapi.get_list_templates(page_size=30)
-    except Exception as exc:  # network / DNS / auth header issues
-        print(f"\nCould not list templates: {exc!r}")
-        return None
+        response = helpers_hsapi.run(
+            json_str, container_bin, sdk_language, uploads_dir,
+            auth_type, auth_key, server,
+        )
 
-    if res.status_code != 200:
-        print(f"\ntemplate/list returned {res.status_code}: {res.text[:500]}")
-        return None
+        if expected_status is not None:
+            assert response.status_code == expected_status, (
+                f"Expected {expected_status}, got {response.status_code}: {response.body}"
+            )
 
-    try:
-        res_json = json.loads(res.text)
-    except json.JSONDecodeError:
-        return None
+        return response
 
-    templates = res_json.get('templates') or []
-    if not templates:
-        return None
+    return _run
 
-    template_id = templates[0].get('template_id')
-    print(f"\nResolved Template ID :: {template_id}")
-    return template_id
-    # for app_num in range(len(res_json['api_apps'])):
-    #     if res_json['api_apps'][app_num]['name'] == HS_API_APP:
-    #         # Get the client_id
-    #         print(f"App Name found ::  {res_json['api_apps'][app_num]['name']}")
-    #         client_id = res_json['api_apps'][app_num]['client_id']
-    #         print(f"Client ID :: {client_id}")
-    #         return client_id
+@pytest.fixture
+def sdk_retry_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    def _run(fixture_or_data, placeholders=None, expected_status=200, retries=5, retry_wait=2):
+        import time
+        json_str = _resolve_json(fixture_or_data, placeholders)
 
+        for attempt in range(retries):
+            response = helpers_hsapi.run(
+                json_str, container_bin, sdk_language, uploads_dir,
+                auth_type, auth_key, server,
+            )
+            if response.status_code == expected_status:
+                return response
+            if attempt < retries - 1:
+                time.sleep(retry_wait)
 
+        assert response.status_code == expected_status, (
+            f"Expected {expected_status} after {retries} attempts, got {response.status_code}: {response.body}"
+        )
+        return response
 
-
-
-
+    return _run

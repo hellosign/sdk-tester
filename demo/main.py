@@ -205,7 +205,7 @@ if __name__ == '__main__':
     # One of "node", "php", "python", "ruby", "dotnet", "java"
     sdk_language = os.environ['LANGUAGE']
     # Uploads directory, containing PDFs you may want to upload to the API
-    uploads_dir = f'{dir_path}/../file_uploads'
+    uploads_dir = f'{dir_path}/../tests/file_uploads'
     # One of "apikey" or "oauth"
     api_auth = 'apikey'
     # The API key or OAuth bearer token to use for the request

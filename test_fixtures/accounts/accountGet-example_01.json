@@ -1,8 +1,0 @@
-{
-  "operationId": "accountGet",
-  "parameters": {
-    "account_id": null
-  },
-  "data": {},
-  "files": {}
-}

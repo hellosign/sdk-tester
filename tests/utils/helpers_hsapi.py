@@ -1,6 +1,7 @@
 
 import json
 import os
+import re
 import subprocess
 import time
 import uuid
@@ -8,6 +9,40 @@ from typing import NamedTuple
 import requests
 from string import Template, ascii_lowercase, digits
 import base64
+
+_FIXTURES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'fixtures'))
+_PLACEHOLDER_RE = re.compile(r'\{\{(\w+)\}\}')
+
+
+def load_fixture(fixture_path, placeholders=None):
+    """Load a fixture JSON file, replace ``{{placeholder}}`` tokens, return a JSON string.
+
+    Parameters
+    ----------
+    fixture_path : str
+        Path relative to ``tests/fixtures/``,
+        e.g. ``"signature_request/signatureRequestSend.json"``.
+    placeholders : dict[str, str] | None
+        Mapping of placeholder names to runtime values.
+    """
+    placeholders = placeholders or {}
+    full_path = os.path.join(_FIXTURES_DIR, fixture_path)
+
+    with open(full_path) as f:
+        content = f.read()
+
+    for name, value in placeholders.items():
+        content = content.replace('{{' + name + '}}', str(value))
+
+    remaining = _PLACEHOLDER_RE.findall(content)
+    if remaining:
+        raise ValueError(
+            f"Unfilled placeholders in {fixture_path}: {', '.join(sorted(set(remaining)))}. "
+            f"Pass them in the placeholders dict."
+        )
+
+    json.loads(content)
+    return content
 
 
 class ApiResponse(NamedTuple):
@@ -152,29 +187,4 @@ def get_list_api_apps(page_size=30):
 
     print(f"\n Response : get_api_app: {res.status_code}")
 
-    return res
-
-
-def get_list_templates(page_size=30, query=None):
-    """List templates visible to the configured API key.
-
-    Mirrors :func:`get_list_api_apps` so tests can discover a usable template
-    id at runtime instead of relying on a hardcoded id that may have been
-    deleted on the target environment.
-    """
-    server = os.environ['SERVER']
-    auth_key = os.environ['API_KEY']
-    auth_key = str(auth_key) + ':'
-    apikey = base64encoding(auth_key)
-
-    url = f'https://{server}/v3/template/list?page_size={page_size}'
-    if query:
-        url = f'{url}&query={requests.utils.quote(query)}'
-    headers = {
-        'Authorization': f'Basic {apikey}',
-    }
-
-    print(f"\n URL %s {url}")
-    res = requests.get(url, headers=headers)
-    print(f"\n Response : get_list_templates: {res.status_code}")
     return res

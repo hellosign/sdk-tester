@@ -98,7 +98,7 @@ Options:
                      For Java it is interpreted as the Maven Central version;
                      when omitted, ./build java fetches the latest <release>
                      from Maven Central and falls back to the version pinned
-                     in data_java/pom.xml if the fetch fails.
+                     in adapters/java/pom.xml if the fetch fails.
                      For PHP it is interpreted as the Composer version constraint.
     --local PATH     Build against a local SDK source directory instead of
                      fetching from git / a package registry. Cannot be combined
@@ -126,7 +126,7 @@ sed_inplace() {
 # Fetch the latest <release> version of com.dropbox.sign:dropbox-sign from
 # Maven Central and print it on stdout. Returns non-zero if the fetch fails
 # or the metadata cannot be parsed; callers should fall back to whatever is
-# pinned in data_java/pom.xml.
+# pinned in adapters/java/pom.xml.
 resolve_java_latest() {
     local metadata_url="https://repo1.maven.org/maven2/com/dropbox/sign/dropbox-sign/maven-metadata.xml"
     local metadata
@@ -151,7 +151,7 @@ sys.stdout.write(m.group(1) if m else "")
 stage_context() {
     local sdk="$1"
     local ref="${2:-}"
-    local src="${DIR}/data_${sdk}"
+    local src="${DIR}/adapters/${sdk}"
     local ctx="${DIR}/.build-ctx/${sdk}"
 
     rm -rf "${ctx}"
@@ -393,7 +393,7 @@ build_container() {
             ref_source="maven-central"
         else
             effective_ref=""
-            printf "    warning: could not resolve latest Java version from Maven Central; falling back to the version pinned in data_java/pom.xml\n" >&2
+            printf "    warning: could not resolve latest Java version from Maven Central; falling back to the version pinned in adapters/java/pom.xml\n" >&2
         fi
     fi
 

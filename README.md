@@ -38,7 +38,7 @@ Firing a single request (no pytest) instead:
     --auth_type=apikey \
     --auth_key="$API_KEY" \
     --server=api.hellosign.com \
-    --json="${PWD}/test_fixtures/accounts/accountCreate-example_01.json"
+    --json="${PWD}/tests/fixtures/accounts/accountCreate-example_01.json"
 ```
 
 > **Safety**: the harness talks to the real Dropbox Sign API. Use an API key
@@ -58,7 +58,6 @@ itself only takes CLI flags — it does not read env vars.
 | `SERVER`                          | pytest       | yes      | —       | API host (no scheme). Production is `api.hellosign.com`.                                                                                 |
 | `LANGUAGES`                       | pytest       | yes\*    | —       | Comma-separated list of SDKs to exercise, e.g. `python,node`. Turns `pytest tests/` into a matrix run.                                   |
 | `LANGUAGE`                        | pytest       | yes\*    | —       | Single SDK; kept for backwards compatibility. Set exactly one of `LANGUAGES` / `LANGUAGE`.                                               |
-| `TEMPLATE_ID`                     | pytest       | no       | —       | Template id for `test_get_template`. When unset the fixture fetches the first template returned by `/v3/template/list`; skips if empty. |
 | `CLIENT_ID`                       | pytest       | no       | —       | API-App `client_id` for embedded / unclaimed-draft tests. When unset the fixture uses the first app returned by `/v3/api_app/list`.     |
 | `SDK_TESTER_RATE_LIMIT_RETRIES`   | pytest       | no       | `3`     | How many times `helpers_hsapi.run` retries on HTTP 429 before giving up.                                                                 |
 | `SDK_TESTER_RATE_LIMIT_BACKOFF`   | pytest       | no       | `7`     | Fallback backoff in seconds when the API does not return `Retry-After` / `X-Ratelimit-Reset`.                                            |
@@ -109,16 +108,16 @@ alias for `dotnet`). Examples:
 
 | SDK    | Default source                                                              | Definition file                |
 | ------ | --------------------------------------------------------------------------- | ------------------------------ |
-| python | `github.com/hellosign/dropbox-sign-python @ main`                           | `data_python/requirements.txt` |
-| ruby   | `github.com/hellosign/dropbox-sign-ruby @ main`                             | `data_ruby/Gemfile`            |
-| node   | `github:hellosign/dropbox-sign-node#main`                                   | `data_node/package.json`       |
-| dotnet | `github.com/hellosign/dropbox-sign-dotnet @ main` (cloned inside the image) | `data_dotnet/Dockerfile`       |
-| php    | Packagist `dropbox/sign ^1.0.0`                                             | `data_php/composer.json`       |
-| java   | Maven Central `com.dropbox.sign:dropbox-sign` (latest `<release>`)          | `data_java/pom.xml`            |
+| python | `github.com/hellosign/dropbox-sign-python @ main`                           | `adapters/python/requirements.txt` |
+| ruby   | `github.com/hellosign/dropbox-sign-ruby @ main`                             | `adapters/ruby/Gemfile`            |
+| node   | `github:hellosign/dropbox-sign-node#main`                                   | `adapters/node/package.json`       |
+| dotnet | `github.com/hellosign/dropbox-sign-dotnet @ main` (cloned inside the image) | `adapters/dotnet/Dockerfile`       |
+| php    | Packagist `dropbox/sign ^1.0.0`                                             | `adapters/php/composer.json`       |
+| java   | Maven Central `com.dropbox.sign:dropbox-sign` (latest `<release>`)          | `adapters/java/pom.xml`            |
 
 
 `--sdk-ref` rewrites the relevant descriptor in a staged build context (under
-`.build-ctx/<sdk>/`, git-ignored) so the originals in `data_<sdk>/` are never
+`.build-ctx/<sdk>/`, git-ignored) so the originals in `adapters/<sdk>/` are never
 touched. `--local` does the same plus copies your local SDK into the context
 at `./sdk-src/` and rewrites the descriptor to reference `/sdk-src` inside the
 container (for Java it `mvn install`s the local SDK into the image-local Maven
@@ -129,7 +128,7 @@ For Java, `./build java` with no `--sdk-ref` fetches
 and pins the staged `pom.xml` to the `<release>` value it reports — so the
 default tracks "latest published Maven Central release" the same way the git
 based SDKs track `main`. If that fetch fails (offline, Maven Central outage)
-the build falls back to the `<version>` baked into `data_java/pom.xml` and
+the build falls back to the `<version>` baked into `adapters/java/pom.xml` and
 prints a warning.
 
 ### How `./build` runs the SDK
@@ -153,8 +152,8 @@ the copy so the build context stays small.
 | `--auth_key=<value>`   | yes      | API key (for `apikey`) or OAuth bearer token (for `oauth`).                                  |
 | `--json=<path or b64>` | yes      | Either a path to a JSON file or a base64-encoded JSON string.                                |
 | `--server=<host>`      | no       | API host (no scheme). Defaults to `api.hellosign.com`.                                       |
-| `--uploads_dir=<path>` | no       | Directory mounted at `/file_uploads`. Defaults to `./file_uploads`.                          |
-| `--dev_mode`           | no       | Mount the local `data_<sdk>/requester.*` over the one baked into the image (see note below). |
+| `--uploads_dir=<path>` | no       | Directory mounted at `/file_uploads`. Defaults to `./tests/file_uploads`.                          |
+| `--dev_mode`           | no       | Mount the local `adapters/<sdk>/requester.*` over the one baked into the image (see note below). |
 | `--help`               | no       | Show help and exit.                                                                          |
 
 
@@ -170,7 +169,7 @@ Using a JSON file:
     --sdk=php \
     --auth_type=apikey \
     --auth_key=$HS_API_KEY \
-    --json="${PWD}/test_fixtures/accounts/accountCreate-example_01.json"
+    --json="${PWD}/tests/fixtures/accounts/accountCreate-example_01.json"
 ```
 
 Using a base64-encoded JSON string:
@@ -188,7 +187,7 @@ Using a base64-encoded JSON string:
 
 ### `--dev_mode`
 
-`--dev_mode` mounts the local `data_<sdk>/requester.*` script over the one
+`--dev_mode` mounts the local `adapters/<sdk>/requester.*` script over the one
 baked into the image so you can iterate on the per-SDK requester code without
 rebuilding. It does **not** remount the SDK itself — to iterate on the SDK
 source, rebuild the image with `--local`:
@@ -242,13 +241,12 @@ SERVER=api.hellosign.com \
 pytest -svra tests/test_account.py -k "python or node"
 ```
 
-Run a single test on a single SDK, pinning the template it resolves:
+Run a single test on a single SDK:
 
 ```bash
 LANGUAGE=python \
 API_KEY=$HS_API_KEY \
 SERVER=api.hellosign.com \
-TEMPLATE_ID=<your_template_id> \
 pytest -svra tests/test_signature_request.py::test_signature_request_send
 ```
 
@@ -307,7 +305,7 @@ query parameter.
 ### `files`
 
 Files to upload, if the endpoint supports them. Every filename must live in
-`--uploads_dir` (default `./file_uploads`). For endpoints that accept several
+`--uploads_dir` (default `./tests/file_uploads`). For endpoints that accept several
 files, use a nested array:
 
 ```json
@@ -369,7 +367,7 @@ Send a signature request with multiple file uploads:
 }
 ```
 
-More examples live under `[./test_fixtures](./test_fixtures)`.
+More examples live under `[./tests/fixtures](./tests/fixtures)`.
 
 ## Response shape
 
@@ -430,12 +428,12 @@ auto-resolves the latest `<release>` from `maven-metadata.xml`; to pin a
 specific version pass `./build --sdk-ref=<version> java`.
 - **Java build prints `could not resolve latest Java version from Maven
 Central`** — the `maven-metadata.xml` fetch failed (offline, DNS, proxy).
-The build falls back to the `<version>` pinned in `data_java/pom.xml`; if
+The build falls back to the `<version>` pinned in `adapters/java/pom.xml`; if
 that is too old, re-run with an explicit `--sdk-ref=<version> java` once the
 network is back.
 - **.NET build complains about incompatible target framework** — the upstream
 SDK targets `net8.0`; the image uses `mcr.microsoft.com/dotnet/sdk:8.0`. If
-upstream bumps its target, bump the base image in `data_dotnet/Dockerfile`.
+upstream bumps its target, bump the base image in `adapters/dotnet/Dockerfile`.
 - `**LANGUAGES` / `LANGUAGE` missing** — `conftest.py` now fails loudly rather
 than defaulting to an arbitrary SDK. Set one of them before running pytest.
 

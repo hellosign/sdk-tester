@@ -1,8 +1,0 @@
-{
-  "operationId": "accountCreate",
-  "parameters": {},
-  "data": {
-    "email_address": "signer1@example.com"
-  },
-  "files": {}
-}

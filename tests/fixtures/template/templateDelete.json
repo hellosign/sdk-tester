@@ -1,0 +1,8 @@
+{
+  "operationId": "templateDelete",
+  "parameters": {
+    "template_id": "{{template_id}}"
+  },
+  "data": {},
+  "files": {}
+}

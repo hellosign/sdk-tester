@@ -1,0 +1,8 @@
+{
+  "operationId": "embeddedSignUrl",
+  "parameters": {
+    "signature_id": "{{signature_id}}"
+  },
+  "data": {},
+  "files": {}
+}

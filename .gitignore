@@ -1,19 +1,23 @@
 data.json
 .build-ctx/
 
-data_node/*.tgz
-data_node/node_modules
-data_node/package-lock.json
+adapters/node/*.tgz
+adapters/node/node_modules
+adapters/node/package-lock.json
 
-data_php/vendor
+adapters/php/vendor
 
-data_python/venv
+adapters/python/venv
 
-data_ruby/Gemfile.lock
+adapters/ruby/Gemfile.lock
 .idea
 **/__pycache__
 **/*.log
 **/*.pyc
 tests/__pycache__/*
+log
+openapi.yaml
 
 env
+.env.*
+!.env.example

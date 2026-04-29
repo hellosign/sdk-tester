@@ -1,0 +1,8 @@
+{
+  "operationId": "accountCreate",
+  "parameters": {},
+  "data": {
+    "email_address": "{{email_address}}"
+  },
+  "files": {}
+}

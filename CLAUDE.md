@@ -13,11 +13,12 @@ tests/
   utils/
     helpers_hsapi.py     # load_fixture(), run() (sends requests to containers), API helpers
   fixtures/              # JSON request templates with {{placeholder}} tokens
-    account/             # accountCreate, accountGet
-    api_app/             # apiAppCreate
+    account/             # accountCreate, accountGet, accountVerify
+    api_app/             # apiAppCreate, apiAppGet, apiAppList, apiAppUpdate, apiAppDelete
     embedded/            # embeddedSignUrl
-    signature_request/   # signatureRequestSend, signatureRequestCreateEmbedded
-    template/            # templateCreate, getTemplate, templateDelete
+    signature_request/   # send, createEmbedded, edit, editEmbedded, get, list, withTemplate variants
+    template/            # templateCreate, getTemplate, templateList, templateDelete
+    team/                # teamCreate, teamGet, teamInfo, teamMembers, teamSubTeams, teamUpdate, teamAddMember, teamRemoveMember, teamDelete
     unclaimed_draft/     # unclaimedDraftCreateEmbedded, unclaimedDraftCreateEmbeddedSelfSign
 adapters/
   dotnet/                # .NET SDK container (Dockerfile + Program.cs)
@@ -27,6 +28,7 @@ adapters/
   python/                # Python SDK container (Dockerfile + requester.py)
   ruby/                  # Ruby SDK container (Dockerfile + requester.rb)
   file_uploads/          # PDF files used as attachments in test requests
+COVERAGE.md              # API endpoint coverage checklist (31/73 endpoints)
 openapi.yaml             # (gitignored) fetched on demand — see API reference section below
 ```
 
@@ -36,12 +38,9 @@ openapi.yaml             # (gitignored) fetched on demand — see API reference 
 
 ## Running tests
 
-```bash
-# Required env vars
-export API_KEY=...
-export SERVER=api.hellosign.com
-export LANGUAGES=python,node   # comma-separated, or LANGUAGE=python for one
+Env vars are loaded from `.env.staging` (via pytest-dotenv, configured in `pytest.ini`).
 
+```bash
 # Build containers first
 ./build --sdk=python
 
@@ -51,8 +50,14 @@ python -m pytest tests/ -v
 # Run a single test file
 python -m pytest tests/test_account.py -v
 
+# Run a single test
+pytest -svra tests/test_signature_request.py::test_signature_request_send
+
 # Collect without running (dry-run)
 python -m pytest tests/ -v --co
+
+# Build with local SDK source for debugging
+./build --local ../dropbox-sign-python python
 ```
 
 Optional env vars: `CLIENT_ID`, `SDK_TESTER_RATE_LIMIT_RETRIES` (default 3), `SDK_TESTER_RATE_LIMIT_BACKOFF` (default 7s).
@@ -86,13 +91,21 @@ Tests use the `sdk_runner` pytest fixture (defined in `conftest.py`) which bundl
 - **Raw JSON string** — passes through as-is
 
 ```python
-# From fixture with placeholders:
+# From fixture with placeholders + expected_status:
 def test_signature_request_send(sdk_runner, get_clientid):
     response = sdk_runner(
         "signature_request/signatureRequestSend.json",
         {"client_id": get_clientid},
+        expected_status=200,
     )
-    assert response.status_code == 200
+
+# With retry (for eventually-consistent resources):
+def test_get_template(sdk_retry_runner):
+    response = sdk_retry_runner(
+        "template/getTemplate.json",
+        {"template_id": template_id},
+        retry_wait=3,
+    )
 
 # From inline dict:
 def test_create_account(sdk_runner):
@@ -102,14 +115,14 @@ def test_create_account(sdk_runner):
         "parameters": {},
         "files": {},
     })
-    assert response.status_code == 200
 ```
 
 ### Key pytest fixtures (conftest.py)
 
 | Fixture | Scope | Description |
 |---------|-------|-------------|
-| `sdk_runner` | function | Callable to load fixture + run against SDK container |
+| `sdk_runner` | function | Callable to load fixture + run against SDK container. Pass `expected_status` to assert. |
+| `sdk_retry_runner` | function | Same as `sdk_runner` but retries until `expected_status` (default 200). Configurable `retries` (default 5) and `retry_wait` (default 2s). |
 | `get_clientid` | module | Resolves client_id from `CLIENT_ID` env or API |
 | `sdk_language` | module | Parametrized across languages from `LANGUAGES` env |
 | `container_bin` | module | Path to `./run` script |

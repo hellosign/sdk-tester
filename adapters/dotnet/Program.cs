@@ -226,6 +226,13 @@ class Requester
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
+            case "signatureRequestEditEmbedded":
+                var editEmbeddedRequest = SignatureRequestEditEmbeddedRequest.Init(_data.ToString());
+                if (files != null)
+                {
+                    editEmbeddedRequest.Files = files;
+                }
+                return api.SignatureRequestEditEmbeddedWithHttpInfo(GetParamValue("signature_request_id"), editEmbeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
                 var embeddedWithTemplateRequest = SignatureRequestCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
                 if (files != null)
@@ -253,6 +260,13 @@ class Requester
                 return api.SignatureRequestRemindWithHttpInfo(GetParamValue("signature_request_id"), remindRequest);
             case "signatureRequestRemove":
                 return api.SignatureRequestRemoveWithHttpInfo(GetParamValue("signature_request_id"));
+            case "signatureRequestEdit":
+                var editRequest = SignatureRequestEditRequest.Init(_data.ToString());
+                if (files != null)
+                {
+                    editRequest.Files = files;
+                }
+                return api.SignatureRequestEditWithHttpInfo(GetParamValue("signature_request_id"), editRequest);
             case "signatureRequestSend":
                 var sendRequest = SignatureRequestSendRequest.Init(_data.ToString());
                 if (files != null)

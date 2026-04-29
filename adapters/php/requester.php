@@ -439,6 +439,18 @@ class Requester
             );
         }
 
+        if ($this->operationId === 'signatureRequestEditEmbedded') {
+            $obj = DropboxSign\Model\SignatureRequestEditEmbeddedRequest::init(
+                $this->data,
+            );
+            $obj->setFiles($this->getFiles('files'));
+
+            return $api->signatureRequestEditEmbeddedWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
+            );
+        }
+
         if ($this->operationId === 'signatureRequestCreateEmbeddedWithTemplate') {
             $obj = DropboxSign\Model\SignatureRequestCreateEmbeddedWithTemplateRequest::init(
                 $this->data,
@@ -491,6 +503,18 @@ class Requester
         if ($this->operationId === 'signatureRequestRemove') {
             return $api->signatureRequestRemoveWithHttpInfo(
                 $this->parameters['signature_request_id'],
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestEdit') {
+            $obj = DropboxSign\Model\SignatureRequestEditRequest::init(
+                $this->data,
+            );
+            $obj->setFiles($this->getFiles('files'));
+
+            return $api->signatureRequestEditWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
             );
         }
 

@@ -411,6 +411,16 @@ class Requester
             );
         }
 
+        if (this.operationId === 'signatureRequestEditEmbedded') {
+            const obj = DropboxSign.SignatureRequestEditEmbeddedRequest.init(this.data);
+            obj.files = this.getFiles('files');
+
+            return api.signatureRequestEditEmbedded(
+                this.parameters['signature_request_id'],
+                obj,
+            );
+        }
+
         if (this.operationId === 'signatureRequestCreateEmbeddedWithTemplate') {
             const obj = DropboxSign.SignatureRequestCreateEmbeddedWithTemplateRequest.init(this.data);
             obj.files = this.getFiles('files');
@@ -459,6 +469,16 @@ class Requester
         if (this.operationId === 'signatureRequestRemove') {
             return api.signatureRequestRemove(
                 this.parameters['signature_request_id'],
+            );
+        }
+
+        if (this.operationId === 'signatureRequestEdit') {
+            const obj = DropboxSign.SignatureRequestEditRequest.init(this.data);
+            obj.files = this.getFiles('files');
+
+            return api.signatureRequestEdit(
+                this.parameters['signature_request_id'],
+                obj,
             );
         }
 

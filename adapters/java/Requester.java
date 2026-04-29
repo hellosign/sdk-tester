@@ -185,6 +185,10 @@ public class Requester {
                 SignatureRequestCreateEmbeddedRequest embeddedRequest = SignatureRequestCreateEmbeddedRequest.init(data.toString());
                 embeddedRequest.setFiles(getFiles("files"));
                 return api.signatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
+            case "signatureRequestEditEmbedded":
+                SignatureRequestEditEmbeddedRequest editEmbeddedRequest = SignatureRequestEditEmbeddedRequest.init(data.toString());
+                editEmbeddedRequest.setFiles(getFiles("files"));
+                return api.signatureRequestEditEmbeddedWithHttpInfo(parameters.get("signature_request_id").asText(), editEmbeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
                 SignatureRequestCreateEmbeddedWithTemplateRequest embeddedWithTemplateRequest =
                     SignatureRequestCreateEmbeddedWithTemplateRequest.init(data.toString());
@@ -210,6 +214,10 @@ public class Requester {
                 return api.signatureRequestRemindWithHttpInfo(parameters.get("signature_request_id").asText(), remindRequest);
             case "signatureRequestRemove":
                 return api.signatureRequestRemoveWithHttpInfo(parameters.get("signature_request_id").asText());
+            case "signatureRequestEdit":
+                SignatureRequestEditRequest editRequest = SignatureRequestEditRequest.init(data.toString());
+                editRequest.setFiles(getFiles("files"));
+                return api.signatureRequestEditWithHttpInfo(parameters.get("signature_request_id").asText(), editRequest);
             case "signatureRequestSend":
                 SignatureRequestSendRequest sendRequest = SignatureRequestSendRequest.init(data.toString());
                 sendRequest.setFiles(getFiles("files"));

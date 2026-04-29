@@ -307,6 +307,15 @@ class Requester(object):
 
             return api.signature_request_create_embedded_with_http_info(obj)
 
+        if self._operation_id == 'signatureRequestEditEmbedded':
+            obj = m.SignatureRequestEditEmbeddedRequest.init(self._data)
+            obj.files = self._get_files('files')
+
+            return api.signature_request_edit_embedded_with_http_info(
+                self._parameters.get('signature_request_id'),
+                obj,
+            )
+
         if self._operation_id == 'signatureRequestCreateEmbeddedWithTemplate':
             obj = m.SignatureRequestCreateEmbeddedWithTemplateRequest.init(self._data)
             obj.files = self._get_files('files')
@@ -347,6 +356,15 @@ class Requester(object):
         if self._operation_id == 'signatureRequestRemove':
             return api.signature_request_remove_with_http_info(
                 self._parameters.get('signature_request_id'),
+            )
+
+        if self._operation_id == 'signatureRequestEdit':
+            obj = m.SignatureRequestEditRequest.init(self._data)
+            obj.files = self._get_files('files')
+
+            return api.signature_request_edit_with_http_info(
+                self._parameters.get('signature_request_id'),
+                obj,
             )
 
         if self._operation_id == 'signatureRequestSend':

@@ -12,8 +12,8 @@
       }
     ],
     "cc_email_addresses": [
-      "hs-api-qa+sdk+cc1@hellosign.com",
-      "hs-api-qa+sdk+cc2@hellosign.com"
+      "cc1@example.com",
+      "cc2@example.com"
     ],
     "custom_fields": [
       {
@@ -79,7 +79,7 @@
         "api_id": "uniqueIdHere_3",
         "name": "",
         "type": "signature",
-        "x": 789,
+        "x": 400,
         "y": 567,
         "width": 120,
         "height": 30,
@@ -95,12 +95,12 @@
     },
     "signers": [
       {
-        "email_address": "hs-api-qa+sdk+signer1@hellosign.com",
+        "email_address": "signer1@example.com",
         "name": "Jack",
         "order": 0
       },
       {
-        "email_address": "hs-api-qa+sdk+signer2@hellosign.com",
+        "email_address": "signer2@example.com",
         "name": "Jill",
         "order": 1
       }

@@ -1,73 +1,425 @@
 #!/usr/bin/env bash
 
 set -e
-DIR=$(cd `dirname $0` && pwd)
-AVAILABLE_SDKS=("csharp dotnet java node php python ruby")
-SELECTED_SDK=$1
+DIR=$(cd "$(dirname "$0")" && pwd)
+AVAILABLE_SDKS=(dotnet java node php python ruby)
+
+SELECTED_SDK=""
+SDK_REF=""
+LOCAL_SDK=""
 
 main() {
-  touch "${DIR}/data.json"
+    touch "${DIR}/data.json"
 
-  if [[ -z "${SELECTED_SDK}" ]]; then
-      show_help
-      exit 0
-  fi
+    parse_args "$@"
 
-  # lowercase
-  SELECTED_SDK="${SELECTED_SDK,,}"
+    if [[ -z "${SELECTED_SDK}" ]]; then
+        show_help
+        exit 0
+    fi
 
-  if [[ ${SELECTED_SDK} == "all" ]]; then
-      build_container node
-      build_container php
-      build_container python
-      build_container ruby
-      build_container java
-      build_container dotnet
-      exit 0
-  fi
+    SELECTED_SDK=$(printf '%s' "${SELECTED_SDK}" | tr '[:upper:]' '[:lower:]')
 
-  if [[ ${SELECTED_SDK} == "csharp" ]]; then
-    SELECTED_SDK="dotnet"
-  fi
+    if [[ "${SELECTED_SDK}" == "csharp" ]]; then
+        SELECTED_SDK="dotnet"
+    fi
 
-  if [[ ! " ${AVAILABLE_SDKS[*]} " =~ " ${SELECTED_SDK} " ]]; then
-      printf "Invalid SDK selected: ${SELECTED_SDK}\n"
-      show_help
-      exit 1
-  fi
+    if [[ "${SELECTED_SDK}" == "all" ]]; then
+        if [[ -n "${LOCAL_SDK}" ]]; then
+            printf "Error: --local cannot be combined with 'all'. Pick a single SDK.\n" >&2
+            exit 1
+        fi
+        for sdk in "${AVAILABLE_SDKS[@]}"; do
+            build_container "${sdk}"
+        done
+        exit 0
+    fi
 
-  build_container ${SELECTED_SDK}
-  exit 0
+    local found=0
+    for sdk in "${AVAILABLE_SDKS[@]}"; do
+        if [[ "${sdk}" == "${SELECTED_SDK}" ]]; then
+            found=1
+            break
+        fi
+    done
+    if [[ "${found}" -ne 1 ]]; then
+        printf "Invalid SDK selected: %s\n" "${SELECTED_SDK}" >&2
+        show_help
+        exit 1
+    fi
+
+    build_container "${SELECTED_SDK}"
 }
 
-function show_help() {
-    cat << EOF
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --sdk-ref=*)  SDK_REF="${1#*=}" ;;
+            --sdk-ref)    SDK_REF="$2"; shift ;;
+            --local=*)    LOCAL_SDK="${1#*=}" ;;
+            --local)      LOCAL_SDK="$2"; shift ;;
+            --help|-h)    show_help; exit 0 ;;
+            --)           shift; SELECTED_SDK="$1" ;;
+            -*)
+                printf "Unknown option: %s\n" "$1" >&2
+                show_help
+                exit 1
+                ;;
+            *)
+                if [[ -n "${SELECTED_SDK}" ]]; then
+                    printf "Unexpected extra argument: %s\n" "$1" >&2
+                    show_help
+                    exit 1
+                fi
+                SELECTED_SDK="$1"
+                ;;
+        esac
+        shift
+    done
+
+    if [[ -n "${LOCAL_SDK}" ]]; then
+        if [[ ! -d "${LOCAL_SDK}" ]]; then
+            printf "Error: --local path is not a directory: %s\n" "${LOCAL_SDK}" >&2
+            exit 1
+        fi
+        LOCAL_SDK=$(cd "${LOCAL_SDK}" && pwd)
+    fi
+}
+
+show_help() {
+    cat <<EOF
 Builds one or all SDK containers.
 
-To create containers for all the SDKs:
+Usage:
+    ./build [options] SDK
+
+Options:
+    --sdk-ref REF    Git ref (branch/tag/commit) for SDKs sourced from git.
+                     For Java it is interpreted as the Maven Central version;
+                     when omitted, ./build java fetches the latest <release>
+                     from Maven Central and falls back to the version pinned
+                     in data_java/pom.xml if the fetch fails.
+                     For PHP it is interpreted as the Composer version constraint.
+    --local PATH     Build against a local SDK source directory instead of
+                     fetching from git / a package registry. Cannot be combined
+                     with 'all'.
+    --help           Show this help and exit.
+
+SDK can be one of: ${AVAILABLE_SDKS[*]} (or 'all', or 'csharp' as an alias for dotnet).
+
+Examples:
     ./build all
-
-To create a container for a single SDK:
-    ./build [SDK]
-
-SDK can be one of "dotnet", "java", "node", "php", "python", "ruby"
-
+    ./build python
+    ./build --sdk-ref=v1.4.0 node
+    ./build --local ../dropbox-sign-python python
 EOF
 }
 
-function build_container()
-{
-    SELECTED_SDK=$1
-
-    IMG_NAME="dropbox/sign-${SELECTED_SDK}"
-    printf "Building the ${SELECTED_SDK} container\n\n"
-    docker image build \
-        --no-cache \
-        -t ${IMG_NAME}:latest \
-        -f data_${SELECTED_SDK}/Dockerfile \
-        ./data_${SELECTED_SDK}
-    printf "\nSuccessfully created image ${IMG_NAME}\n"
+sed_inplace() {
+    if sed --version >/dev/null 2>&1; then
+        sed -i "$@"
+    else
+        sed -i '' "$@"
+    fi
 }
 
-main "$@";
+# Fetch the latest <release> version of com.dropbox.sign:dropbox-sign from
+# Maven Central and print it on stdout. Returns non-zero if the fetch fails
+# or the metadata cannot be parsed; callers should fall back to whatever is
+# pinned in data_java/pom.xml.
+resolve_java_latest() {
+    local metadata_url="https://repo1.maven.org/maven2/com/dropbox/sign/dropbox-sign/maven-metadata.xml"
+    local metadata
+    if ! metadata=$(curl -fsSL --max-time 15 "${metadata_url}" 2>/dev/null); then
+        return 1
+    fi
+    local version
+    version=$(printf '%s' "${metadata}" | python3 -c '
+import re, sys
+text = sys.stdin.read()
+m = re.search(r"<release>([^<]+)</release>", text)
+if not m:
+    m = re.search(r"<latest>([^<]+)</latest>", text)
+sys.stdout.write(m.group(1) if m else "")
+')
+    if [[ -z "${version}" ]]; then
+        return 1
+    fi
+    printf '%s' "${version}"
+}
+
+stage_context() {
+    local sdk="$1"
+    local ref="${2:-}"
+    local src="${DIR}/data_${sdk}"
+    local ctx="${DIR}/.build-ctx/${sdk}"
+
+    rm -rf "${ctx}"
+    mkdir -p "${ctx}"
+    cp -R "${src}/." "${ctx}/"
+
+    if [[ -n "${LOCAL_SDK}" ]]; then
+        mkdir -p "${ctx}/sdk-src"
+        if command -v rsync >/dev/null 2>&1; then
+            rsync -a --delete \
+                --exclude='.git' \
+                --exclude='node_modules' \
+                --exclude='vendor' \
+                --exclude='target' \
+                --exclude='build' \
+                --exclude='dist' \
+                --exclude='bin' \
+                --exclude='obj' \
+                --exclude='__pycache__' \
+                --exclude='*.egg-info' \
+                --exclude='.venv' \
+                --exclude='venv' \
+                "${LOCAL_SDK}/" "${ctx}/sdk-src/"
+        else
+            cp -R "${LOCAL_SDK}/." "${ctx}/sdk-src/"
+        fi
+        apply_local "${sdk}" "${ctx}"
+    elif [[ -n "${ref}" ]]; then
+        apply_sdk_ref "${sdk}" "${ctx}" "${ref}"
+    fi
+
+    echo "${ctx}"
+}
+
+apply_sdk_ref() {
+    local sdk="$1"
+    local ctx="$2"
+    local ref="${3:-${SDK_REF}}"
+
+    case "${sdk}" in
+        python)
+            printf 'git+https://github.com/hellosign/dropbox-sign-python.git@%s\n' "${ref}" \
+                > "${ctx}/requirements.txt"
+            ;;
+        ruby)
+            cat > "${ctx}/Gemfile" <<EOF
+source 'https://rubygems.org'
+
+gem 'dropbox-sign',
+  git: 'https://github.com/hellosign/dropbox-sign-ruby.git',
+  branch: '${ref}'
+EOF
+            ;;
+        node)
+            sed_inplace \
+                -e "s|github:hellosign/dropbox-sign-node#[^\"]*|github:hellosign/dropbox-sign-node#${ref}|" \
+                "${ctx}/package.json"
+            ;;
+        dotnet)
+            sed_inplace \
+                -e "s|git checkout [^ ]*|git checkout ${ref}|" \
+                "${ctx}/Dockerfile"
+            ;;
+        java)
+            python3 - "${ctx}/pom.xml" "${ref}" <<'PY'
+import re, sys
+path, ref = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    xml = f.read()
+# Allow whitespace and/or XML comments between <artifactId> and <version>.
+pattern = re.compile(
+    r'(<groupId>com\.dropbox\.sign</groupId>'
+    r'\s*<artifactId>dropbox-sign</artifactId>'
+    r'(?:\s|<!--[\s\S]*?-->)*'
+    r'<version>)[^<]+(</version>)'
+)
+new_xml, count = pattern.subn(
+    lambda m: m.group(1) + ref + m.group(2),
+    xml,
+    count=1,
+)
+if count != 1:
+    sys.exit(
+        f"apply_sdk_ref(java): could not locate the dropbox-sign <version> in {path}"
+    )
+with open(path, 'w') as f:
+    f.write(new_xml)
+PY
+            ;;
+        php)
+            sed_inplace \
+                -e "s|\"dropbox/sign\": \"[^\"]*\"|\"dropbox/sign\": \"${ref}\"|" \
+                "${ctx}/composer.json"
+            ;;
+    esac
+}
+
+apply_local() {
+    local sdk="$1"
+    local ctx="$2"
+
+    case "${sdk}" in
+        python)
+            cat > "${ctx}/requirements.txt" <<'EOF'
+/sdk-src
+EOF
+            sed_inplace \
+                -e 's|^COPY \./requirements.txt /app/requirements.txt$|COPY ./sdk-src /sdk-src\nCOPY ./requirements.txt /app/requirements.txt|' \
+                "${ctx}/Dockerfile"
+            ;;
+        ruby)
+            cat > "${ctx}/Gemfile" <<'EOF'
+source 'https://rubygems.org'
+
+gem 'dropbox-sign', path: '/sdk-src'
+EOF
+            sed_inplace \
+                -e 's|^COPY \./Gemfile /app/Gemfile$|COPY ./sdk-src /sdk-src\nCOPY ./Gemfile /app/Gemfile|' \
+                "${ctx}/Dockerfile"
+            ;;
+        node)
+            python3 - "${ctx}/package.json" <<'PY'
+import json, sys
+path = sys.argv[1]
+with open(path) as f:
+    pkg = json.load(f)
+pkg.setdefault('dependencies', {})['@dropbox/sign'] = 'file:/sdk-src'
+with open(path, 'w') as f:
+    json.dump(pkg, f, indent=2)
+    f.write('\n')
+PY
+            sed_inplace \
+                -e 's|^COPY \./package.json /app/package.json$|COPY ./sdk-src /sdk-src\nCOPY ./package.json /app/package.json|' \
+                "${ctx}/Dockerfile"
+            ;;
+        php)
+            python3 - "${ctx}/composer.json" <<'PY'
+import json, sys
+path = sys.argv[1]
+with open(path) as f:
+    cfg = json.load(f)
+cfg['repositories'] = [{
+    'type': 'path',
+    'url': '/sdk-src',
+    'options': {'symlink': False},
+}]
+cfg.setdefault('require', {})['dropbox/sign'] = '*@dev'
+cfg['minimum-stability'] = 'dev'
+with open(path, 'w') as f:
+    json.dump(cfg, f, indent=4)
+    f.write('\n')
+PY
+            sed_inplace \
+                -e 's|^COPY \./composer.json /app/composer.json$|COPY ./sdk-src /sdk-src\nCOPY ./composer.json /app/composer.json|' \
+                "${ctx}/Dockerfile"
+            ;;
+        java)
+            local local_version
+            local_version=$(python3 - "${LOCAL_SDK}/pom.xml" <<'PY'
+import re, sys
+with open(sys.argv[1]) as f:
+    xml = f.read()
+m = re.search(r'<project\b[^>]*>.*?<version>([^<]+)</version>', xml, re.DOTALL)
+print(m.group(1) if m else '', end='')
+PY
+            )
+            if [[ -z "${local_version}" ]]; then
+                printf "Error: could not read <version> from local Java SDK pom.xml\n" >&2
+                exit 1
+            fi
+            python3 - "${ctx}/pom.xml" "${local_version}" <<'PY'
+import re, sys
+path, version = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    xml = f.read()
+pattern = re.compile(
+    r'(<groupId>com\.dropbox\.sign</groupId>'
+    r'\s*<artifactId>dropbox-sign</artifactId>'
+    r'(?:\s|<!--[\s\S]*?-->)*'
+    r'<version>)[^<]+(</version>)'
+)
+new_xml, count = pattern.subn(
+    lambda m: m.group(1) + version + m.group(2),
+    xml,
+    count=1,
+)
+if count != 1:
+    sys.exit(
+        f"apply_local(java): could not locate the dropbox-sign <version> in {path}"
+    )
+with open(path, 'w') as f:
+    f.write(new_xml)
+PY
+            sed_inplace \
+                -e 's|RUN cd /app && \\|RUN cd /sdk-src \&\& mvn install -DskipTests -q \&\& cd /app \&\&|' \
+                "${ctx}/Dockerfile"
+            sed_inplace \
+                -e 's|^COPY \./pom.xml /app/pom.xml$|COPY ./sdk-src /sdk-src\nCOPY ./pom.xml /app/pom.xml|' \
+                "${ctx}/Dockerfile"
+            ;;
+        dotnet)
+            python3 - "${ctx}/Dockerfile" <<'PY'
+import sys
+path = sys.argv[1]
+with open(path) as f:
+    text = f.read()
+new_block = (
+    "COPY ./sdk-src /app/dropbox-sign-dotnet\n"
+    "\n"
+    "RUN cd /app/dropbox-sign-dotnet && \\\n"
+    "    dotnet new console -o sdk-tester && \\\n"
+    "    mv /app/Program.cs sdk-tester && \\\n"
+    "    dotnet add sdk-tester/sdk-tester.csproj reference src/Dropbox.Sign/Dropbox.Sign.csproj && \\\n"
+    "    dotnet build\n"
+)
+old_block_start = "RUN cd /app && \\"
+idx = text.find(old_block_start)
+if idx == -1:
+    sys.exit("could not find dotnet RUN block to rewrite")
+end = text.find("dotnet build", idx)
+if end == -1:
+    sys.exit("could not find end of dotnet RUN block")
+end = text.find("\n", end) + 1
+text = text[:idx] + new_block + text[end:]
+with open(path, 'w') as f:
+    f.write(text)
+PY
+            ;;
+    esac
+}
+
+build_container() {
+    local sdk="$1"
+    local effective_ref="${SDK_REF}"
+    local ref_source="cli"
+
+    if [[ -z "${effective_ref}" && -z "${LOCAL_SDK}" && "${sdk}" == "java" ]]; then
+        if effective_ref=$(resolve_java_latest); then
+            ref_source="maven-central"
+        else
+            effective_ref=""
+            printf "    warning: could not resolve latest Java version from Maven Central; falling back to the version pinned in data_java/pom.xml\n" >&2
+        fi
+    fi
+
+    local ctx
+    ctx=$(stage_context "${sdk}" "${effective_ref}")
+
+    local img="dropbox/sign-${sdk}"
+    printf "\n==> Building the %s container\n" "${sdk}"
+    if [[ -n "${LOCAL_SDK}" ]]; then
+        printf "    using local SDK: %s\n" "${LOCAL_SDK}"
+    elif [[ -n "${effective_ref}" ]]; then
+        if [[ "${ref_source}" == "maven-central" ]]; then
+            printf "    using SDK ref:   %s (auto-resolved latest from Maven Central)\n" "${effective_ref}"
+        else
+            printf "    using SDK ref:   %s\n" "${effective_ref}"
+        fi
+    fi
+
+    docker image build \
+        --no-cache \
+        -t "${img}:latest" \
+        -f "${ctx}/Dockerfile" \
+        "${ctx}"
+
+    printf "\nSuccessfully created image %s\n" "${img}"
+}
+
+main "$@"
 exit

@@ -1,4 +1,5 @@
 data.json
+.build-ctx/
 
 data_node/*.tgz
 data_node/node_modules
@@ -14,3 +15,5 @@ data_ruby/Gemfile.lock
 **/*.log
 **/*.pyc
 tests/__pycache__/*
+
+env

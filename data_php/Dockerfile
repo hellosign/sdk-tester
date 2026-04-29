@@ -1,7 +1,17 @@
-FROM jtreminio/php-cli:7.4
+FROM php:8.3-cli
 LABEL maintainer="Dropbox Sign API Team <apisupport@hellosign.com>"
 
 USER root
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+        libzip-dev && \
+    docker-php-ext-install zip && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 RUN mkdir /file_uploads && \
     mkdir /test_fixtures && \

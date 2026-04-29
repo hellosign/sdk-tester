@@ -64,7 +64,7 @@ def uploads_dir():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     print(f"dir path {dir_path}")
     # Uploads directory, containing PDFs you may want to upload to the API
-    uploads_dir = f'{dir_path}/file_uploads'
+    uploads_dir = f'{dir_path}/tests/file_uploads'
     print(f"File Upload directory : {uploads_dir}")
     return uploads_dir
 

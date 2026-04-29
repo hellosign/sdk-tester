@@ -26,7 +26,7 @@ adapters/
   php/                   # PHP SDK container (Dockerfile + requester.php)
   python/                # Python SDK container (Dockerfile + requester.py)
   ruby/                  # Ruby SDK container (Dockerfile + requester.rb)
-file_uploads/            # PDF files used as attachments in test requests
+  file_uploads/          # PDF files used as attachments in test requests
 openapi.yaml             # (gitignored) fetched on demand — see API reference section below
 ```
 
@@ -113,7 +113,7 @@ def test_create_account(sdk_runner):
 | `get_clientid` | module | Resolves client_id from `CLIENT_ID` env or API |
 | `sdk_language` | module | Parametrized across languages from `LANGUAGES` env |
 | `container_bin` | module | Path to `./run` script |
-| `uploads_dir` | module | Path to `./file_uploads` |
+| `uploads_dir` | module | Path to `./tests/file_uploads` |
 | `auth_type` | function | Fixed to `'apikey'` |
 | `auth_key` | function | From `API_KEY` env |
 | `server` | function | From `SERVER` env |

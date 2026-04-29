@@ -152,7 +152,7 @@ the copy so the build context stays small.
 | `--auth_key=<value>`   | yes      | API key (for `apikey`) or OAuth bearer token (for `oauth`).                                  |
 | `--json=<path or b64>` | yes      | Either a path to a JSON file or a base64-encoded JSON string.                                |
 | `--server=<host>`      | no       | API host (no scheme). Defaults to `api.hellosign.com`.                                       |
-| `--uploads_dir=<path>` | no       | Directory mounted at `/file_uploads`. Defaults to `./file_uploads`.                          |
+| `--uploads_dir=<path>` | no       | Directory mounted at `/file_uploads`. Defaults to `./tests/file_uploads`.                          |
 | `--dev_mode`           | no       | Mount the local `adapters/<sdk>/requester.*` over the one baked into the image (see note below). |
 | `--help`               | no       | Show help and exit.                                                                          |
 
@@ -305,7 +305,7 @@ query parameter.
 ### `files`
 
 Files to upload, if the endpoint supports them. Every filename must live in
-`--uploads_dir` (default `./file_uploads`). For endpoints that accept several
+`--uploads_dir` (default `./tests/file_uploads`). For endpoints that accept several
 files, use a nested array:
 
 ```json

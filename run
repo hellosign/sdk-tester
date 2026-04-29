@@ -4,7 +4,7 @@ set -e
 DIR=$(cd `dirname $0` && pwd)
 AVAILABLE_SDKS=("csharp dotnet java node php python ruby")
 SELECTED_SDK=""
-UPLOADS_DIR="${DIR}/file_uploads"
+UPLOADS_DIR="${DIR}/tests/file_uploads"
 SERVER="api.hellosign.com"
 DEV_MODE=0
 
@@ -77,7 +77,7 @@ Uses the selected Dropbox Sign OpenAPI SDK to make a request to the Dropbox Sign
 --server          API server to use, must be like "api.hellosign.com".
                     (defaults to api.hellosign.com)
 --uploads_dir     directory where files that can be uploaded to the API live.
-                    (defaults to ${DIR}/file_uploads)
+                    (defaults to ${DIR}/tests/file_uploads)
 --dev_mode        run container in dev mode
                     (optional, default false)
 --help            display this help and exit

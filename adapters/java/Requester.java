@@ -148,7 +148,8 @@ public class Requester {
         switch (operationId) {
             case "teamAddMember":
                 TeamAddMemberRequest addMemberRequest = TeamAddMemberRequest.init(data.toString());
-                return api.teamAddMemberWithHttpInfo(addMemberRequest, parameters.get("team_id").asText());
+                String teamId = parameters.has("team_id") && !parameters.get("team_id").isNull() ? parameters.get("team_id").asText() : null;
+                return api.teamAddMemberWithHttpInfo(addMemberRequest, teamId);
             case "teamCreate":
                 TeamCreateRequest createRequest = TeamCreateRequest.init(data.toString());
                 return api.teamCreateWithHttpInfo(createRequest);
@@ -187,12 +188,14 @@ public class Requester {
                 return api.signatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
             case "signatureRequestEditEmbedded":
                 SignatureRequestEditEmbeddedRequest editEmbeddedRequest = SignatureRequestEditEmbeddedRequest.init(data.toString());
-                editEmbeddedRequest.setFiles(getFiles("files"));
+                List<File> editEmbeddedFiles = getFiles("files");
+                if (editEmbeddedFiles != null) editEmbeddedRequest.setFiles(editEmbeddedFiles);
                 return api.signatureRequestEditEmbeddedWithHttpInfo(parameters.get("signature_request_id").asText(), editEmbeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
                 SignatureRequestCreateEmbeddedWithTemplateRequest embeddedWithTemplateRequest =
                     SignatureRequestCreateEmbeddedWithTemplateRequest.init(data.toString());
-                embeddedWithTemplateRequest.setFiles(getFiles("files"));
+                List<File> embTplFiles = getFiles("files");
+                if (embTplFiles != null) embeddedWithTemplateRequest.setFiles(embTplFiles);
                 return api.signatureRequestCreateEmbeddedWithTemplateWithHttpInfo(embeddedWithTemplateRequest);
             case "signatureRequestFilesAsFileUrl":
                 return api.signatureRequestFilesAsFileUrlWithHttpInfo(
@@ -202,10 +205,10 @@ public class Requester {
                 return api.signatureRequestGetWithHttpInfo(parameters.get("signature_request_id").asText());
             case "signatureRequestList":
                 return api.signatureRequestListWithHttpInfo(
-                    parameters.get("account_id").asText(),
-                    parameters.get("page").asInt(1),
-                    parameters.get("page_size").asInt(20),
-                    parameters.get("query").asText()
+                    parameters.has("account_id") && !parameters.get("account_id").isNull() ? parameters.get("account_id").asText() : null,
+                    parameters.has("page") ? parameters.get("page").asInt(1) : 1,
+                    parameters.has("page_size") ? parameters.get("page_size").asInt(20) : 20,
+                    parameters.has("query") && !parameters.get("query").isNull() ? parameters.get("query").asText() : null
                 );
             case "signatureRequestReleaseHold":
                 return api.signatureRequestReleaseHoldWithHttpInfo(parameters.get("signature_request_id").asText());
@@ -216,7 +219,8 @@ public class Requester {
                 return api.signatureRequestRemoveWithHttpInfo(parameters.get("signature_request_id").asText());
             case "signatureRequestEdit":
                 SignatureRequestEditRequest editRequest = SignatureRequestEditRequest.init(data.toString());
-                editRequest.setFiles(getFiles("files"));
+                List<File> editFiles = getFiles("files");
+                if (editFiles != null) editRequest.setFiles(editFiles);
                 return api.signatureRequestEditWithHttpInfo(parameters.get("signature_request_id").asText(), editRequest);
             case "signatureRequestSend":
                 SignatureRequestSendRequest sendRequest = SignatureRequestSendRequest.init(data.toString());
@@ -225,7 +229,8 @@ public class Requester {
             case "signatureRequestSendWithTemplate":
                 SignatureRequestSendWithTemplateRequest sendWithTemplateRequest =
                     SignatureRequestSendWithTemplateRequest.init(data.toString());
-                sendWithTemplateRequest.setFiles(getFiles("files"));
+                List<File> swtFiles = getFiles("files");
+                if (swtFiles != null) sendWithTemplateRequest.setFiles(swtFiles);
                 return api.signatureRequestSendWithTemplateWithHttpInfo(sendWithTemplateRequest);
             case "signatureRequestUpdate":
                 SignatureRequestUpdateRequest updateRequest = SignatureRequestUpdateRequest.init(data.toString());
@@ -352,18 +357,20 @@ public class Requester {
     }
 
     private List<File> getFiles(String name) {
-        List<File> files = new ArrayList<>();
-        this.files.get(name)
-            .iterator()
-            .forEachRemaining(jsonNode -> files.add(new File(FILE_UPLOADS_DIR + "/" + jsonNode.asText())));
-        return files;
+        if (files == null || !files.has(name) || files.get(name).isNull()) {
+            return null;
+        }
+        List<File> fileList = new ArrayList<>();
+        files.get(name).iterator()
+            .forEachRemaining(jsonNode -> fileList.add(new File(FILE_UPLOADS_DIR + "/" + jsonNode.asText())));
+        return fileList.isEmpty() ? null : fileList;
     }
 
     private File getFile(String name) {
-        if (!files.get(name).asText().isBlank()) {
-            return new File(FILE_UPLOADS_DIR + "/" + files.get(name).asText());
+        if (files == null || !files.has(name) || files.get(name).isNull() || files.get(name).asText().isBlank()) {
+            return null;
         }
-        return null;
+        return new File(FILE_UPLOADS_DIR + "/" + files.get(name).asText());
     }
 
     public static void main(String[] args) throws Exception {

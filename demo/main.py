@@ -197,10 +197,6 @@ def test_signature_request_create_embedded(tester: ApiTester):
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    print(f"dir path {dir_path}")
-    #
-    # Grab the following from config file, environment, or somewhere else
-    #
 
     # One of "node", "php", "python", "ruby", "dotnet", "java"
     sdk_language = os.environ['LANGUAGE']

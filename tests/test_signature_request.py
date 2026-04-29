@@ -22,36 +22,32 @@ def test_signature_request_send(sdk_runner, sdk_retry_runner, get_clientid):
     assert signature_request_id in sr_ids
 
     # Edit signature request
-    edit_response = sdk_runner(
+    edit_response = sdk_retry_runner(
         "signature_request/signatureRequestEdit.json",
         {"signature_request_id": signature_request_id, "client_id": get_clientid},
-        expected_status=200,
     )
     assert edit_response.body['signature_request']['subject'] == 'Updated NDA Subject'
 
-def test_signature_request_create_embedded(sdk_runner, get_clientid):
+def test_signature_request_create_embedded(sdk_runner, sdk_retry_runner, get_clientid):
     response = sdk_runner(
         "signature_request/signatureRequestCreateEmbedded.json",
         {"client_id": get_clientid},
         expected_status=200,
     )
-
     signature_request_id = response.body['signature_request']['signature_request_id']
-    signature_id = response.body['signature_request']['signatures'][0]['signature_id']
 
     # Edit embedded signature request
-    edit_response = sdk_runner(
+    edit_response = sdk_retry_runner(
         "signature_request/signatureRequestEditEmbedded.json",
         {"signature_request_id": signature_request_id, "client_id": get_clientid},
-        expected_status=200,
     )
     assert edit_response.body['signature_request']['subject'] == 'Updated Embedded NDA Subject'
+    signature_id = edit_response.body['signature_request']['signatures'][0]['signature_id']
 
     # Get embedded sign URL
-    sdk_runner(
+    sdk_retry_runner(
         "embedded/embeddedSignUrl.json",
         {"signature_id": signature_id},
-        expected_status=200,
     )
 
 

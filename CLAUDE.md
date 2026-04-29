@@ -27,7 +27,7 @@ adapters/
   python/                # Python SDK container (Dockerfile + requester.py)
   ruby/                  # Ruby SDK container (Dockerfile + requester.rb)
 file_uploads/            # PDF files used as attachments in test requests
-openapi.yaml             # Dropbox Sign API spec — reference for operationIds, parameters, and data schemas
+openapi.yaml             # (gitignored) fetched on demand — see API reference section below
 ```
 
 ## Supported SDKs
@@ -121,6 +121,16 @@ def test_create_account(sdk_runner):
 ### load_fixture (helpers_hsapi.py)
 
 `load_fixture(fixture_path, placeholders)` — loads a JSON file relative to `test_fixtures/`, replaces `{{placeholder}}` tokens, raises `ValueError` on unfilled placeholders, validates JSON.
+
+## API reference
+
+The OpenAPI spec is the source of truth for operationIds, request schemas, and parameters when creating new fixtures and tests. Fetch the latest before use:
+
+```bash
+curl -fsSL -o openapi.yaml https://raw.githubusercontent.com/hellosign/hellosign-openapi/main/openapi.yaml
+```
+
+The file is gitignored so it's always fetched fresh.
 
 ## Request/response flow
 

@@ -1,7 +1,7 @@
 import time
 
 
-def test_create_and_get_template(sdk_runner, get_clientid):
+def test_create_get_and_delete_template(sdk_runner, get_clientid):
     create_response = sdk_runner(
         "template/templateCreate.json",
         {"client_id": get_clientid},

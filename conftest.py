@@ -124,15 +124,17 @@ def get_clientid():
     return client_id
 
 
+def _resolve_json(fixture_or_data, placeholders):
+    if isinstance(fixture_or_data, dict):
+        return json.dumps(fixture_or_data)
+    elif isinstance(fixture_or_data, str) and fixture_or_data.endswith('.json'):
+        return helpers_hsapi.load_fixture(fixture_or_data, placeholders)
+    return fixture_or_data
+
 @pytest.fixture
 def sdk_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
     def _run(fixture_or_data, placeholders=None, expected_status=None):
-        if isinstance(fixture_or_data, dict):
-            json_str = json.dumps(fixture_or_data)
-        elif isinstance(fixture_or_data, str) and fixture_or_data.endswith('.json'):
-            json_str = helpers_hsapi.load_fixture(fixture_or_data, placeholders)
-        else:
-            json_str = fixture_or_data
+        json_str = _resolve_json(fixture_or_data, placeholders)
 
         response = helpers_hsapi.run(
             json_str, container_bin, sdk_language, uploads_dir,
@@ -144,6 +146,29 @@ def sdk_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, se
                 f"Expected {expected_status}, got {response.status_code}: {response.body}"
             )
 
+        return response
+
+    return _run
+
+@pytest.fixture
+def sdk_retry_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
+    def _run(fixture_or_data, placeholders=None, expected_status=200, retries=5, retry_wait=2):
+        import time
+        json_str = _resolve_json(fixture_or_data, placeholders)
+
+        for attempt in range(retries):
+            response = helpers_hsapi.run(
+                json_str, container_bin, sdk_language, uploads_dir,
+                auth_type, auth_key, server,
+            )
+            if response.status_code == expected_status:
+                return response
+            if attempt < retries - 1:
+                time.sleep(retry_wait)
+
+        assert response.status_code == expected_status, (
+            f"Expected {expected_status} after {retries} attempts, got {response.status_code}: {response.body}"
+        )
         return response
 
     return _run

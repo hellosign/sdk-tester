@@ -256,7 +256,7 @@ public class Requester {
                 EmbeddedEditUrlRequest editUrlRequest = EmbeddedEditUrlRequest.init(data.toString());
                 return api.embeddedEditUrlWithHttpInfo(parameters.get("template_id").asText(), editUrlRequest);
             case "embeddedSignUrl":
-                return api.embeddedSignUrlWithHttpInfo(parameters.get("embeddedSignUrl").asText());
+                return api.embeddedSignUrlWithHttpInfo(parameters.get("signature_id").asText());
         }
         return null;
     }

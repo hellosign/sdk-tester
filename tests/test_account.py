@@ -1,14 +1,14 @@
 import uuid
 
 
-def test_create_account_success(sdk_runner):
+def test_create_account_success(sdk_runner, sdk_retry_runner):
     email_address = f'signer-{uuid.uuid4().hex}@example.com'
-    response = sdk_runner(
+    create_response = sdk_runner(
         "account/accountCreate.json",
         {"email_address": email_address},
         expected_status=200,
     )
-    assert response.body['account']['email_address'] == email_address
+    assert create_response.body['account']['email_address'] == email_address
 
 
 def test_create_account_failure(sdk_runner):

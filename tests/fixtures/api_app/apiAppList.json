@@ -1,0 +1,9 @@
+{
+  "operationId": "apiAppList",
+  "parameters": {
+    "page": 1,
+    "page_size": 20
+  },
+  "data": {},
+  "files": {}
+}

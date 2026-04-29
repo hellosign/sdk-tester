@@ -1,0 +1,8 @@
+{
+  "operationId": "apiAppDelete",
+  "parameters": {
+    "client_id": "{{client_id}}"
+  },
+  "data": {},
+  "files": {}
+}

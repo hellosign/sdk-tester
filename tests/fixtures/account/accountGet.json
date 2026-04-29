@@ -1,8 +1,6 @@
 {
   "operationId": "accountGet",
-  "parameters": {
-    "account_id": "{{account_id}}"
-  },
+  "parameters": {},
   "data": {},
   "files": {}
 }

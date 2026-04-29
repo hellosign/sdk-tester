@@ -394,7 +394,7 @@ class Requester(object):
         if self._operation_id == 'teamRemoveMember':
             obj = m.TeamRemoveMemberRequest.init(self._data)
 
-            return api.team_update_with_http_info(obj)
+            return api.team_remove_member_with_http_info(obj)
 
         if self._operation_id == 'teamUpdate':
             obj = m.TeamUpdateRequest.init(self._data)

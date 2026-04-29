@@ -1,0 +1,8 @@
+{
+  "operationId": "teamUpdate",
+  "data": {
+    "name": "{{team_name}}"
+  },
+  "parameters": {},
+  "files": {}
+}

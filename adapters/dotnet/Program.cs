@@ -309,6 +309,20 @@ class Requester
             case "teamUpdate":
                 var updateRequest = TeamUpdateRequest.Init(_data.ToString());
                 return api.TeamUpdateWithHttpInfo(updateRequest);
+            case "teamInfo":
+                return api.TeamInfoWithHttpInfo(GetParamValue("team_id"));
+            case "teamMembers":
+                return api.TeamMembersWithHttpInfo(
+                    GetParamValue("team_id"),
+                    int.Parse(GetParamValue("page", "1")),
+                    int.Parse(GetParamValue("page_size", "20"))
+                );
+            case "teamSubTeams":
+                return api.TeamSubTeamsWithHttpInfo(
+                    GetParamValue("team_id"),
+                    int.Parse(GetParamValue("page", "1")),
+                    int.Parse(GetParamValue("page_size", "20"))
+                );
         }
         return null;
     }

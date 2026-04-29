@@ -557,6 +557,28 @@ class Requester
             );
         }
 
+        if (this.operationId === 'teamInfo') {
+            return api.teamInfo(
+                this.parameters['team_id'] ?? null,
+            );
+        }
+
+        if (this.operationId === 'teamMembers') {
+            return api.teamMembers(
+                this.parameters['team_id'],
+                this.parameters['page'] ?? 1,
+                this.parameters['page_size'] ?? 20,
+            );
+        }
+
+        if (this.operationId === 'teamSubTeams') {
+            return api.teamSubTeams(
+                this.parameters['team_id'],
+                this.parameters['page'] ?? 1,
+                this.parameters['page_size'] ?? 20,
+            );
+        }
+
         return null;
     }
 

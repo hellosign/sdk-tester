@@ -62,7 +62,31 @@ def test_team_lifecycle(sdk_runner, sdk_retry_runner):
     assert get_response.body['team']['name'] == team_name
     assert get_response.body['team']['invited_accounts'][0]['email_address'] == email_address
 
-    # 5. Update team name
+    # 5. Get team info (teamInfo endpoint)
+    info_response = sdk_runner(
+        "team/teamInfo.json",
+        expected_status=200,
+    )
+    assert info_response.body['team']['name'] == team_name
+
+    # 6. List team members
+    team_id = info_response.body['team']['team_id']
+    members_response = sdk_runner(
+        "team/teamMembers.json",
+        {"team_id": team_id},
+        expected_status=200,
+    )
+    assert members_response.body['team_members'] is not None
+
+    # 8. List sub teams
+    subteams_response = sdk_runner(
+        "team/teamSubTeams.json",
+        {"team_id": team_id},
+        expected_status=200,
+    )
+    assert subteams_response.body['list_info']['num_results'] == info_response.body['team']['num_sub_teams']
+
+    # 9. Update team name
     updated_name = f'Updated Team {uuid.uuid4().hex[:8]}'
     update_response = sdk_runner(
         "team/teamUpdate.json",
@@ -71,14 +95,14 @@ def test_team_lifecycle(sdk_runner, sdk_retry_runner):
     )
     assert update_response.body['team']['name'] == updated_name
 
-    # 6. Remove member from team
+    # 10. Remove member from team
     sdk_runner(
         "team/teamRemoveMember.json",
         {"email_address": email_address},
         expected_status=200,
     )
 
-    # 7. Delete team
+    # 11. Delete team
     sdk_runner(
         "team/teamDelete.json",
         expected_status=200,

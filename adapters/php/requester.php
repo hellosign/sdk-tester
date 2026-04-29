@@ -610,6 +610,28 @@ class Requester
             );
         }
 
+        if ($this->operationId === 'teamInfo') {
+            return $api->teamInfoWithHttpInfo(
+                $this->parameters['team_id'] ?? null,
+            );
+        }
+
+        if ($this->operationId === 'teamMembers') {
+            return $api->teamMembersWithHttpInfo(
+                $this->parameters['team_id'],
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+            );
+        }
+
+        if ($this->operationId === 'teamSubTeams') {
+            return $api->teamSubTeamsWithHttpInfo(
+                $this->parameters['team_id'],
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+            );
+        }
+
         return null;
     }
 

@@ -631,6 +631,37 @@ class Requester
         }
       )
     end
+
+    if self.operation_id === 'teamInfo'
+      return api.team_info_with_http_info(
+        {
+          header_params: self.header_params,
+          team_id: self.parameters['team_id'] || nil,
+        }
+      )
+    end
+
+    if self.operation_id === 'teamMembers'
+      return api.team_members_with_http_info(
+        self.parameters['team_id'],
+        {
+          header_params: self.header_params,
+          page: self.parameters['page'] || 1,
+          page_size: self.parameters['page_size'] || 20,
+        }
+      )
+    end
+
+    if self.operation_id === 'teamSubTeams'
+      return api.team_sub_teams_with_http_info(
+        self.parameters['team_id'],
+        {
+          header_params: self.header_params,
+          page: self.parameters['page'] || 1,
+          page_size: self.parameters['page_size'] || 20,
+        }
+      )
+    end
   end
 
   def template_api

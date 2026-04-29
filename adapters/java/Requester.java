@@ -127,10 +127,10 @@ public class Requester {
                 return api.templateGetWithHttpInfo(parameters.get("template_id").asText());
             case "templateList":
                 return api.templateListWithHttpInfo(
-                    parameters.get("account_id").asText(),
-                    parameters.get("page").asInt(1),
-                    parameters.get("page_size").asInt(20),
-                    parameters.get("query").asText()
+                    parameters.has("account_id") && !parameters.get("account_id").isNull() ? parameters.get("account_id").asText() : null,
+                    parameters.has("page") ? parameters.get("page").asInt(1) : 1,
+                    parameters.has("page_size") ? parameters.get("page_size").asInt(20) : 20,
+                    parameters.has("query") && !parameters.get("query").isNull() ? parameters.get("query").asText() : null
                 );
             case "templateRemoveUser":
                 TemplateRemoveUserRequest removeUserRequest = TemplateRemoveUserRequest.init(data.toString());
@@ -163,6 +163,22 @@ public class Requester {
             case "teamUpdate":
                 TeamUpdateRequest updateRequest = TeamUpdateRequest.init(data.toString());
                 return api.teamUpdateWithHttpInfo(updateRequest);
+            case "teamInfo":
+                return api.teamInfoWithHttpInfo(
+                    parameters.has("team_id") && !parameters.get("team_id").isNull() ? parameters.get("team_id").asText() : null
+                );
+            case "teamMembers":
+                return api.teamMembersWithHttpInfo(
+                    parameters.get("team_id").asText(),
+                    parameters.has("page") ? parameters.get("page").asInt(1) : 1,
+                    parameters.has("page_size") ? parameters.get("page_size").asInt(20) : 20
+                );
+            case "teamSubTeams":
+                return api.teamSubTeamsWithHttpInfo(
+                    parameters.get("team_id").asText(),
+                    parameters.has("page") ? parameters.get("page").asInt(1) : 1,
+                    parameters.has("page_size") ? parameters.get("page_size").asInt(20) : 20
+                );
         }
         return null;
     }

@@ -1,0 +1,8 @@
+{
+  "operationId": "teamMembers",
+  "parameters": {
+    "team_id": "{{team_id}}"
+  },
+  "data": {},
+  "files": {}
+}

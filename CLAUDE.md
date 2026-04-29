@@ -12,13 +12,13 @@ tests/
   test_*.py              # pytest test files — use sdk_runner fixture
   utils/
     helpers_hsapi.py     # load_fixture(), run() (sends requests to containers), API helpers
-test_fixtures/           # JSON request templates with {{placeholder}} tokens
-  account/               # accountCreate, accountGet
-  api_app/               # apiAppCreate
-  embedded/              # embeddedSignUrl
-  signature_request/     # signatureRequestSend, signatureRequestCreateEmbedded
-  template/              # templateCreate, getTemplate, templateDelete
-  unclaimed_draft/       # unclaimedDraftCreateEmbedded, unclaimedDraftCreateEmbeddedSelfSign
+  fixtures/              # JSON request templates with {{placeholder}} tokens
+    account/             # accountCreate, accountGet
+    api_app/             # apiAppCreate
+    embedded/            # embeddedSignUrl
+    signature_request/   # signatureRequestSend, signatureRequestCreateEmbedded
+    template/            # templateCreate, getTemplate, templateDelete
+    unclaimed_draft/     # unclaimedDraftCreateEmbedded, unclaimedDraftCreateEmbeddedSelfSign
 adapters/
   dotnet/                # .NET SDK container (Dockerfile + Program.cs)
   java/                  # Java SDK container (Dockerfile + Requester.java)
@@ -61,7 +61,7 @@ Optional env vars: `CLIENT_ID`, `SDK_TESTER_RATE_LIMIT_RETRIES` (default 3), `SD
 
 ### Fixture files
 
-JSON files in `test_fixtures/` use `{{placeholder}}` tokens for dynamic values:
+JSON files in `tests/fixtures/` use `{{placeholder}}` tokens for dynamic values:
 
 ```json
 {
@@ -81,7 +81,7 @@ All fixtures follow the shape: `operationId`, `data`, `files`, `parameters`.
 
 Tests use the `sdk_runner` pytest fixture (defined in `conftest.py`) which bundles container_bin, sdk_language, uploads_dir, auth_type, auth_key, and server. It accepts:
 
-- **Fixture path** (str ending in `.json`) + placeholders dict — loads from `test_fixtures/`, replaces `{{tokens}}`
+- **Fixture path** (str ending in `.json`) + placeholders dict — loads from `tests/fixtures/`, replaces `{{tokens}}`
 - **Inline dict** — `json.dumps()` it directly
 - **Raw JSON string** — passes through as-is
 
@@ -120,7 +120,7 @@ def test_create_account(sdk_runner):
 
 ### load_fixture (helpers_hsapi.py)
 
-`load_fixture(fixture_path, placeholders)` — loads a JSON file relative to `test_fixtures/`, replaces `{{placeholder}}` tokens, raises `ValueError` on unfilled placeholders, validates JSON.
+`load_fixture(fixture_path, placeholders)` — loads a JSON file relative to `tests/fixtures/`, replaces `{{placeholder}}` tokens, raises `ValueError` on unfilled placeholders, validates JSON.
 
 ## API reference
 

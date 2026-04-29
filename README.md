@@ -38,7 +38,7 @@ Firing a single request (no pytest) instead:
     --auth_type=apikey \
     --auth_key="$API_KEY" \
     --server=api.hellosign.com \
-    --json="${PWD}/test_fixtures/accounts/accountCreate-example_01.json"
+    --json="${PWD}/tests/fixtures/accounts/accountCreate-example_01.json"
 ```
 
 > **Safety**: the harness talks to the real Dropbox Sign API. Use an API key
@@ -169,7 +169,7 @@ Using a JSON file:
     --sdk=php \
     --auth_type=apikey \
     --auth_key=$HS_API_KEY \
-    --json="${PWD}/test_fixtures/accounts/accountCreate-example_01.json"
+    --json="${PWD}/tests/fixtures/accounts/accountCreate-example_01.json"
 ```
 
 Using a base64-encoded JSON string:
@@ -367,7 +367,7 @@ Send a signature request with multiple file uploads:
 }
 ```
 
-More examples live under `[./test_fixtures](./test_fixtures)`.
+More examples live under `[./tests/fixtures](./tests/fixtures)`.
 
 ## Response shape
 

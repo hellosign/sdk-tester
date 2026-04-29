@@ -10,8 +10,7 @@ import requests
 from string import Template, ascii_lowercase, digits
 import base64
 
-_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-_FIXTURES_DIR = os.path.join(_PROJECT_ROOT, 'test_fixtures')
+_FIXTURES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'fixtures'))
 _PLACEHOLDER_RE = re.compile(r'\{\{(\w+)\}\}')
 
 
@@ -21,7 +20,7 @@ def load_fixture(fixture_path, placeholders=None):
     Parameters
     ----------
     fixture_path : str
-        Path relative to ``test_fixtures/``,
+        Path relative to ``tests/fixtures/``,
         e.g. ``"signature_request/signatureRequestSend.json"``.
     placeholders : dict[str, str] | None
         Mapping of placeholder names to runtime values.

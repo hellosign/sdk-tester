@@ -14,8 +14,6 @@ RUN apt-get update && \
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 RUN mkdir /file_uploads && \
-    mkdir /test_fixtures && \
-    mkdir /tests && \
     mkdir /app
 
 COPY ./composer.json /app/composer.json
@@ -27,5 +25,3 @@ RUN cd /app && \
 WORKDIR /app
 VOLUME /file_uploads
 VOLUME /app
-VOLUME /test_fixtures
-VOLUME /tests

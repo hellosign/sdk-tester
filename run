@@ -87,7 +87,7 @@ Example if using a JSON file:
         --sdk=php \\
         --auth_type=apikey \\
         --auth_key="\$HS_API_KEY" \\
-        --json="\$PWD/test_fixtures/accountCreate-example_01.json"
+        --json="\$PWD/tests/fixtures/account/accountCreate.json"
 
 Example if using a base64-encoded JSON string
 (the blob decodes to {"operationId":"accountCreate","parameters":{},"data":{"email_address":"test_user@example.com"},"files":{}}):

@@ -439,6 +439,18 @@ class Requester
             );
         }
 
+        if ($this->operationId === 'signatureRequestEditEmbedded') {
+            $obj = DropboxSign\Model\SignatureRequestEditEmbeddedRequest::init(
+                $this->data,
+            );
+            $obj->setFiles($this->getFiles('files'));
+
+            return $api->signatureRequestEditEmbeddedWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
+            );
+        }
+
         if ($this->operationId === 'signatureRequestCreateEmbeddedWithTemplate') {
             $obj = DropboxSign\Model\SignatureRequestCreateEmbeddedWithTemplateRequest::init(
                 $this->data,
@@ -491,6 +503,18 @@ class Requester
         if ($this->operationId === 'signatureRequestRemove') {
             return $api->signatureRequestRemoveWithHttpInfo(
                 $this->parameters['signature_request_id'],
+            );
+        }
+
+        if ($this->operationId === 'signatureRequestEdit') {
+            $obj = DropboxSign\Model\SignatureRequestEditRequest::init(
+                $this->data,
+            );
+            $obj->setFiles($this->getFiles('files'));
+
+            return $api->signatureRequestEditWithHttpInfo(
+                $this->parameters['signature_request_id'],
+                $obj,
             );
         }
 
@@ -583,6 +607,28 @@ class Requester
 
             return $api->teamUpdateWithHttpInfo(
                 $obj,
+            );
+        }
+
+        if ($this->operationId === 'teamInfo') {
+            return $api->teamInfoWithHttpInfo(
+                $this->parameters['team_id'] ?? null,
+            );
+        }
+
+        if ($this->operationId === 'teamMembers') {
+            return $api->teamMembersWithHttpInfo(
+                $this->parameters['team_id'],
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
+            );
+        }
+
+        if ($this->operationId === 'teamSubTeams') {
+            return $api->teamSubTeamsWithHttpInfo(
+                $this->parameters['team_id'],
+                $this->parameters['page'] ?? 1,
+                $this->parameters['page_size'] ?? 20,
             );
         }
 

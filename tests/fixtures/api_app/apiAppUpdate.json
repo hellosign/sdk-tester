@@ -1,0 +1,13 @@
+{
+  "operationId": "apiAppUpdate",
+  "parameters": {
+    "client_id": "{{client_id}}"
+  },
+  "data": {
+    "name": "{{app_name}}",
+    "callback_url": "https://example.com/callback-updated"
+  },
+  "files": {
+    "custom_logo_file": "pdf-sample.pdf"
+  }
+}

@@ -226,6 +226,13 @@ class Requester
                 }
 
                 return api.SignatureRequestCreateEmbeddedWithHttpInfo(embeddedRequest);
+            case "signatureRequestEditEmbedded":
+                var editEmbeddedRequest = SignatureRequestEditEmbeddedRequest.Init(_data.ToString());
+                if (files != null)
+                {
+                    editEmbeddedRequest.Files = files;
+                }
+                return api.SignatureRequestEditEmbeddedWithHttpInfo(GetParamValue("signature_request_id"), editEmbeddedRequest);
             case "signatureRequestCreateEmbeddedWithTemplate":
                 var embeddedWithTemplateRequest = SignatureRequestCreateEmbeddedWithTemplateRequest.Init(_data.ToString());
                 if (files != null)
@@ -253,6 +260,13 @@ class Requester
                 return api.SignatureRequestRemindWithHttpInfo(GetParamValue("signature_request_id"), remindRequest);
             case "signatureRequestRemove":
                 return api.SignatureRequestRemoveWithHttpInfo(GetParamValue("signature_request_id"));
+            case "signatureRequestEdit":
+                var editRequest = SignatureRequestEditRequest.Init(_data.ToString());
+                if (files != null)
+                {
+                    editRequest.Files = files;
+                }
+                return api.SignatureRequestEditWithHttpInfo(GetParamValue("signature_request_id"), editRequest);
             case "signatureRequestSend":
                 var sendRequest = SignatureRequestSendRequest.Init(_data.ToString());
                 if (files != null)
@@ -295,6 +309,20 @@ class Requester
             case "teamUpdate":
                 var updateRequest = TeamUpdateRequest.Init(_data.ToString());
                 return api.TeamUpdateWithHttpInfo(updateRequest);
+            case "teamInfo":
+                return api.TeamInfoWithHttpInfo(GetParamValue("team_id"));
+            case "teamMembers":
+                return api.TeamMembersWithHttpInfo(
+                    GetParamValue("team_id"),
+                    int.Parse(GetParamValue("page", "1")),
+                    int.Parse(GetParamValue("page_size", "20"))
+                );
+            case "teamSubTeams":
+                return api.TeamSubTeamsWithHttpInfo(
+                    GetParamValue("team_id"),
+                    int.Parse(GetParamValue("page", "1")),
+                    int.Parse(GetParamValue("page_size", "20"))
+                );
         }
         return null;
     }

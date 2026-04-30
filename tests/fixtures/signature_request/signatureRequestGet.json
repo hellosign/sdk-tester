@@ -1,0 +1,8 @@
+{
+  "operationId": "signatureRequestGet",
+  "parameters": {
+    "signature_request_id": "{{signature_request_id}}"
+  },
+  "data": {},
+  "files": {}
+}

@@ -18,16 +18,10 @@ from string import Template, ascii_lowercase, digits
 @pytest.fixture(scope='module')
 def container_bin():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    print(f"dir path {dir_path}")
-
     container_bin = f'{dir_path}/run'
     return container_bin
-    #
 
-    # Grab the following from config file, environment, or somewhere else
-    #
 SUPPORTED_LANGUAGES = ("node", "php", "python", "ruby", "dotnet", "java")
-
 
 def _selected_languages():
     """Resolve the set of SDK languages to exercise.
@@ -62,10 +56,8 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture(scope='module')
 def uploads_dir():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    print(f"dir path {dir_path}")
     # Uploads directory, containing PDFs you may want to upload to the API
     uploads_dir = f'{dir_path}/tests/file_uploads'
-    print(f"File Upload directory : {uploads_dir}")
     return uploads_dir
 
 @pytest.fixture

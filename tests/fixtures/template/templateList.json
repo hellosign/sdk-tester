@@ -1,0 +1,9 @@
+{
+  "operationId": "templateList",
+  "parameters": {
+    "page": 1,
+    "page_size": 5
+  },
+  "data": {},
+  "files": {}
+}

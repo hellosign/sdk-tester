@@ -1,0 +1,8 @@
+{
+  "operationId": "teamAddMember",
+  "data": {
+    "email_address": "{{email_address}}"
+  },
+  "parameters": {},
+  "files": {}
+}

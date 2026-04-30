@@ -432,6 +432,19 @@ class Requester
       )
     end
 
+    if self.operation_id === 'signatureRequestEditEmbedded'
+      obj = Dropbox::Sign::SignatureRequestEditEmbeddedRequest.init(self.data)
+      obj.files = self.get_files('files')
+
+      return api.signature_request_edit_embedded_with_http_info(
+        self.parameters['signature_request_id'],
+        obj,
+        {
+          header_params: self.header_params,
+        }
+      )
+    end
+
     if self.operation_id === 'signatureRequestCreateEmbeddedWithTemplate'
       obj = Dropbox::Sign::SignatureRequestCreateEmbeddedWithTemplateRequest.init(self.data)
       obj.files = self.get_files('files')
@@ -498,6 +511,19 @@ class Requester
     if self.operation_id === 'signatureRequestRemove'
       return api.signature_request_remove_with_http_info(
         self.parameters['signature_request_id'],
+        {
+          header_params: self.header_params,
+        }
+      )
+    end
+
+    if self.operation_id === 'signatureRequestEdit'
+      obj = Dropbox::Sign::SignatureRequestEditRequest.init(self.data)
+      obj.files = self.get_files('files')
+
+      return api.signature_request_edit_with_http_info(
+        self.parameters['signature_request_id'],
+        obj,
         {
           header_params: self.header_params,
         }
@@ -602,6 +628,37 @@ class Requester
         obj,
         {
           header_params: self.header_params,
+        }
+      )
+    end
+
+    if self.operation_id === 'teamInfo'
+      return api.team_info_with_http_info(
+        {
+          header_params: self.header_params,
+          team_id: self.parameters['team_id'] || nil,
+        }
+      )
+    end
+
+    if self.operation_id === 'teamMembers'
+      return api.team_members_with_http_info(
+        self.parameters['team_id'],
+        {
+          header_params: self.header_params,
+          page: self.parameters['page'] || 1,
+          page_size: self.parameters['page_size'] || 20,
+        }
+      )
+    end
+
+    if self.operation_id === 'teamSubTeams'
+      return api.team_sub_teams_with_http_info(
+        self.parameters['team_id'],
+        {
+          header_params: self.header_params,
+          page: self.parameters['page'] || 1,
+          page_size: self.parameters['page_size'] || 20,
         }
       )
     end

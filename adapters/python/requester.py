@@ -307,6 +307,15 @@ class Requester(object):
 
             return api.signature_request_create_embedded_with_http_info(obj)
 
+        if self._operation_id == 'signatureRequestEditEmbedded':
+            obj = m.SignatureRequestEditEmbeddedRequest.init(self._data)
+            obj.files = self._get_files('files')
+
+            return api.signature_request_edit_embedded_with_http_info(
+                self._parameters.get('signature_request_id'),
+                obj,
+            )
+
         if self._operation_id == 'signatureRequestCreateEmbeddedWithTemplate':
             obj = m.SignatureRequestCreateEmbeddedWithTemplateRequest.init(self._data)
             obj.files = self._get_files('files')
@@ -347,6 +356,15 @@ class Requester(object):
         if self._operation_id == 'signatureRequestRemove':
             return api.signature_request_remove_with_http_info(
                 self._parameters.get('signature_request_id'),
+            )
+
+        if self._operation_id == 'signatureRequestEdit':
+            obj = m.SignatureRequestEditRequest.init(self._data)
+            obj.files = self._get_files('files')
+
+            return api.signature_request_edit_with_http_info(
+                self._parameters.get('signature_request_id'),
+                obj,
             )
 
         if self._operation_id == 'signatureRequestSend':
@@ -394,12 +412,31 @@ class Requester(object):
         if self._operation_id == 'teamRemoveMember':
             obj = m.TeamRemoveMemberRequest.init(self._data)
 
-            return api.team_update_with_http_info(obj)
+            return api.team_remove_member_with_http_info(obj)
 
         if self._operation_id == 'teamUpdate':
             obj = m.TeamUpdateRequest.init(self._data)
 
             return api.team_update_with_http_info(obj)
+
+        if self._operation_id == 'teamInfo':
+            return api.team_info_with_http_info(
+                team_id=self._parameters.get('team_id', None),
+            )
+
+        if self._operation_id == 'teamMembers':
+            return api.team_members_with_http_info(
+                self._parameters.get('team_id'),
+                page=self._parameters.get('page', None),
+                page_size=self._parameters.get('page_size', None),
+            )
+
+        if self._operation_id == 'teamSubTeams':
+            return api.team_sub_teams_with_http_info(
+                self._parameters.get('team_id'),
+                page=self._parameters.get('page', None),
+                page_size=self._parameters.get('page_size', None),
+            )
 
     def _template_api(self):
         api = apis.TemplateApi(self._api_client)

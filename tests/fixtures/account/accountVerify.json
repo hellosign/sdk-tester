@@ -1,0 +1,8 @@
+{
+  "operationId": "accountVerify",
+  "data": {
+    "email_address": "{{email_address}}"
+  },
+  "parameters": {},
+  "files": {}
+}

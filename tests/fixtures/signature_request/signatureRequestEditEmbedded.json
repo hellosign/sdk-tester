@@ -1,0 +1,29 @@
+{
+  "operationId": "signatureRequestEditEmbedded",
+  "parameters": {
+    "signature_request_id": "{{signature_request_id}}"
+  },
+  "data": {
+    "client_id": "{{client_id}}",
+    "signers": [
+      {
+        "email_address": "signer1@example.com",
+        "name": "Jack",
+        "order": 0
+      },
+      {
+        "email_address": "signer2@example.com",
+        "name": "Jill",
+        "order": 1
+      }
+    ],
+    "subject": "Updated Embedded NDA Subject",
+    "message": "Updated message - please sign this embedded document.",
+    "test_mode": true
+  },
+  "files": {
+    "files": [
+      "pdf-sample.pdf"
+    ]
+  }
+}

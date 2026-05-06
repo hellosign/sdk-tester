@@ -284,7 +284,7 @@ with open(path, 'w') as f:
     f.write('\n')
 PY
             sed_inplace \
-                -e 's|^COPY \./package.json /app/package.json$|COPY ./sdk-src /sdk-src\nCOPY ./package.json /app/package.json|' \
+                -e 's|^COPY \./package.json /app/package.json$|COPY ./sdk-src /sdk-src\nRUN cd /sdk-src \&\& npm install \&\& npm run build\nCOPY ./package.json /app/package.json|' \
                 "${ctx}/Dockerfile"
             ;;
         php)

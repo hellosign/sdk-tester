@@ -346,7 +346,7 @@ with open(path, 'w') as f:
     f.write(new_xml)
 PY
             sed_inplace \
-                -e 's|RUN cd /app && \\|RUN cd /sdk-src \&\& mvn install -DskipTests -q \&\& cd /app \&\&|' \
+                -e 's|RUN cd /app && \\|RUN cd /sdk-src \&\& mvn install -DskipTests -q \&\& cd /app \&\& \\|' \
                 "${ctx}/Dockerfile"
             sed_inplace \
                 -e 's|^COPY \./pom.xml /app/pom.xml$|COPY ./sdk-src /sdk-src\nCOPY ./pom.xml /app/pom.xml|' \

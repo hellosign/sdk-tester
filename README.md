@@ -51,6 +51,26 @@ Firing a single request (no pytest) instead:
 The pytest suite and helper utilities read the following variables. `./run`
 itself only takes CLI flags — it does not read env vars.
 
+Variables are automatically loaded from `.env.staging` via
+[pytest-dotenv](https://pypi.org/project/pytest-dotenv/) (configured in
+`pytest.ini`). To use a different env file, override the `env_files` option:
+
+```bash
+# Use a custom env file
+pytest --override-ini="env_files=.env.production" -svra tests/
+```
+
+A typical `.env.staging` looks like:
+
+```dotenv
+API_KEY=your_api_key_here
+SERVER=api.hellosign.com
+LANGUAGES=python,node
+CLIENT_ID=your_client_id
+```
+
+All `.env.*` files are gitignored — credentials stay local.
+
 
 | Variable                          | Scope        | Required | Default | Meaning                                                                                                                                  |
 | --------------------------------- | ------------ | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |

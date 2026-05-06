@@ -163,7 +163,7 @@ class Requester
                 var editUrlRequest = EmbeddedEditUrlRequest.Init(_data.ToString());
                 return api.EmbeddedEditUrlWithHttpInfo(GetParamValue("template_id"), editUrlRequest);
             case "embeddedSignUrl":
-                return api.EmbeddedSignUrlWithHttpInfo(GetParamValue("embeddedSignUrl"));
+                return api.EmbeddedSignUrlWithHttpInfo(GetParamValue("signature_id"));
         }
         return null;
     }

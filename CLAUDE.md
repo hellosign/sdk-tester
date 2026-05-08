@@ -140,7 +140,7 @@ def test_create_account(sdk_runner):
 The OpenAPI spec is the source of truth for operationIds, request schemas, and parameters when creating new fixtures and tests. Fetch the latest before use:
 
 ```bash
-curl -fsSL -o openapi.yaml https://raw.githubusercontent.com/hellosign/hellosign-openapi/main/openapi.yaml
+curl -fsSL -o openapi.yaml https://raw.githubusercontent.com/hellosign/hellosign-openapi/main/openapi-sdk.yaml
 ```
 
 The file is gitignored so it's always fetched fresh.

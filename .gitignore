@@ -16,7 +16,7 @@ adapters/ruby/Gemfile.lock
 **/*.pyc
 tests/__pycache__/*
 log
-openapi.yaml
+openapi*.yaml
 
 env
 .env.*

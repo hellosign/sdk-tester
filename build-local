@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+BASE_PATH="${1:-../openapi/hellosign-openapi/sdks}"
+JAVA_VERSION="${2:-v2}"
+
+./build --local "$BASE_PATH/dotnet" dotnet
+./build --local "$BASE_PATH/php" php
+./build --local "$BASE_PATH/node" node
+./build --local "$BASE_PATH/ruby" ruby
+./build --local "$BASE_PATH/python" python
+./build --local "$BASE_PATH/java-$JAVA_VERSION" java

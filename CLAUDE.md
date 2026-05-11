@@ -8,6 +8,7 @@ Language-agnostic test harness for Dropbox Sign OpenAPI SDKs. Each SDK runs insi
 conftest.py              # pytest fixtures: sdk_runner, get_clientid, etc.
 run                      # bash script that invokes SDK containers via docker
 build                    # bash script to build SDK Docker images
+build-local              # convenience script to build ALL SDKs from local source
 tests/
   test_*.py              # pytest test files — use sdk_runner fixture
   utils/
@@ -58,7 +59,14 @@ python -m pytest tests/ -v --co
 
 # Build with local SDK source for debugging
 ./build --local ../dropbox-sign-python python
+
+# Build ALL SDKs from local source (convenience wrapper)
+./build-local                                    # default: ../openapi/hellosign-openapi/sdks
+./build-local /path/to/sdks                      # custom base path
+./build-local /path/to/sdks v3                   # custom base path + java version suffix
 ```
+
+`build-local` expects SDKs at `<base_path>/<sdk>` and Java at `<base_path>/java-<version>` (default `java-v2`).
 
 Optional env vars: `CLIENT_ID`, `SDK_TESTER_RATE_LIMIT_RETRIES` (default 3), `SDK_TESTER_RATE_LIMIT_BACKOFF` (default 7s).
 

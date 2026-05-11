@@ -144,7 +144,7 @@ def sdk_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, se
 
 @pytest.fixture
 def sdk_retry_runner(container_bin, sdk_language, uploads_dir, auth_type, auth_key, server):
-    def _run(fixture_or_data, placeholders=None, expected_status=200, retries=5, retry_wait=2):
+    def _run(fixture_or_data, placeholders=None, expected_status=200, retries=6, retry_wait=2):
         import time
         json_str = _resolve_json(fixture_or_data, placeholders)
 

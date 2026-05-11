@@ -121,6 +121,7 @@ alias for `dotnet`). Examples:
 ./build --sdk-ref=v1.4.0 node        # pin node to a specific upstream ref
 ./build --sdk-ref=2.6.0 java         # pin java to a specific Maven Central release
 ./build --local ../dropbox-sign-python python   # build against a local SDK
+./build-local                        # build ALL SDKs from local source (see below)
 ```
 
 ### Where each SDK comes from
@@ -142,6 +143,20 @@ touched. `--local` does the same plus copies your local SDK into the context
 at `./sdk-src/` and rewrites the descriptor to reference `/sdk-src` inside the
 container (for Java it `mvn install`s the local SDK into the image-local Maven
 repo and pins the tester's `pom.xml` to the version in the local `pom.xml`).
+
+### Building all SDKs from local source with `./build-local`
+
+`./build-local` is a convenience wrapper that builds every SDK from a local
+source tree in one command:
+
+```bash
+./build-local                              # uses default path: ../openapi/hellosign-openapi/sdks
+./build-local /path/to/sdks                # custom base path
+./build-local /path/to/sdks v3             # custom base path + java version suffix
+```
+
+It expects each SDK to live at `<base_path>/<sdk>` (e.g. `../openapi/hellosign-openapi/sdks/python`).
+For Java it appends a version suffix (default `v2`), so the Java SDK is expected at `<base_path>/java-v2`.
 
 For Java, `./build java` with no `--sdk-ref` fetches
 `https://repo1.maven.org/maven2/com/dropbox/sign/dropbox-sign/maven-metadata.xml`
